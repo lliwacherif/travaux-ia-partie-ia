@@ -1,0 +1,30 @@
+id,name,description,user_id,is_system,created_at,updated_at,category,subcategory
+1221247a-8f1b-48a6-b44a-45966baca39e,Charpente,Charpente bois et métallique,,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🧱 GROS ŒUVRE,Charpente
+18512a57-9384-4e61-ae40-cd2100d8d037,Plomberie / Sanitaires,Installation et réparation des systèmes de plomberie et équipements sanitaires,,true,2025-07-29 13:28:31.310826+00,2025-11-19 13:24:36.914428+00,🛠️ SECOND ŒUVRE,Équipements techniques
+2d4265eb-a3b7-4b40-b16e-b8f6bde40bd1,Ouvertures / Fermetures,"Fenêtres, volets, stores, portes extérieures",,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🪟 MENUISERIES / FERMETURES,Ouvertures / Fermetures
+36379574-c8e0-4c76-b6ff-2d0c4e90b465,"Dépannage multiservices (plomberie, électricité, serrurerie...)",Dépannages urgents tous corps d'état,,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,⚙️ SERVICES COMPLÉMENTAIRES,Dépannage multiservices
+3b8a7f21-3bef-405f-ab48-0820b4be41a2,Couverture / Étanchéité,Travaux de couverture et étanchéité,,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🧱 GROS ŒUVRE,Couverture / Étanchéité
+3ef0d530-6c52-482f-8a00-d8f191c2d0e5,Portails et clôtures,"Portails, clôtures et automatismes",,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🪟 MENUISERIES / FERMETURES,Portails et clôtures
+3f8ab401-45dd-4880-84fa-210707660b8e,Domotique / Équipements techniques,"Domotique, VMC, ventilation et équipements de sécurité",,true,2025-07-31 13:16:26.848436+00,2025-11-19 13:24:36.914428+00,🛠️ SECOND ŒUVRE,EQUIPEMENTS TECHNIQUES
+5c49b532-d767-4d38-bcb1-c3b58e52b0d0,Façade,Façade et ravalement,,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🏡 EXTÉRIEUR / AMÉNAGEMENT,Façade
+64ac6f32-39e4-4666-ba10-1ba5f612a151,Traitement du bâtiment,"Traitement de l'humidité, infiltrations, champignons",,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,⚙️ SERVICES COMPLÉMENTAIRES,Traitement du bâtiment
+6d251a1e-3ab9-4ccb-a610-5b238e7aae64,Aménagement paysager,"Aménagements extérieurs, jardins, paysage",,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🏡 EXTÉRIEUR / AMÉNAGEMENT,Aménagement paysager
+7338b45b-2900-4028-be49-d3450ad14a4a,Agencement / Aménagement intérieur,Métier système pour tests QA - Agencement et aménagement intérieur,,true,2025-10-09 16:58:55.304434+00,2025-11-19 13:24:36.914428+00,🎨 FINITIONS / AMÉNAGEMENT,Agencement
+7adee654-a21a-490a-878f-aaef8927fe4c,Isolation thermique et phonique,Isolation thermique et acoustique,,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🛠️ SECOND ŒUVRE,Isolation thermique et phonique
+83bbbf37-f21e-406d-8c54-e6144839b296,Démolition,Démolition et curage,,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🧱 GROS ŒUVRE,Démolition
+87c7b95f-c264-4a61-a7fa-f90c296826a8,Maçonnerie,Travaux de maçonnerie générale,,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🧱 GROS ŒUVRE,Maçonnerie générale
+941febc8-d596-4f9a-82a3-0af0b154e5cf,Chauffage,Installation et maintenance de systèmes de chauffage,,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🛠️ SECOND ŒUVRE,Équipements techniques
+94fca71b-9b71-455c-b924-17afa76ef286,Électricité,Électricité générale,,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🛠️ SECOND ŒUVRE,Électricité
+aa02fe85-0172-4655-9543-0153dd47d842,Revêtements sols souples,"Lino, moquette, PVC et sols souples",,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🛠️ SECOND ŒUVRE,Revêtements sols
+aa5e359a-c8ca-4cdd-912f-ef7b1359db5c,Cloisons / Isolation / Plâtrerie,"cloisons sèches, isolation et plâtrerie",,true,2025-07-31 10:33:58.817662+00,2025-11-19 13:24:36.914428+00,🛠️ SECOND ŒUVRE,Cloisons / Isolation / Plâtrerie
+ae7192bc-8129-46c4-ae8d-a5d5e1346e37,VRD / Voirie / Réseaux divers,Voirie et réseaux divers,,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🏡 EXTÉRIEUR / AMÉNAGEMENT,VRD / Voirie / Réseaux divers
+b55c966e-a9cd-444f-86c5-8ab88e0e0aa6,Menuiseries,Menuiseries intérieures et extérieures,,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🛠️ SECOND ŒUVRE,Menuiseries
+bc727ba9-e212-4d3d-a980-96585f12ffa3,Terrasses / Balcons,"Terrasses, balcons, dalles sur plots",,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🏡 EXTÉRIEUR / AMÉNAGEMENT,Balcons / Terrasses
+bece0a63-f08a-4f0a-ab8a-4d680c865487,Piscine / Bien-être,"Piscine, spa, hammam",,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🏡 EXTÉRIEUR / AMÉNAGEMENT,Piscine / Bien-être
+c91a6dd4-464c-4c80-b1cd-8b2973b44f86,Revêtements murs,"Revêtements muraux : peinture, papiers peints, enduits décoratifs",,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🛠️ SECOND ŒUVRE,Revêtements murs
+cfdf2048-95ca-4c75-b279-83cb5f69cfdc,Béton / Structure,Gros œuvre et structures en béton armé,,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🧱 GROS ŒUVRE,Béton / Structure
+d1a0bcda-ccc3-4f0f-aadb-76910031ea90,Revêtements intérieurs,Revêtements intérieurs généraux,,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🛠️ SECOND ŒUVRE,Revêtements intérieurs
+d5c930da-35c4-4d80-9da4-50c017343aaa,Nettoyage technique,Nettoyage de fin de chantier et débarras,,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,⚙️ SERVICES COMPLÉMENTAIRES,Nettoyage technique
+f290d4b6-fd5d-448f-a023-182ab9767c4e,Parquet / Bois,"Pose de parquet massif, flottant, stratifié et revêtements bois",,true,2025-11-19 13:24:36.914428+00,2025-11-19 13:24:36.914428+00,🛠️ SECOND ŒUVRE,Revêtements sols
+fa7512ef-49e2-47ad-b080-d0b4252ccc7f,Climatisation,Installation et maintenance de systèmes de climatisation,,true,2025-07-31 12:38:05.375028+00,2025-11-19 13:24:36.914428+00,🛠️ SECOND ŒUVRE,Équipements techniques
+fc2b8e2e-41ce-487b-a194-0199451e9747,Métallerie / Serrurerie,Métallerie et serrurerie,,true,2025-07-29 12:27:09.632144+00,2025-11-19 13:24:36.914428+00,🛠️ SECOND ŒUVRE,Métallerie / Serrurerie

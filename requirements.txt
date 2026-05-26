@@ -1,0 +1,27 @@
+# ---------------------------------------------------------------------------
+# AI-driven Devis Generation API - Python dependencies
+# Python: >= 3.11 recommended
+# ---------------------------------------------------------------------------
+
+# Web framework & ASGI server
+fastapi>=0.131.0,<1.0.0
+uvicorn[standard]>=0.32.0,<1.0.0
+
+# ORM + migrations + async PostgreSQL driver
+sqlalchemy[asyncio]>=2.0.48,<2.1.0
+alembic>=1.13.0,<2.0.0
+asyncpg>=0.30.0,<1.0.0
+psycopg2-binary>=2.9.9,<3.0.0
+
+# Data validation & settings
+pydantic>=2.13.0,<3.0.0
+pydantic-settings>=2.7.0,<3.0.0
+
+# LLM provider
+openai>=1.50.0,<2.0.0
+
+# Defensive JSON parsing for LLM output (handles malformed JSON robustly)
+json-repair>=0.30.0,<1.0.0
+
+# Environment variables
+python-dotenv>=1.0.1,<2.0.0
