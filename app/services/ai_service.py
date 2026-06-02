@@ -487,6 +487,7 @@ class AIService:
             await on_progress(3, PROGRESS_STEPS[2])
             
         lots = parsed.get("lots", [])
+        logger.info("AI returned %d lots: %s", len(lots), [l.get("metier", "?") for l in lots])
         client_type = parsed.get("client_type", "particulier")
         project_nature = parsed.get("project_nature", "renovation")
         four_blocks = process_ai_lots(lots, client_type, project_nature)
