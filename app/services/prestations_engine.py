@@ -217,29 +217,43 @@ def process_ai_lots(lots: List[Dict[str, Any]], client_type: str = "particulier"
         global_tva
     )
 
+    def _map_lines(lines_in: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        out = []
+        for i, l in enumerate(lines_in, 1):
+            tva = l.get("tva", 10.0)
+            ht = l.get("total_ht", 0.0)
+            out.append({
+                "num": i,
+                "description": l.get("designation", ""),
+                "qte": l.get("quantite", 1.0),
+                "unit": l.get("unite", "forfait"),
+                "pu": l.get("pu_ht", 0.0),
+                "tva": tva,
+                "ht": ht,
+                "ttc": round(ht * (1 + tva / 100.0), 2)
+            })
+        return out
+
     # Assemble the final strict structure
     final_blocks = []
     
     # 1. Mise en place
     final_blocks.append({
         "title": "Mise en place et préparation",
-        "sub_categories": [{"sub_label": "Préparation", "lines": global_mise_en_place_lines}],
-        "total_lot_ht": round(sum(l.get("total_ht", 0) for l in global_mise_en_place_lines), 2)
+        "lots": [{"title": "Préparation", "lignes": _map_lines(global_mise_en_place_lines)}]
     })
     
     # 2..K. Interventions
     for block in intervention_blocks:
         final_blocks.append({
             "title": block["title"],
-            "sub_categories": [{"sub_label": "Travaux principaux", "lines": block["lines"]}],
-            "total_lot_ht": round(sum(l.get("total_ht", 0) for l in block["lines"]), 2)
+            "lots": [{"title": "Travaux principaux", "lignes": _map_lines(block["lines"])}]
         })
         
     # K+1. Finition
     final_blocks.append({
         "title": "Finition et nettoyage",
-        "sub_categories": [{"sub_label": "Nettoyage", "lines": global_finition_lines}],
-        "total_lot_ht": round(sum(l.get("total_ht", 0) for l in global_finition_lines), 2)
+        "lots": [{"title": "Nettoyage", "lignes": _map_lines(global_finition_lines)}]
     })
     
     return final_blocks

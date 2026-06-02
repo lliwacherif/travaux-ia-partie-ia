@@ -70,7 +70,7 @@ class Bloc(BaseModel):
 class DevisResponse(BaseModel):
     """Top-level response returned by the devis generation endpoint."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="ignore")
 
     date: datetime = Field(..., description="Creation date of the devis.")
     montant_ttc: float = Field(..., description="Total amount of the devis, incl. tax.")

@@ -491,19 +491,26 @@ class AIService:
         project_nature = parsed.get("project_nature", "renovation")
         four_blocks = process_ai_lots(lots, client_type, project_nature)
         
+        from datetime import datetime, timedelta, timezone
+
         # Flat lines for global totals
         flat_lines = []
         for b in four_blocks:
-            for sub in b.get("sub_categories", []):
-                flat_lines.extend(sub.get("lines", []))
+            for lot in b.get("lots", []):
+                flat_lines.extend(lot.get("lignes", []))
                 
         totals = calculate_global_totals(flat_lines)
+        
+        now = datetime.now(timezone.utc)
 
         devis = {
-            "title": "Devis Estimatif (V2 Deterministic)",
-            "blocks": four_blocks,
-            "montant_ht": totals["total_ht"],
+            "date": now.isoformat(),
+            "validite": (now + timedelta(days=30)).isoformat(),
+            "duree": 30,
             "montant_ttc": totals["total_ttc"],
+            "blocs": four_blocks,
+            # We keep these for the frontend, but we'll need to remove extra="forbid" in schema
+            "montant_ht": totals["total_ht"],
             "tva_breakdown": totals["tva_breakdown"]
         }
 
