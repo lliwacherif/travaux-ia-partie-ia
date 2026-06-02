@@ -41,6 +41,15 @@ class Line(BaseModel):
     pu_ht: float = Field(..., description="Unit price (prix unitaire), excl. tax.")
     tva: float = Field(..., description="VAT rate, in percent.")
     total_ht: float = Field(..., description="Total excl. tax for the line.")
+    
+    # Legacy V1 fields (for frontend backward compatibility during transition)
+    num: int | None = Field(default=None)
+    description: str | None = Field(default=None)
+    qte: float | None = Field(default=None)
+    unit: str | None = Field(default=None)
+    pu: float | None = Field(default=None)
+    ht: float | None = Field(default=None)
+    ttc: float | None = Field(default=None)
 
 
 class SubCategory(BaseModel):

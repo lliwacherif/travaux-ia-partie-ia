@@ -228,12 +228,21 @@ def process_ai_lots(lots: List[Dict[str, Any]], client_type: str = "particulier"
             tva = l.get("tva", 10.0)
             ht = l.get("total_ht", 0.0)
             out.append({
+                # V2 keys
                 "designation": l.get("designation", ""),
                 "quantite": l.get("quantite", 1.0),
                 "unite": l.get("unite", "forfait"),
                 "pu_ht": l.get("pu_ht", 0.0),
                 "tva": tva,
-                "total_ht": ht
+                "total_ht": ht,
+                # Legacy V1 keys (in case the frontend calculation still uses them)
+                "num": i,
+                "description": l.get("designation", ""),
+                "qte": l.get("quantite", 1.0),
+                "unit": l.get("unite", "forfait"),
+                "pu": l.get("pu_ht", 0.0),
+                "ht": ht,
+                "ttc": round(ht * (1 + tva / 100.0), 2)
             })
         return out
 
