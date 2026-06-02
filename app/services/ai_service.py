@@ -40,6 +40,7 @@ from app.services.prestations_engine import process_ai_lots, calculate_global_to
 from app.schemas.devis import DevisResponse
 from app.services.catalog_service import build_trade_line_context
 from app.services.devis_repair import UnrepairableDevisError
+from app.core.metier_rules import ALL_METIER_RULES
 
 logger = logging.getLogger(__name__)
 
@@ -472,7 +473,13 @@ class AIService:
         if on_progress is not None:
             await on_progress(2, PROGRESS_STEPS[1])
             
-        raw = await self._chat(SYSTEM_PROMPT_GENERATOR, user_text)
+        catalog_str = "\\n".join(
+            f"- Métier: {cat_data['metier']}\\n  Packs: {', '.join(cat_data['rules'].keys())}"
+            for cat_data in ALL_METIER_RULES.values()
+        )
+        prompt = SYSTEM_PROMPT_GENERATOR.replace("{catalog}", catalog_str)
+            
+        raw = await self._chat(prompt, user_text)
         parsed = clean_and_parse_json(raw)
         
         # Step 3: Calculation (Deterministic engine)

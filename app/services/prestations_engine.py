@@ -60,9 +60,40 @@ def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, defau
     elif len(lines) < target_count:
         needed = target_count - len(lines)
         padded = list(lines)
+        
+        # Pick specific generic labels based on the default designation to avoid nonsensical phrasing
+        if "Mise en place" in default_designation:
+            generic_labels = [
+                "Balisage et sécurisation de la zone de travail",
+                "Mise en place des protections au sol et murales",
+                "Acheminement de l'outillage et préparation du poste",
+                "Vérification des supports et repérages initiaux"
+            ]
+        elif "Nettoyage" in default_designation:
+            generic_labels = [
+                "Évacuation des gravats et déchets résiduels",
+                "Nettoyage approfondi de la zone d'intervention",
+                "Retrait des protections et remise en ordre",
+                "Réception technique et contrôle final"
+            ]
+        else:
+            generic_labels = [
+                "Préparation et traitement ponctuel du support",
+                "Découpes, ajustements et façonnage sur mesure",
+                "Fourniture des petits consommables et fixations",
+                "Vérification des niveaux, aplombs et équerrages",
+                "Manutention et approvisionnement à pied d'œuvre",
+                "Traitement des joints et raccords",
+                "Protection spécifique des ouvrages attenants",
+                "Contrôle qualité et essais de fonctionnement",
+                "Acheminement et gestion des gravats intermédiaires",
+                "Finition et retouches de peinture"
+            ]
+        
         for i in range(needed):
+            label_suffix = generic_labels[i] if i < len(generic_labels) else f"Prestation annexe {i+1}"
             padded.append({
-                "designation": f"{default_designation} (Complément structorel {i+1})",
+                "designation": f"{default_designation} - {label_suffix}",
                 "unite": "forfait",
                 "quantite": 1,
                 "pu_ht": 0.0,
@@ -117,7 +148,10 @@ def process_ai_lots(lots: List[Dict[str, Any]], client_type: str = "particulier"
             
             if pack_lines_def:
                 for line_key, rule in pack_lines_def.items():
-                    designation = rule.get("description", line_key)
+                    # Format designation nicely: e.g. "carrelage_m2 (+10% coupes/chutes)"
+                    desc = rule.get("description", "")
+                    clean_key = line_key.replace("_m2", "").replace("_ml", "").replace("_u", "").replace("_kg", "").replace("_l", "").replace("_m3", "").capitalize()
+                    designation = f"{clean_key} ({desc})" if desc else clean_key
                     tva = _get_tva(metier, designation, client_type, project_nature)
                     
                     qte_calc = safe_eval_formula(rule["formula"], {"surface": quantite_brute, "longueur": quantite_brute, "hauteur": 2.5})

@@ -23,7 +23,10 @@ RÈGLES FONDAMENTALES :
 - Si 1 métier réel → 1 lot
 - Si N métiers réels → N lots
 - Ne jamais créer un lot technique auxiliaire
-- Ne jamais inventer un pack qui n'existe pas dans l'index fourni
+- Ne jamais inventer un pack qui n'existe pas dans l'index fourni.
+
+CATALOGUE DISPONIBLE (Utilise UNIQUEMENT ces IDs de packs) :
+{catalog}
 
 RÈGLE TYPE (OBLIGATOIRE) :
 - Si le pack commence par "DEP-" → type = "DEPANNAGE"
