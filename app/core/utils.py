@@ -1,6 +1,6 @@
 """Defensive JSON utilities for LLM output.
 
-``gpt-oss-120b`` (served via Scaleway) returns raw text that frequently:
+LLM models return raw text that frequently:
 
 * wraps the JSON payload in a ```` ```json ... ``` ```` markdown fence,
 * appends leading / trailing whitespace or narration,

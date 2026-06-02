@@ -1,8 +1,7 @@
-"""Two-stage devis generation pipeline backed by Scaleway's Generative API.
+"""Two-stage devis generation pipeline backed by OpenAI's Chat Completions API.
 
-The service drives an OpenAI-compatible chat completions endpoint hosted by
-Scaleway (``gpt-oss-120b``). The public entry point is
-:meth:`AIService.generate_quote`, which runs:
+The service drives the OpenAI chat completions endpoint. The public entry
+point is :meth:`AIService.generate_quote`, which runs:
 
 * **Stage 1 - Routing.** The ``TRADE_DETECTION_PROMPT`` classifies the user's
   free-form text and returns a small JSON object describing whether the
@@ -203,25 +202,19 @@ def _format_retry_error(exc: Exception) -> str:
 
 
 class AIService:
-    """High-level client for the Scaleway-hosted devis generation pipeline."""
+    """High-level client for the OpenAI-backed devis generation pipeline."""
 
     # Lifted out of the call site so tests can monkey-patch a single dict.
     #
-    # NOTE on ``max_tokens``: the original spec mandated 2048. With
-    # ``reasoning_effort="medium"`` and a long system prompt (F+P math,
-    # OBAT hierarchy, 2025 pricing matrix, TVA decision tree, retry
-    # feedback), 2048 ran out on hidden reasoning tokens and produced
-    # *empty* completions. 4096 was still tight for 15-20 detailed lines.
-    # 8192 gives the reasoner enough headroom plus a generous answer
-    # budget while staying well within Scaleway's per-request limits.
+    # NOTE on ``max_tokens``: 8192 gives enough headroom for the detailed
+    # devis JSON output (15-20 lines with descriptions, prices, TVA) plus
+    # the structured prompt context.
     _COMPLETION_PARAMS: Final[dict[str, Any]] = {
         "max_tokens": 8192,
         "temperature": 1,
         "top_p": 1,
         "presence_penalty": 0,
         "stream": False,
-        "reasoning_effort": "medium",
-        "response_format": {"type": "text"},
     }
 
     # How many Stage-2 attempts before giving up. 1 initial + (N-1) retries.
@@ -236,10 +229,10 @@ class AIService:
         base_url: str | None = None,
         model: str | None = None,
     ) -> None:
-        self._model: str = model or settings.SCALEWAY_MODEL
+        self._model: str = model or settings.OPENAI_MODEL
         self._client: AsyncOpenAI = AsyncOpenAI(
-            api_key=api_key or settings.SCALEWAY_API_KEY,
-            base_url=base_url or str(settings.SCALEWAY_BASE_URL),
+            api_key=api_key or settings.OPENAI_API_KEY,
+            base_url=base_url or "https://api.openai.com/v1",
         )
 
     # ------------------------------------------------------------------
@@ -248,6 +241,7 @@ class AIService:
     async def aclose(self) -> None:
         """Release the underlying httpx client. Call on app shutdown."""
         await self._client.close()
+
 
     # ------------------------------------------------------------------
     # Low-level call
@@ -264,15 +258,15 @@ class AIService:
                 **self._COMPLETION_PARAMS,
             )
         except APIError as exc:
-            logger.exception("Scaleway AI call failed.")
-            raise AIServiceError(f"Scaleway API error: {exc}") from exc
+            logger.exception("OpenAI API call failed.")
+            raise AIServiceError(f"OpenAI API error: {exc}") from exc
 
         if not response.choices:
-            raise AIServiceError("Scaleway AI returned no choices.")
+            raise AIServiceError("OpenAI returned no choices.")
 
         content = response.choices[0].message.content
         if not content:
-            raise AIServiceError("Scaleway AI returned an empty completion.")
+            raise AIServiceError("OpenAI returned an empty completion.")
         return content
 
     # ------------------------------------------------------------------
@@ -450,15 +444,12 @@ class AIService:
     ) -> str:
         """Run the chatbot pipeline and return the generated text response.
 
-        Uses the `gpt-oss-120b` model and the `CHATBOT_PROMPT` system context.
+        Uses the configured OpenAI model and the `CHATBOT_PROMPT` system context.
         """
         user_text = user_text.strip()
         if not user_text:
             raise ValueError("`user_text` must not be empty.")
 
-        # Re-use the existing completion params, but we can explicitly set them
-        # just in case we need overrides (like max_tokens). The default is already 8192.
-        # It's an open text-in / text-out generation.
         try:
             response = await self._client.chat.completions.create(
                 model=self._model,
@@ -471,19 +462,17 @@ class AIService:
                 top_p=1,
                 presence_penalty=0,
                 stream=False,
-                reasoning_effort="medium",
-                response_format={"type": "text"},
             )
         except APIError as exc:
-            logger.exception("Scaleway AI chat call failed.")
-            raise AIServiceError(f"Scaleway API error: {exc}") from exc
+            logger.exception("OpenAI chat call failed.")
+            raise AIServiceError(f"OpenAI API error: {exc}") from exc
 
         if not response.choices:
-            raise AIServiceError("Scaleway AI returned no choices.")
+            raise AIServiceError("OpenAI returned no choices.")
 
         content = response.choices[0].message.content
         if not content:
-            raise AIServiceError("Scaleway AI returned an empty completion.")
+            raise AIServiceError("OpenAI returned an empty completion.")
         return content
 
     async def generate_quote_stream(

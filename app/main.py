@@ -26,7 +26,7 @@ from app import models  # noqa: F401
 async def lifespan(_: FastAPI):
     """Startup / shutdown hooks.
 
-    On shutdown we release the shared Scaleway AI client so in-flight httpx
+    On shutdown we release the shared OpenAI client so in-flight httpx
     connections are closed cleanly.
     """
     try:

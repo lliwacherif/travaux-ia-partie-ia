@@ -50,27 +50,28 @@ class Settings(BaseSettings):
     DB_POOL_SIZE: int = 10
     DB_MAX_OVERFLOW: int = 20
 
-    # ---------------------------- Scaleway AI ------------------------------
-    # The ``openai`` Python SDK is pointed at Scaleway's OpenAI-compatible
-    # Generative API. The key and base URL come from the Scaleway console:
-    # https://console.scaleway.com/generative-api
-    SCALEWAY_API_KEY: str = Field(
+    # ---------------------------- OpenAI (active provider) ------------------
+    # The ``openai`` Python SDK is pointed at the official OpenAI API.
+    OPENAI_API_KEY: str = Field(
         default="",
-        description="Scaleway Generative API key used for gpt-oss-120b calls.",
+        description="OpenAI API key used for all LLM calls.",
     )
+    OPENAI_MODEL: str = Field(
+        default="gpt-4o-mini",
+        description="Default OpenAI model id used by the AI service.",
+    )
+
+    # ---------------------------- Scaleway AI (legacy) ---------------------
+    # Kept for backward-compatibility. The active provider is OpenAI above.
+    SCALEWAY_API_KEY: str = Field(default="")
     SCALEWAY_BASE_URL: HttpUrl = Field(
         default="https://api.scaleway.ai/v1",  # type: ignore[assignment]
         description="OpenAI-compatible base URL of the Scaleway AI endpoint.",
     )
     SCALEWAY_MODEL: str = Field(
         default="gpt-oss-120b",
-        description="Default Scaleway model id used by the AI service.",
+        description="Legacy Scaleway model id.",
     )
-
-    # ---------------------------- OpenAI (legacy) --------------------------
-    # Kept for backward-compatibility. The active provider is Scaleway above.
-    OPENAI_API_KEY: str = Field(default="")
-    OPENAI_MODEL: str = "gpt-4o-mini"
 
     # ---------------------------- CORS -------------------------------------
     BACKEND_CORS_ORIGINS: list[str] = Field(default_factory=list)
