@@ -30,24 +30,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.prompts import (
-    PRESTATION_ANALYSIS_PROMPT,
-    PRESTATION_ANALYSIS_RETRY_SUFFIX,
-    TRADE_DETECTION_PROMPT,
+    SYSTEM_PROMPT_GENERATOR,
     TRADE_LINE_PROMPT,
-    CHATBOT_PROMPT,
+    CHATBOT_PROMPT
 )
 from app.core.utils import JSONHealingError, clean_and_parse_json
+from app.core.btp_validator import validate_btp_context
+from app.services.prestations_engine import process_ai_lots, calculate_global_totals
 from app.schemas.devis import DevisResponse
-from app.services.catalog_service import (
-    build_rag_context,
-    build_trade_line_context,
-    load_trade_names,
-)
-from app.services.devis_repair import UnrepairableDevisError, repair_devis_payload
-from app.services.upsell_engine import apply_upsell_rules
+from app.services.catalog_service import build_trade_line_context
+from app.services.devis_repair import UnrepairableDevisError
 
 logger = logging.getLogger(__name__)
-
 
 class InvalidBuildingRequestError(ValueError):
     """Raised when Stage 1 classifies the request as out-of-scope."""
@@ -270,98 +264,7 @@ class AIService:
         return content
 
     # ------------------------------------------------------------------
-    # Stage 1 - Routing / trade detection
-    # ------------------------------------------------------------------
-    async def _detect_trades(
-        self,
-        user_text: str,
-        available_trades: list[str],
-    ) -> dict[str, Any]:
-        """Classify the user's request and extract the trades involved."""
-        trades_list = ", ".join(available_trades) if available_trades else ""
-        prompt = TRADE_DETECTION_PROMPT.replace("{trades_list}", trades_list)
-        raw = await self._chat(prompt, user_text)
-        return clean_and_parse_json(raw)
-
-    # ------------------------------------------------------------------
-    # Stage 2 - Devis generation
-    # ------------------------------------------------------------------
-    async def _generate_devis(
-        self,
-        user_text: str,
-        rag_context: str,
-        db: AsyncSession,
-        *,
-        request_type: str,
-        interventions: list[str],
-    ) -> dict[str, Any]:
-        """Produce the full devis JSON from the user's request + RAG context.
-
-        Reliability strategy (in order, on every attempt):
-
-        1. Call the LLM.
-        2. Run the multi-stage parser (``clean_and_parse_json``): strict ->
-           hand-rolled healer -> ``json_repair`` fallback.
-        3. Run the domain repair (``repair_devis_payload``): rebuild missing
-           ``ht`` / ``ttc``, drop unsalvageable lines, recompute
-           ``montant_ttc``.
-        4. Run the upsell engine (``apply_upsell_rules``): inject required
-           complements (toiture/évacuation, carrelage/ragréage), auto-fill
-           any line whose ``pu`` is 0 from the catalog, then recompute
-           ``montant_ttc`` once more if anything changed.
-        5. Validate against ``DevisResponse``. If validation fails we
-           retry with the error fed back to the model so it can fix it.
-
-        Up to :attr:`_STAGE2_MAX_ATTEMPTS` calls are made. The last error
-        is re-raised when every attempt has been exhausted.
-        """
-        base_prompt = (
-            PRESTATION_ANALYSIS_PROMPT
-            .replace("{database_rag_context}", rag_context)
-            .replace("{request_type}", request_type)
-            .replace(
-                "{interventions_block}",
-                _format_interventions_block(interventions, user_text),
-            )
-        )
-
-        last_exc: Exception | None = None
-        for attempt in range(1, self._STAGE2_MAX_ATTEMPTS + 1):
-            prompt = base_prompt
-            if attempt > 1 and last_exc is not None:
-                prompt = base_prompt + PRESTATION_ANALYSIS_RETRY_SUFFIX.replace(
-                    "{error}", _format_retry_error(last_exc)
-                )
-
-            try:
-                raw = await self._chat(prompt, user_text)
-                parsed = clean_and_parse_json(raw)
-                repaired = repair_devis_payload(parsed)
-                repaired = await apply_upsell_rules(repaired, db)
-                # Pydantic validation lives in the loop so a bad shape
-                # also triggers a retry, not just unparseable JSON.
-                DevisResponse.model_validate(repaired)
-                if attempt > 1:
-                    logger.info("Stage 2 succeeded on attempt %d.", attempt)
-                return repaired
-            except (
-                AIServiceError,
-                JSONHealingError,
-                UnrepairableDevisError,
-                ValidationError,
-            ) as exc:
-                last_exc = exc
-                logger.warning(
-                    "Stage 2 attempt %d/%d failed (%s): %s",
-                    attempt,
-                    self._STAGE2_MAX_ATTEMPTS,
-                    type(exc).__name__,
-                    _short(str(exc)),
-                )
-
-        # All attempts exhausted - re-raise the last error.
-        assert last_exc is not None  # for the type checker
-        raise last_exc
+    # (Obsolete _detect_trades and _generate_devis methods removed for V2)
 
     # ------------------------------------------------------------------
     # Public API
@@ -559,55 +462,44 @@ class AIService:
         if not user_text:
             raise ValueError("`user_text` must not be empty.")
 
-        # Step 1: routing / trade classification.
+        # Step 1: BTP Guardrail
         if on_progress is not None:
             await on_progress(1, PROGRESS_STEPS[0])
-        available_trades = await load_trade_names(db)
-        logger.debug("Loaded %d trade names from DB.", len(available_trades))
-
-        routing = await self._detect_trades(user_text, available_trades)
-        logger.info("Trade detection payload: %s", routing)
-        if not routing.get("isValidBuildingRequest", False):
-            raise InvalidBuildingRequestError(
-                routing.get("analysis")
-                or "The request was not recognised as a building-related query."
-            )
-        detected: list[str] = routing.get("detectedTrades") or []
-        request_type: str = _normalise_request_type(routing.get("requestType"))
-        raw_interventions = routing.get("interventions") or []
-        interventions: list[str] = (
-            list(raw_interventions) if isinstance(raw_interventions, list) else []
-        )
-        logger.info(
-            "Routing: requestType=%s, %d interventions, %d trades.",
-            request_type,
-            len(interventions),
-            len(detected),
-        )
-
-        # Step 2: build the trade-scoped RAG context.
+        
+        validate_btp_context(user_text)
+        
+        # Step 2: Generation (Semantic Mapping)
         if on_progress is not None:
             await on_progress(2, PROGRESS_STEPS[1])
-        rag_context = await build_rag_context(db, trade_names=detected)
-        logger.debug(
-            "RAG context is %d chars (%d trades scoping the retrieval).",
-            len(rag_context),
-            len(detected),
-        )
-
-        # Step 3: generation (the slow LLM call + parse + repair + upsell).
+            
+        raw = await self._chat(SYSTEM_PROMPT_GENERATOR, user_text)
+        parsed = clean_and_parse_json(raw)
+        
+        # Step 3: Calculation (Deterministic engine)
         if on_progress is not None:
             await on_progress(3, PROGRESS_STEPS[2])
-        devis = await self._generate_devis(
-            user_text,
-            rag_context,
-            db,
-            request_type=request_type,
-            interventions=interventions,
-        )
+            
+        lots = parsed.get("lots", [])
+        client_type = parsed.get("client_type", "particulier")
+        project_nature = parsed.get("project_nature", "renovation")
+        four_blocks = process_ai_lots(lots, client_type, project_nature)
+        
+        # Flat lines for global totals
+        flat_lines = []
+        for b in four_blocks:
+            for sub in b.get("sub_categories", []):
+                flat_lines.extend(sub.get("lines", []))
+                
+        totals = calculate_global_totals(flat_lines)
 
-        # Step 4: heartbeat right before emitting the result so the UI
-        # has time to swap the spinner to the "almost done" label.
+        devis = {
+            "title": "Devis Estimatif (V2 Deterministic)",
+            "blocks": four_blocks,
+            "montant_ht": totals["total_ht"],
+            "montant_ttc": totals["total_ttc"],
+            "tva_breakdown": totals["tva_breakdown"]
+        }
+
         if on_progress is not None:
             await on_progress(4, PROGRESS_STEPS[3])
 
