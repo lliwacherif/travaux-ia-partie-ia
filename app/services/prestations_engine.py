@@ -92,13 +92,14 @@ def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, defau
         
         for i in range(needed):
             label_suffix = generic_labels[i] if i < len(generic_labels) else f"Prestation annexe {i+1}"
+            mock_pu = 75.0 if "Nettoyage" in default_designation else 120.0
             padded.append({
                 "designation": f"{default_designation} - {label_suffix}",
                 "unite": "forfait",
                 "quantite": 1,
-                "pu_ht": 0.0,
+                "pu_ht": mock_pu,
                 "tva": tva,
-                "total_ht": 0.0
+                "total_ht": mock_pu
             })
         return padded
     return lines
@@ -176,15 +177,19 @@ def process_ai_lots(lots: List[Dict[str, Any]], client_type: str = "particulier"
                     else:
                         lot_intervention_lines.append(line_data)
             else:
-                fallback_designation = f"Prestation: {pack_id}"
+                clean_pack_id = str(pack_id).replace("_", " ").capitalize()
+                fallback_designation = f"Fourniture et pose : {clean_pack_id}"
                 tva = _get_tva(metier, fallback_designation, client_type, project_nature)
+                # Ensure we have a reasonable fallback price that scales
+                mock_pu = 150.0
+                total_ht = round(mock_pu * quantite_brute, 2)
                 lot_intervention_lines.append({
                     "designation": fallback_designation,
-                    "unite": "forfait",
-                    "quantite": 1,
-                    "pu_ht": 150.0,
+                    "unite": "forfait" if quantite_brute == 1 else "u",
+                    "quantite": quantite_brute,
+                    "pu_ht": mock_pu,
                     "tva": tva,
-                    "total_ht": 150.0
+                    "total_ht": total_ht
                 })
         
         # Enforce exact line count for THIS intervention block
@@ -264,7 +269,7 @@ def calculate_global_totals(lines: List[Dict[str, Any]]) -> Dict[str, Any]:
     
     for line in lines:
         rate = line.get("tva", 20.0)
-        tva_groups[rate] = tva_groups.get(rate, 0) + line.get("total_ht", 0)
+        tva_groups[rate] = tva_groups.get(rate, 0) + line.get("ht", 0)
         
     tva_breakdown = {}
     total_tva = 0
