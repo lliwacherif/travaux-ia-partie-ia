@@ -228,44 +228,37 @@ def process_ai_lots(lots: List[Dict[str, Any]], client_type: str = "particulier"
             tva = l.get("tva", 10.0)
             ht = l.get("total_ht", 0.0)
             out.append({
-                # V2 keys
-                "designation": l.get("designation", ""),
-                "quantite": l.get("quantite", 1.0),
-                "unite": l.get("unite", "forfait"),
-                "pu_ht": l.get("pu_ht", 0.0),
-                "tva": tva,
-                "total_ht": ht,
-                # Legacy V1 keys (in case the frontend calculation still uses them)
                 "num": i,
                 "description": l.get("designation", ""),
                 "qte": l.get("quantite", 1.0),
                 "unit": l.get("unite", "forfait"),
                 "pu": l.get("pu_ht", 0.0),
+                "tva": tva,
                 "ht": ht,
                 "ttc": round(ht * (1 + tva / 100.0), 2)
             })
         return out
 
-    # Assemble the final strict structure
+    # Assemble the final strict structure (V1 format: blocs/lots/lignes)
     final_blocks = []
     
     # 1. Mise en place
     final_blocks.append({
         "title": "Mise en place et préparation",
-        "sub_categories": [{"sub_label": "Préparation", "lines": _map_lines(global_mise_en_place_lines)}]
+        "lots": [{"title": "Préparation", "lignes": _map_lines(global_mise_en_place_lines)}]
     })
     
     # 2..K. Interventions
     for block in intervention_blocks:
         final_blocks.append({
             "title": block["title"],
-            "sub_categories": [{"sub_label": "Travaux principaux", "lines": _map_lines(block["lines"])}]
+            "lots": [{"title": "Travaux principaux", "lignes": _map_lines(block["lines"])}]
         })
         
     # K+1. Finition
     final_blocks.append({
         "title": "Finition et nettoyage",
-        "sub_categories": [{"sub_label": "Nettoyage", "lines": _map_lines(global_finition_lines)}]
+        "lots": [{"title": "Nettoyage", "lignes": _map_lines(global_finition_lines)}]
     })
     
     return final_blocks
@@ -276,7 +269,7 @@ def calculate_global_totals(lines: List[Dict[str, Any]]) -> Dict[str, Any]:
     
     for line in lines:
         rate = line.get("tva", 20.0)
-        tva_groups[rate] = tva_groups.get(rate, 0) + line.get("total_ht", 0)
+        tva_groups[rate] = tva_groups.get(rate, 0) + line.get("ht", 0)
         
     tva_breakdown = {}
     total_tva = 0

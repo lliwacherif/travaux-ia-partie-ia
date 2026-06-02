@@ -11,12 +11,11 @@ Shape overview::
     |-- date: datetime
     |-- montant_ttc: float
     |-- validite: datetime
-    |-- duree: str
+    |-- duree: int
     |-- blocs: list[Bloc]
           |-- title: str
           |-- lots: list[Lot]
                 |-- title: str
-                |-- ligne_ids: Optional[list[str]]
                 |-- lignes: list[Ligne]
                       |-- num, description, qte, unit, pu, tva, ht, ttc
 """
@@ -30,45 +29,41 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
-class Line(BaseModel):
-    """A single billable line inside a :class:`SubCategory`."""
+class Ligne(BaseModel):
+    """A single billable line inside a :class:`Lot`."""
 
     model_config = ConfigDict(extra="ignore")
 
-    designation: str = Field(..., description="Human-readable description of the work.")
-    quantite: float = Field(..., description="Quantity of units.")
-    unite: str = Field(..., description="Unit of measure.")
-    pu_ht: float = Field(..., description="Unit price (prix unitaire), excl. tax.")
+    num: int = Field(..., description="1-based line index within the lot.")
+    description: str = Field(..., description="Human-readable description of the work.")
+    qte: float = Field(..., description="Quantity of units.")
+    unit: str = Field(..., description="Unit of measure.")
+    pu: float = Field(..., description="Unit price (prix unitaire), excl. tax.")
     tva: float = Field(..., description="VAT rate, in percent.")
-    total_ht: float = Field(..., description="Total excl. tax for the line.")
-    
-    # Legacy V1 fields (for frontend backward compatibility during transition)
-    num: int | None = Field(default=None)
-    description: str | None = Field(default=None)
-    qte: float | None = Field(default=None)
-    unit: str | None = Field(default=None)
-    pu: float | None = Field(default=None)
-    ht: float | None = Field(default=None)
-    ttc: float | None = Field(default=None)
+    ht: float = Field(..., description="Total excl. tax for the line.")
+    ttc: float = Field(..., description="Total incl. tax for the line.")
 
 
-class SubCategory(BaseModel):
-    """A sub_category groups together several :class:`Line` for a given trade."""
+class Lot(BaseModel):
+    """A lot groups together several :class:`Ligne` for a given trade."""
 
     model_config = ConfigDict(extra="ignore")
 
-    sub_label: str = Field(..., description="Name of the trade / sub_category.")
-    lines: list[Line] = Field(..., description="Ordered list of billable lines.")
+    title: str = Field(..., description="Name of the trade / lot.")
+    ligne_ids: list[str] | None = Field(
+        default=None,
+        description="Optional catalog line identifiers referenced by this lot.",
+    )
+    lignes: list[Ligne] = Field(..., description="Ordered list of billable lines.")
 
 
-class Block(BaseModel):
-    """A block groups several :class:`SubCategory` (typically a floor or a zone)."""
+class Bloc(BaseModel):
+    """A bloc groups several :class:`Lot` (typically a floor or a zone)."""
 
     model_config = ConfigDict(extra="ignore")
 
-    title: str = Field(..., description="Name of the block.")
-    sub_categories: list[SubCategory] = Field(..., description="Ordered list of sub_categories inside the block.")
-    total_lot_ht: float = Field(default=0.0, description="Total amount for this block")
+    title: str = Field(..., description="Name of the bloc.")
+    lots: list[Lot] = Field(..., description="Ordered list of lots inside the bloc.")
 
 
 class DevisResponse(BaseModel):
@@ -76,10 +71,36 @@ class DevisResponse(BaseModel):
 
     model_config = ConfigDict(extra="ignore")
 
-    title: str = Field(..., description="Title of the devis.")
-    blocks: list[Block] = Field(..., description="Ordered list of blocks composing the devis.")
-    montant_ht: float = Field(..., description="Total amount of the devis, excl. tax.")
+    date: datetime = Field(..., description="Creation date of the devis.")
     montant_ttc: float = Field(..., description="Total amount of the devis, incl. tax.")
-    tva_breakdown: dict[str, Any] = Field(..., description="Breakdown of VAT by rate.")
+    validite: datetime = Field(..., description="End-of-validity date of the devis.")
+    duree: int = Field(..., description="Estimated duration of the project, in days.")
+    blocs: list[Bloc] = Field(..., description="Ordered list of blocs composing the devis.")
 
+    @field_validator("duree", mode="before")
+    @classmethod
+    def _coerce_duree_to_int(cls, value: Any) -> int:
+        """Accept the AI's day count as a plain int *or* as a string.
 
+        Strings such as ``"30"``, ``"30jours"``, ``"30 jours"`` and
+        ``"30 days"`` are all coerced to ``30``. Anything else raises a
+        validation error. ``bool`` is rejected explicitly because Python
+        treats it as a subclass of ``int``.
+        """
+        if isinstance(value, bool):
+            raise ValueError("`duree` must be an integer number of days, not a bool.")
+        if isinstance(value, int):
+            return value
+        if isinstance(value, float):
+            return int(value)
+        if isinstance(value, str):
+            match = re.match(r"\s*(\d+)", value)
+            if match is None:
+                raise ValueError(
+                    f"Cannot extract a day count from {value!r}. "
+                    "Expected a number, e.g. 30 or '30jours'."
+                )
+            return int(match.group(1))
+        raise ValueError(
+            f"`duree` must be an int or a numeric string, got {type(value).__name__}."
+        )
