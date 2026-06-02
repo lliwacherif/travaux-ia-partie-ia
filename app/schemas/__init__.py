@@ -1,6 +1,6 @@
 """Pydantic schemas used for request / response validation."""
 
-from app.schemas.devis import Bloc, DevisResponse, Ligne, Lot
+from app.schemas.devis import Block, DevisResponse, Line, SubCategory
 from app.schemas.trade_line import (
     TRADE_LINE_DEFAULT_LIMIT,
     TRADE_LINE_MAX_ITEMS,
@@ -11,10 +11,10 @@ from app.schemas.trade_line import (
 )
 
 __all__ = [
-    "Bloc",
+    "Block",
     "DevisResponse",
-    "Ligne",
-    "Lot",
+    "Line",
+    "SubCategory",
     "TRADE_LINE_DEFAULT_LIMIT",
     "TRADE_LINE_MAX_ITEMS",
     "TRADE_LINE_MIN_ITEMS",
