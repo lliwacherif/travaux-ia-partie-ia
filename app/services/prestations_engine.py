@@ -24,19 +24,65 @@ logger = logging.getLogger(__name__)
 # where the BPU price per m²/ml/u is meaningful.  Do NOT map raw consumables
 # here — use _MATERIAL_PRICES below instead.
 _KEYWORD_TO_BPU_SEARCH: Dict[str, List[str]] = {
-    # Carrelage — full operation per m²
+    # ── Carrelage ──
     "carrelage": ["carrelage", "grès cérame", "gres cerame"],
     "faience": ["faïence", "faience", "carrelage mural"],
-    # Plâtrerie — full operation per m²
+    # ── Plâtrerie ──
     "surface": ["faux plafond", "plafond suspendu"],
     "placo": ["plaque de plâtre", "ba13", "plaque platre", "placo"],
     "ossature": ["ossature", "fourrure", "f530"],
-    # Maçonnerie — full operation per m²/m³/ml
+    # ── Maçonnerie ──
     "beton": ["béton armé", "béton dosé"],
     "treillis": ["treillis soudé"],
     "coffrage": ["coffrage"],
     "blocs": ["parpaing", "agglo creux"],
     "chainages": ["chaînage", "chainage"],
+    # ── Couverture / Toiture ──
+    "toiture": ["toiture", "couverture", "réfection toiture", "refection toiture"],
+    "tuiles": ["tuile", "tuiles mécaniques", "tuiles plates"],
+    "zinguerie": ["zinguerie", "gouttière", "chéneau"],
+    "ardoise": ["ardoise"],
+    # ── Climatisation / Ventilation ──
+    "climatisation": ["climatisation", "climatiseur", "monosplit", "mono-split"],
+    "vmc": ["vmc", "ventilation"],
+    "split": ["split", "monosplit", "multisplit"],
+    # ── Façade / Ravalement ──
+    "ravalement": ["ravalement", "enduit extérieur"],
+    "hydrofuge": ["hydrofuge", "imperméabilisant"],
+    "antimousse": ["antimousse", "anti-mousse", "démoussage"],
+    "facade": ["façade", "facade"],
+    # ── Isolation ──
+    "ite": ["isolation thermique extérieure", "ite ", "fibre de bois"],
+    "isolation": ["isolation", "isolant", "laine de verre", "laine de roche"],
+    # ── Cuisine ──
+    "cuisine": ["cuisine", "agencement cuisine", "cuisine sur-mesure"],
+    # ── Peinture ──
+    "peinture": ["peinture", "enduit décoratif"],
+    # ── Plomberie / Sanitaire ──
+    "plomberie": ["plomberie", "sanitaire", "robinetterie"],
+    "salle": ["salle de bain", "douche", "baignoire"],
+    # ── Électricité ──
+    "electricite": ["électricité", "electricite", "tableau électrique"],
+    # ── Menuiserie ──
+    "menuiserie": ["menuiserie", "porte", "fenêtre", "volet"],
+    # ── Terrassement ──
+    "terrassement": ["terrassement", "vrd", "assainissement"],
+    # ── Démolition ──
+    "demolition": ["démolition", "curage", "dépose"],
+    # ── Charpente ──
+    "charpente": ["charpente", "ossature bois"],
+    # ── Serrurerie ──
+    "serrurerie": ["serrurerie", "métallerie", "garde-corps"],
+    # ── Revêtements ──
+    "revetement": ["revêtement", "parquet", "stratifié", "moquette"],
+    # ── Étanchéité ──
+    "etancheite": ["étanchéité", "toiture terrasse"],
+    # ── Chauffage ──
+    "chauffage": ["chauffage", "chaudière", "radiateur", "pac", "pompe à chaleur"],
+    # ── Photovoltaïque ──
+    "photovoltaique": ["photovoltaïque", "panneau solaire"],
+    # ── Dépannage ──
+    "depannage": ["dépannage", "intervention rapide"],
 }
 
 # ----- Raw material / consumable prices -----
@@ -121,11 +167,10 @@ def _resolve_price(
     Resolution order:
     1. Direct material price for known consumables (key with unit suffix)
     2. Exact match in ``price_map`` by normalised key
-    3. Concept + unit match in ``concept_map`` (keyword-based, for operations)
+    3. Concept match in ``concept_map`` — tries full concept, then each word
     4. Static fallback price by unit
     """
-    # 1. Known consumable material?  These are raw material prices that
-    #    must NOT be confused with full BPU operation prices.
+    # 1. Known consumable material?
     key_lower = key.lower().strip()
     material_price = _MATERIAL_PRICES.get(key_lower)
     if material_price is not None:
@@ -138,19 +183,37 @@ def _resolve_price(
         if price is not None and price > 0:
             return price
 
-    # 3. Concept-based resolution (for full operations only)
+    # 3. Concept-based resolution
     if concept_map:
         concept = _extract_concept(key)
-        unit_prices = concept_map.get(concept)
-        if unit_prices:
+
+        def _try_concept(c: str) -> Optional[float]:
+            unit_prices = concept_map.get(c)
+            if not unit_prices:
+                return None
             # Prefer matching unit
-            price = unit_prices.get(unit)
-            if price and price > 0:
-                return price
-            # Fallback to first available price for this concept
+            p = unit_prices.get(unit)
+            if p and p > 0:
+                return p
+            # Any available price
             for p in unit_prices.values():
                 if p > 0:
                     return p
+            return None
+
+        # Try full concept first (e.g. "toiture_tuiles" — unlikely but possible)
+        price = _try_concept(concept)
+        if price:
+            return price
+
+        # Split on underscores and try each word (e.g. "toiture", "tuiles")
+        # Try longer words first — they are more specific.
+        words = [w for w in concept.split("_") if len(w) > 2]
+        words.sort(key=len, reverse=True)
+        for word in words:
+            price = _try_concept(word)
+            if price:
+                return price
 
     logger.warning("Prix DB non trouvé pour '%s' (unit=%s), utilisation du prix fallback", key, unit)
     return _get_fallback_price(unit)
@@ -226,7 +289,7 @@ def _get_tva(metier: str, designation: str, client_type: str, project_nature: st
     return 10.0
 
 def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, default_designation: str, tva: float) -> List[Dict[str, Any]]:
-    """Enforces exactly target_count lines. Sums prices if truncated, injects 0€ lines if padded."""
+    """Enforces exactly target_count lines. Sums prices if truncated, injects proportional lines if padded."""
     if target_count <= 0:
         return []
         
@@ -257,8 +320,22 @@ def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, defau
     elif len(lines) < target_count:
         needed = target_count - len(lines)
         padded = list(lines)
-        
-        # Pick specific generic labels based on the default designation to avoid nonsensical phrasing
+
+        # Compute proportional padding price based on existing real lines.
+        # Ancillary services (prep, cleanup, etc.) are typically ~10-15% of
+        # the main work, spread across the padding lines.
+        total_real_ht = sum(l.get("total_ht", 0) for l in lines) or 0
+        if total_real_ht > 0 and needed > 0:
+            # ~15% of total work spread across padding lines
+            pad_pu = round(max(25.0, min(85.0, (total_real_ht * 0.15) / needed)), 2)
+        elif "Nettoyage" in default_designation:
+            pad_pu = 75.0
+        elif "Mise en place" in default_designation:
+            pad_pu = 95.0
+        else:
+            pad_pu = 45.0  # low default — better than 120€
+
+        # Pick specific generic labels based on the default designation
         if "Mise en place" in default_designation:
             generic_labels = [
                 "Balisage et sécurisation de la zone de travail",
@@ -289,14 +366,13 @@ def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, defau
         
         for i in range(needed):
             label_suffix = generic_labels[i] if i < len(generic_labels) else f"Prestation annexe {i+1}"
-            mock_pu = 75.0 if "Nettoyage" in default_designation else 120.0
             padded.append({
                 "designation": f"{default_designation} - {label_suffix}",
                 "unite": "forfait",
                 "quantite": 1,
-                "pu_ht": mock_pu,
+                "pu_ht": pad_pu,
                 "tva": tva,
-                "total_ht": mock_pu
+                "total_ht": pad_pu
             })
         return padded
     return lines
@@ -384,12 +460,20 @@ def process_ai_lots(
                 clean_pack_id = str(pack_id).replace("_", " ").capitalize()
                 fallback_designation = f"Fourniture et pose : {clean_pack_id}"
                 tva = _get_tva(metier, fallback_designation, client_type, project_nature)
-                # Resolve price from DB; falls back to 150€ if not found
-                pu_ht = _resolve_price(pack_id, "forfait", price_map, concept_map=concept_map)
+                # Determine the correct unit based on quantity
+                # If qty > 1, it's most likely m² (surface-based packs)
+                if quantite_brute == 1:
+                    pack_unit = "forfait"
+                elif quantite_brute > 10:
+                    pack_unit = "m²"  # Surface-based (toiture, façade, ITE...)
+                else:
+                    pack_unit = "u"
+                # Resolve price from DB using pack keywords
+                pu_ht = _resolve_price(pack_id, pack_unit, price_map, concept_map=concept_map)
                 total_ht = round(pu_ht * quantite_brute, 2)
                 lot_intervention_lines.append({
                     "designation": fallback_designation,
-                    "unite": "forfait" if quantite_brute == 1 else "u",
+                    "unite": pack_unit,
                     "quantite": quantite_brute,
                     "pu_ht": pu_ht,
                     "tva": tva,
