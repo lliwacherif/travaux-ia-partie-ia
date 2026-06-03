@@ -1,18 +1,215 @@
 import logging
-from typing import Any, Dict, List
+import unicodedata
+import re
+from typing import Any, Dict, List, Optional
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.core.metier_rules import ALL_METIER_RULES, safe_eval_formula
+from app.models.bpu_item import BpuItem
 
 logger = logging.getLogger(__name__)
 
-def _get_mock_price(unit: str) -> float:
-    """Provides a dummy price for MVP demonstration."""
-    if unit == "m²": return 45.0
-    if unit == "m³": return 120.0
-    if unit == "ml": return 15.0
-    if unit == "kg": return 5.0
-    if unit == "u": return 30.0
-    if unit == "l": return 10.0
-    return 50.0
+
+# ---------------------------------------------------------------------------
+# Price lookup helpers
+# ---------------------------------------------------------------------------
+
+# Maps short rule-keys from metier_rules to search keywords in bpu_items
+# designations.  When _resolve_price receives e.g. "carrelage_m2", it strips
+# the unit suffix to get "carrelage", then looks here for matching BPU items.
+#
+# IMPORTANT: Only map concepts that represent FULL OPERATIONS (Fourniture + Pose)
+# where the BPU price per m²/ml/u is meaningful.  Do NOT map raw consumables
+# here — use _MATERIAL_PRICES below instead.
+_KEYWORD_TO_BPU_SEARCH: Dict[str, List[str]] = {
+    # Carrelage — full operation per m²
+    "carrelage": ["carrelage", "grès cérame", "gres cerame"],
+    "faience": ["faïence", "faience", "carrelage mural"],
+    # Plâtrerie — full operation per m²
+    "surface": ["faux plafond", "plafond suspendu"],
+    "placo": ["plaque de plâtre", "ba13", "plaque platre", "placo"],
+    "ossature": ["ossature", "fourrure", "f530"],
+    # Maçonnerie — full operation per m²/m³/ml
+    "beton": ["béton armé", "béton dosé"],
+    "treillis": ["treillis soudé"],
+    "coffrage": ["coffrage"],
+    "blocs": ["parpaing", "agglo creux"],
+    "chainages": ["chaînage", "chainage"],
+}
+
+# ----- Raw material / consumable prices -----
+# These are unit prices for INDIVIDUAL materials extracted from rules.
+# They must NOT be matched against BPU operations (which are full F+P prices).
+# Source: prix moyens IDF 2025 pour fournitures seules.
+_MATERIAL_PRICES: Dict[str, float] = {
+    # Carrelage consumables
+    "colle_kg": 3.50,          # Colle à carrelage ~3.50€/kg
+    "joint_kg": 4.00,          # Mortier joint ~4€/kg
+    "croisillons_u": 0.15,     # Croisillons ~0.15€/pièce
+    "primaire_l": 12.00,       # Primaire d'accrochage ~12€/l
+    "profiles_ml": 8.00,       # Profilés d'angle alu ~8€/ml
+    # Plâtrerie consumables
+    "suspentes_u": 1.50,       # Suspente réglable ~1.50€/u
+    "bandes_ml": 1.20,         # Bande à joint papier ~1.20€/ml
+    "enduit_kg": 2.50,         # Enduit à joint ~2.50€/kg
+    "isolant_m2": 8.00,        # Laine minérale 45mm ~8€/m²
+    "rail_ml": 3.50,           # Rail R48 ou montant M48 ~3.50€/ml
+    # Maçonnerie consumables
+    "polyane_m2": 1.20,        # Film polyane ~1.20€/m²
+    "mortier_m3": 95.00,       # Mortier prêt à l'emploi ~95€/m³
+    "blocs_u": 1.80,           # Parpaing creux 20x20x50 ~1.80€/u
+}
+
+# Static fallback prices when no DB match is found
+_FALLBACK_PRICES: Dict[str, float] = {
+    "m²": 45.0,
+    "m³": 120.0,
+    "ml": 15.0,
+    "kg": 5.0,
+    "u": 2.5,
+    "l": 10.0,
+    "forfait": 120.0,
+}
+
+
+def _get_fallback_price(unit: str) -> float:
+    """Last-resort fallback price when no DB entry is found."""
+    return _FALLBACK_PRICES.get(unit, 50.0)
+
+
+def _normalize_key(text: str) -> str:
+    """Normalize a designation or line_key for fuzzy matching.
+
+    Strips accents, lowercases, removes unit suffixes (_m2, _ml, …),
+    collapses whitespace and non-alphanum chars to underscores.
+    """
+    # Remove accents
+    nfkd = unicodedata.normalize("NFKD", text)
+    ascii_text = "".join(c for c in nfkd if not unicodedata.combining(c))
+    # Lowercase
+    ascii_text = ascii_text.lower().strip()
+    # Remove common unit suffixes used in rule keys
+    ascii_text = re.sub(r'_(?:m2|m3|ml|kg|u|l)$', '', ascii_text)
+    # Collapse non-alphanum to single underscores
+    ascii_text = re.sub(r'[^a-z0-9]+', '_', ascii_text).strip('_')
+    return ascii_text
+
+
+def _extract_concept(line_key: str) -> str:
+    """Extract the material concept from a rule line_key.
+
+    Examples:
+        'carrelage_m2' -> 'carrelage'
+        'colle_kg'     -> 'colle'
+        'suspentes_u'  -> 'suspentes'
+        'surface_m2'   -> 'surface'
+    """
+    return re.sub(r'_(?:m2|m3|ml|kg|u|l)$', '', line_key.lower().strip())
+
+
+def _resolve_price(
+    key: str,
+    unit: str,
+    price_map: Optional[Dict[str, float]],
+    *,
+    concept_map: Optional[Dict[str, Dict[str, float]]] = None,
+) -> float:
+    """Look up a price in the preloaded maps, falling back to a static price.
+
+    Resolution order:
+    1. Direct material price for known consumables (key with unit suffix)
+    2. Exact match in ``price_map`` by normalised key
+    3. Concept + unit match in ``concept_map`` (keyword-based, for operations)
+    4. Static fallback price by unit
+    """
+    # 1. Known consumable material?  These are raw material prices that
+    #    must NOT be confused with full BPU operation prices.
+    key_lower = key.lower().strip()
+    material_price = _MATERIAL_PRICES.get(key_lower)
+    if material_price is not None:
+        return material_price
+
+    # 2. Exact designation / slug match in DB
+    if price_map:
+        norm = _normalize_key(key)
+        price = price_map.get(norm)
+        if price is not None and price > 0:
+            return price
+
+    # 3. Concept-based resolution (for full operations only)
+    if concept_map:
+        concept = _extract_concept(key)
+        unit_prices = concept_map.get(concept)
+        if unit_prices:
+            # Prefer matching unit
+            price = unit_prices.get(unit)
+            if price and price > 0:
+                return price
+            # Fallback to first available price for this concept
+            for p in unit_prices.values():
+                if p > 0:
+                    return p
+
+    logger.warning("Prix DB non trouvé pour '%s' (unit=%s), utilisation du prix fallback", key, unit)
+    return _get_fallback_price(unit)
+
+
+async def load_price_map(db: AsyncSession) -> tuple[Dict[str, float], Dict[str, Dict[str, float]]]:
+    """Pre-load all real prices from the ``bpu_items`` table.
+
+    Returns a tuple of:
+    1. ``price_map`` — normalised designation/slug → price
+    2. ``concept_map`` — material concept → {unit: price}
+
+    The concept_map enables matching short rule keys like ``carrelage_m2``
+    to real BPU prices by extracting the keyword ("carrelage") and
+    searching for items whose designation contains that keyword.
+    """
+    stmt = select(
+        BpuItem.designation,
+        BpuItem.slug,
+        BpuItem.prix_unitaire_ht,
+        BpuItem.unite,
+        BpuItem.corps_metier,
+    ).where(BpuItem.prix_unitaire_ht > 0)
+
+    rows = (await db.execute(stmt)).all()
+
+    price_map: Dict[str, float] = {}
+    # concept_map: concept_name -> {unit: best_price}
+    concept_map: Dict[str, Dict[str, float]] = {}
+
+    for designation, slug, price, unit, corps_metier in rows:
+        # 1. Index by slug
+        if slug:
+            price_map[slug] = price
+        # 2. Index by normalised designation
+        norm = _normalize_key(designation)
+        if norm not in price_map:
+            price_map[norm] = price
+
+        # 3. Build concept map by scanning keywords
+        desig_lower = designation.lower()
+        for concept, keywords in _KEYWORD_TO_BPU_SEARCH.items():
+            for kw in keywords:
+                if kw.lower() in desig_lower:
+                    if concept not in concept_map:
+                        concept_map[concept] = {}
+                    norm_unit = unit.lower().strip()
+                    # Keep the first price found per unit (usually the most generic)
+                    if norm_unit not in concept_map[concept]:
+                        concept_map[concept][norm_unit] = price
+                    break  # one keyword match is enough
+
+    logger.info(
+        "Loaded %d price keys + %d concept entries from bpu_items (%d rows).",
+        len(price_map),
+        sum(len(v) for v in concept_map.values()),
+        len(rows),
+    )
+    return price_map, concept_map
 
 def _get_tva(metier: str, designation: str, client_type: str, project_nature: str) -> float:
     # 1. 5.5% if isolation
@@ -104,7 +301,14 @@ def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, defau
         return padded
     return lines
 
-def process_ai_lots(lots: List[Dict[str, Any]], client_type: str = "particulier", project_nature: str = "renovation") -> List[Dict[str, Any]]:
+def process_ai_lots(
+    lots: List[Dict[str, Any]],
+    client_type: str = "particulier",
+    project_nature: str = "renovation",
+    *,
+    price_map: Optional[Dict[str, float]] = None,
+    concept_map: Optional[Dict[str, Dict[str, float]]] = None,
+) -> List[Dict[str, Any]]:
     """
     Takes the pure semantic AI JSON, evaluates rules, and structures it into
     the strict K+2 blocs architecture with exact line counts.
@@ -156,7 +360,7 @@ def process_ai_lots(lots: List[Dict[str, Any]], client_type: str = "particulier"
                     tva = _get_tva(metier, designation, client_type, project_nature)
                     
                     qte_calc = safe_eval_formula(rule["formula"], {"surface": quantite_brute, "longueur": quantite_brute, "hauteur": 2.5})
-                    pu_ht = _get_mock_price(rule["unit"])
+                    pu_ht = _resolve_price(line_key, rule["unit"], price_map, concept_map=concept_map)
                     total_ht = round(qte_calc * pu_ht, 2)
                     
                     line_data = {
@@ -180,14 +384,14 @@ def process_ai_lots(lots: List[Dict[str, Any]], client_type: str = "particulier"
                 clean_pack_id = str(pack_id).replace("_", " ").capitalize()
                 fallback_designation = f"Fourniture et pose : {clean_pack_id}"
                 tva = _get_tva(metier, fallback_designation, client_type, project_nature)
-                # Ensure we have a reasonable fallback price that scales
-                mock_pu = 150.0
-                total_ht = round(mock_pu * quantite_brute, 2)
+                # Resolve price from DB; falls back to 150€ if not found
+                pu_ht = _resolve_price(pack_id, "forfait", price_map, concept_map=concept_map)
+                total_ht = round(pu_ht * quantite_brute, 2)
                 lot_intervention_lines.append({
                     "designation": fallback_designation,
                     "unite": "forfait" if quantite_brute == 1 else "u",
                     "quantite": quantite_brute,
-                    "pu_ht": mock_pu,
+                    "pu_ht": pu_ht,
                     "tva": tva,
                     "total_ht": total_ht
                 })

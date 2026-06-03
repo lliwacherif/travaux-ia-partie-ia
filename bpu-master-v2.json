@@ -1,0 +1,753 @@
+{
+  "version": "2.0.0",
+  "generated_at": "2025-01-28",
+  "description": "BPU Maître TRAVAUX IA v2 - Bibliothèque officielle pour DEVIS IA - 3 corps de métier",
+  "metadata": {
+    "total_trades": 3,
+    "total_variants": 65,
+    "total_lines": 325,
+    "fallback_items": 5
+  },
+  "fallback_items": [
+    { "id": "GEN-01", "step": "POSE", "label": "Main d'œuvre générique", "price": 45.00, "unit": "h", "tva_default": 10 },
+    { "id": "GEN-02", "step": "FOURNITURE", "label": "Fourniture générique", "price": 25.00, "unit": "u", "tva_default": 20 },
+    { "id": "GEN-03", "step": "FOURNITURE", "label": "Déplacement / logistique", "price": 80.00, "unit": "forfait", "tva_default": 20 },
+    { "id": "GEN-04", "step": "NETTOYAGE", "label": "Évacuation déchets standard", "price": 150.00, "unit": "forfait", "tva_default": 10 },
+    { "id": "GEN-05", "step": "FOURNITURE", "label": "Petites fournitures / consommables", "price": 35.00, "unit": "forfait", "tva_default": 20 }
+  ],
+  "trades": [
+    {
+      "trade": "Maçonnerie – Gros œuvre",
+      "trade_code": "MAC",
+      "variants": [
+        {
+          "variant": "Construction mur en parpaings creux 20x20x50",
+          "variant_code": "MAC-01",
+          "items": [
+            { "id": "MAC-01-DEM", "step": "DEMOLITION", "label": "Démolition des maçonneries existantes avec tri des matériaux, chargement et évacuation en déchetterie spécialisée", "price": 38.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-01-FOU", "step": "FOURNITURE", "label": "Fourniture de parpaings creux 20x20x50, mortier dosé 350 kg/m³, fers d'armature, conformément au DTU 20.1", "price": 24.00, "unit": "m²", "tva_default": 20 },
+            { "id": "MAC-01-POS", "step": "POSE", "label": "Fourniture et pose de parpaings 20x20x50 avec montage à joints croisés, réglage verticalité/horizontalité, respect DTU 20.1", "price": 48.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-01-FIN", "step": "FINITION", "label": "Finition des arases, coulage des chaînages horizontaux et verticaux, mise en place des linteaux", "price": 12.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-01-NET", "step": "NETTOYAGE", "label": "Nettoyage complet du poste de travail et évacuation réglementaire des résidus", "price": 4.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Construction mur en bio-brique BGV Thermo",
+          "variant_code": "MAC-02",
+          "items": [
+            { "id": "MAC-02-DEM", "step": "DEMOLITION", "label": "Démolition des anciennes maçonneries, tri des gravats et évacuation en déchetterie spécialisée", "price": 42.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-02-FOU", "step": "FOURNITURE", "label": "Fourniture de blocs bio-brique BGV Thermo ou Thermo+, mortier mince, accessoires, conformément à la RE 2020", "price": 54.00, "unit": "m²", "tva_default": 20 },
+            { "id": "MAC-02-POS", "step": "POSE", "label": "Fourniture et pose de bio-briques BGV Thermo/Thermo+ à joints minces, mise en œuvre selon DTU 20.1 et règles RE 2020", "price": 68.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-02-FIN", "step": "FINITION", "label": "Réalisation des arases étanches, intégration des chaînages, linteaux et rupteurs thermiques", "price": 18.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-02-NET", "step": "NETTOYAGE", "label": "Nettoyage complet des zones de travail et évacuation réglementaire des résidus", "price": 5.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Élévation mur porteur béton banché",
+          "variant_code": "MAC-03",
+          "items": [
+            { "id": "MAC-03-DEM", "step": "DEMOLITION", "label": "Démolition structure existante, sciage et évacuation en déchetterie spécialisée", "price": 85.00, "unit": "m³", "tva_default": 10 },
+            { "id": "MAC-03-FOU", "step": "FOURNITURE", "label": "Fourniture des banches métalliques, béton dosé 350 kg/m³, adjuvants, ferraillage conforme DTU 21", "price": 135.00, "unit": "m³", "tva_default": 20 },
+            { "id": "MAC-03-POS", "step": "POSE", "label": "Fourniture et pose : coffrage, mise en place ferraillage, coulage béton vibré, cure, décoffrage conformément au DTU 21", "price": 210.00, "unit": "m³", "tva_default": 10 },
+            { "id": "MAC-03-FIN", "step": "FINITION", "label": "Ragréage fin, traitement des reprises, finition surface prête à enduire", "price": 36.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-03-NET", "step": "NETTOYAGE", "label": "Nettoyage fin du poste bétonnage et évacuation réglementaire des résidus", "price": 8.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Ouverture dans mur porteur avec renfort IPN",
+          "variant_code": "MAC-04",
+          "items": [
+            { "id": "MAC-04-DEM", "step": "DEMOLITION", "label": "Démolition du mur porteur selon étude structure, étaiement complet et évacuation en déchetterie spécialisée", "price": 280.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-04-FOU", "step": "FOURNITURE", "label": "Fourniture IPN, platines, chevilles chimiques, mortier sans retrait, selon note de calcul", "price": 420.00, "unit": "u", "tva_default": 20 },
+            { "id": "MAC-04-POS", "step": "POSE", "label": "Fourniture et pose de l'IPN, scellement, mise en charge, réglage conformément au DTU 23.1 et étude structure", "price": 580.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-04-FIN", "step": "FINITION", "label": "Habillage des jambages, reprise d'enduits, finitions prêtes à peindre", "price": 140.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-04-NET", "step": "NETTOYAGE", "label": "Nettoyage complet, balayage fin et évacuation réglementaire", "price": 35.00, "unit": "u", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Dalle béton armé sur terre-plein",
+          "variant_code": "MAC-05",
+          "items": [
+            { "id": "MAC-05-DEM", "step": "DEMOLITION", "label": "Démolition des revêtements et dalle existante si nécessaire, décaissement et évacuation en déchetterie spécialisée", "price": 45.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-05-FOU", "step": "FOURNITURE", "label": "Fourniture de tout-venant, film polyane, treillis soudé ST25C et béton dosé 350 kg/m³ conforme DTU 13.3", "price": 38.00, "unit": "m²", "tva_default": 20 },
+            { "id": "MAC-05-POS", "step": "POSE", "label": "Fourniture et pose : mise en place du hérisson, compactage, pose polyane, mise en œuvre treillis soudé et coulage de la dalle béton armé sur terre-plein selon DTU 13.3", "price": 52.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-05-FIN", "step": "FINITION", "label": "Mise à niveau à la règle, lissage de surface, formation des pentes éventuelles vers les évacuations", "price": 16.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-05-NET", "step": "NETTOYAGE", "label": "Nettoyage complet de la zone de coulage et évacuation réglementaire des résidus et emballages", "price": 5.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Dalle béton extérieure 5 à 8 cm (terrasse)",
+          "variant_code": "MAC-06",
+          "items": [
+            { "id": "MAC-06-DEM", "step": "DEMOLITION", "label": "Démolition d'une dalle extérieure existante avec découpe périphérique et évacuation en déchetterie spécialisée", "price": 52.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-06-FOU", "step": "FOURNITURE", "label": "Fourniture de béton dosé 300 kg/m³, treillis anti-fissuration et polyane extérieur", "price": 31.00, "unit": "m²", "tva_default": 20 },
+            { "id": "MAC-06-POS", "step": "POSE", "label": "Fourniture et pose de dalle béton extérieure 5 à 8 cm avec pente réglementaire et mise en œuvre suivant DTU 13.3", "price": 54.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-06-FIN", "step": "FINITION", "label": "Finition balayée ou talochée de la dalle extérieure, traitement anti-mousse", "price": 14.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-06-NET", "step": "NETTOYAGE", "label": "Nettoyage complet des abords et évacuation réglementaire des déchets de maçonnerie", "price": 5.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Plancher hourdis béton (avec isolation ou non)",
+          "variant_code": "MAC-07",
+          "items": [
+            { "id": "MAC-07-DEM", "step": "DEMOLITION", "label": "Dépose d'un plancher existant, découpe structurée et évacuation en déchetterie spécialisée", "price": 78.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-07-FOU", "step": "FOURNITURE", "label": "Fourniture d'hourdis béton, poutrelles treillis, isolants TH isolants compatibles RE2020 et béton C25/30", "price": 73.00, "unit": "m²", "tva_default": 20 },
+            { "id": "MAC-07-POS", "step": "POSE", "label": "Fourniture et pose de plancher hourdis complet, mise en place des poutrelles, hourdis, treillis et coulage suivant DTU 23.5", "price": 104.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-07-FIN", "step": "FINITION", "label": "Réalisation d'une chape de ravoirage ou sous-couche flottante conforme à l'usage", "price": 24.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-07-NET", "step": "NETTOYAGE", "label": "Nettoyage complet du poste plancher et évacuation réglementaire des gravats", "price": 6.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Ouverture de mur porteur (avec linteau béton ou IPN)",
+          "variant_code": "MAC-08",
+          "items": [
+            { "id": "MAC-08-DEM", "step": "DEMOLITION", "label": "Démolition contrôlée d'un mur porteur avec pose d'étais et évacuation en déchetterie spécialisée", "price": 120.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-08-FOU", "step": "FOURNITURE", "label": "Fourniture de poutre IPN ou linteau béton armé, platines d'appui et aciers de renfort", "price": 240.00, "unit": "u", "tva_default": 20 },
+            { "id": "MAC-08-POS", "step": "POSE", "label": "Fourniture et pose d'un linteau ou IPN, scellements, calage et mise en charge progressive suivant DTU", "price": 320.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-08-FIN", "step": "FINITION", "label": "Reprise de maçonnerie périphérique, habillage placo et enduits de finition", "price": 85.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-08-NET", "step": "NETTOYAGE", "label": "Nettoyage complet de la zone d'ouverture et évacuation des gravats en filière réglementée", "price": 25.00, "unit": "u", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Reprises en sous-œuvre (longrines, plots, massifs)",
+          "variant_code": "MAC-09",
+          "items": [
+            { "id": "MAC-09-DEM", "step": "DEMOLITION", "label": "Démolition des zones instables, purges et évacuation en déchetterie spécialisée", "price": 105.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-09-FOU", "step": "FOURNITURE", "label": "Fourniture de béton armé C30/37, aciers HA10–HA16, coffrages bois et accessoires", "price": 69.00, "unit": "ml", "tva_default": 20 },
+            { "id": "MAC-09-POS", "step": "POSE", "label": "Fourniture et réalisation de sous-œuvre : fouilles, ferraillage, coffrage et coulage selon DTU 13.1", "price": 142.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-09-FIN", "step": "FINITION", "label": "Dressage des faces apparentes et protection anti-humidité des massifs", "price": 28.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-09-NET", "step": "NETTOYAGE", "label": "Nettoyage final de la zone sous-œuvre et évacuation réglementaire des déblais", "price": 12.00, "unit": "ml", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Création de linteau béton armé (hors ouverture)",
+          "variant_code": "MAC-10",
+          "items": [
+            { "id": "MAC-10-DEM", "step": "DEMOLITION", "label": "Piquage et ouverture localisée pour réservation du linteau avec évacuation en déchetterie spécialisée", "price": 48.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-10-FOU", "step": "FOURNITURE", "label": "Fourniture coffrage bois, aciers HA10/HA12 et béton armé C25/30", "price": 59.00, "unit": "ml", "tva_default": 20 },
+            { "id": "MAC-10-POS", "step": "POSE", "label": "Fourniture et installation du linteau béton armé : coffrage, ferraillage et coulage suivant DTU 20.1", "price": 92.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-10-FIN", "step": "FINITION", "label": "Reprise d'enduit et finitions périphériques au droit du linteau", "price": 21.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-10-NET", "step": "NETTOYAGE", "label": "Nettoyage complet du poste linteau et évacuation réglementaire des déchets", "price": 6.00, "unit": "ml", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Muret extérieur 2 à 4 rangs (parpaings ou briques)",
+          "variant_code": "MAC-11",
+          "items": [
+            { "id": "MAC-11-DEM", "step": "DEMOLITION", "label": "Démolition d'un ancien muret avec piquage, décrochage sécuritaire et évacuation en déchetterie spécialisée", "price": 42.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-11-FOU", "step": "FOURNITURE", "label": "Fourniture de parpaings 15 ou 20 cm NF EN 771-3, mortier M10 et fers HA, selon hauteur du muret", "price": 36.00, "unit": "ml", "tva_default": 20 },
+            { "id": "MAC-11-POS", "step": "POSE", "label": "Fourniture et pose d'un muret de 2 à 4 rangs : lit de mortier, alignement, ferraillage et montage selon DTU 20.1", "price": 68.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-11-FIN", "step": "FINITION", "label": "Réalisation d'un chaperon béton ou couvre-mur préfabriqué avec joints hydrofugés", "price": 18.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-11-NET", "step": "NETTOYAGE", "label": "Nettoyage final et évacuation réglementaire des gravats et excédents de mortier", "price": 4.00, "unit": "ml", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Construction de piliers pour portail (béton ou parpaings)",
+          "variant_code": "MAC-12",
+          "items": [
+            { "id": "MAC-12-DEM", "step": "DEMOLITION", "label": "Dépose d'anciens piliers, purge des fondations et évacuation en déchetterie spécialisée", "price": 48.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-12-FOU", "step": "FOURNITURE", "label": "Fourniture de blocs coffrants, aciers verticaux HA10–HA16 et béton C25/30 pour piliers de portail", "price": 85.00, "unit": "u", "tva_default": 20 },
+            { "id": "MAC-12-POS", "step": "POSE", "label": "Fourniture et pose de piliers de portail : coffrage, ferraillage, alignement et coulage selon DTU 20.1", "price": 142.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-12-FIN", "step": "FINITION", "label": "Habillage enduit ou pierres, pose de platines et réservations pour motorisation si nécessaire", "price": 36.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-12-NET", "step": "NETTOYAGE", "label": "Nettoyage complet de la zone portail et évacuation réglementaire des déblais", "price": 8.00, "unit": "u", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Murs en briques BGV Thermo+ RE2020",
+          "variant_code": "MAC-13",
+          "items": [
+            { "id": "MAC-13-DEM", "step": "DEMOLITION", "label": "Démolition d'un mur existant pour remplacement par briques BGV Thermo+ avec évacuation en déchetterie spécialisée", "price": 54.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-13-FOU", "step": "FOURNITURE", "label": "Fourniture de briques BGV Thermo+ 20 ou 25 cm, mortier mince et accessoires RE2020", "price": 44.00, "unit": "m²", "tva_default": 20 },
+            { "id": "MAC-13-POS", "step": "POSE", "label": "Fourniture et pose de briques BGV Thermo+ en montage collé, alignement laser et joints verticaux selon DTU 20.1", "price": 72.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-13-FIN", "step": "FINITION", "label": "Reprise d'enduit extérieur adapté aux briques TH+ avec sous-couche d'accroche", "price": 23.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-13-NET", "step": "NETTOYAGE", "label": "Nettoyage complet et évacuation réglementaire des chutes de briques et mortier", "price": 5.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Semelles filantes armées (fondations légères)",
+          "variant_code": "MAC-14",
+          "items": [
+            { "id": "MAC-14-DEM", "step": "DEMOLITION", "label": "Démolition d'anciennes fondations superficielles et évacuation en déchetterie spécialisée", "price": 62.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-14-FOU", "step": "FOURNITURE", "label": "Fourniture béton C25/30, aciers HA8–HA12 et coffrage pour semelles filantes", "price": 46.00, "unit": "ml", "tva_default": 20 },
+            { "id": "MAC-14-POS", "step": "POSE", "label": "Fourniture et pose de semelles filantes armées avec fouilles, ferraillage et coulage selon DTU 13.1", "price": 89.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-14-FIN", "step": "FINITION", "label": "Dressage des arases et mise en niveau pour élévation des murs", "price": 18.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-14-NET", "step": "NETTOYAGE", "label": "Nettoyage final et évacuation réglementaire des déblais de fondation", "price": 7.00, "unit": "ml", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Longrines béton armé (soubassement)",
+          "variant_code": "MAC-15",
+          "items": [
+            { "id": "MAC-15-DEM", "step": "DEMOLITION", "label": "Démolition de longrines existantes, découpe mécanique, purge et évacuation en déchetterie spécialisée", "price": 74.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-15-FOU", "step": "FOURNITURE", "label": "Fourniture longrines préfabriquées BA ou coffrage béton armé C30/37, aciers HA12–HA16", "price": 62.00, "unit": "ml", "tva_default": 20 },
+            { "id": "MAC-15-POS", "step": "POSE", "label": "Fourniture et pose de longrines béton armé : terrassement localisé, ferraillage, réglage et coulage suivant DTU", "price": 104.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-15-FIN", "step": "FINITION", "label": "Reprise des arases, calfeutrement et protection des zones sensibles", "price": 22.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-15-NET", "step": "NETTOYAGE", "label": "Nettoyage final de la tranchée et évacuation réglementaire des excédents", "price": 6.00, "unit": "ml", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Dalle béton extérieure 5 cm armée pour terrasse",
+          "variant_code": "MAC-16",
+          "items": [
+            { "id": "MAC-16-DEM", "step": "DEMOLITION", "label": "Démolition de l'ancienne dalle ou revêtement existant, piquage au marteau-piqueur et évacuation en déchetterie spécialisée", "price": 32.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-16-FOU", "step": "FOURNITURE", "label": "Fourniture de béton C25/30, treillis soudé ST25C et film polyane pour dalle extérieure épaisseur 5 cm", "price": 24.00, "unit": "m²", "tva_default": 20 },
+            { "id": "MAC-16-POS", "step": "POSE", "label": "Fourniture et pose d'une dalle béton armé 5 cm : préparation du support, mise en place du polyane et treillis, coulage et tirage à la règle selon DTU 13.3", "price": 54.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-16-FIN", "step": "FINITION", "label": "Réalisation d'une finition talochée ou brute de béton adaptée à la future pose de revêtement extérieur", "price": 14.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-16-NET", "step": "NETTOYAGE", "label": "Nettoyage complet de la zone terrasse et évacuation réglementaire des gravats et surplus de béton", "price": 5.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Plancher hourdis béton sans isolation",
+          "variant_code": "MAC-17",
+          "items": [
+            { "id": "MAC-17-DEM", "step": "DEMOLITION", "label": "Démolition localisée de l'ancien plancher, dépose des poutrelles et hourdis, sécurisation et évacuation en déchetterie spécialisée", "price": 68.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-17-FOU", "step": "FOURNITURE", "label": "Fourniture de poutrelles béton précontraint, hourdis béton ou polystyrène plein, aciers de chainage et béton de compression pour plancher courant", "price": 62.00, "unit": "m²", "tva_default": 20 },
+            { "id": "MAC-17-POS", "step": "POSE", "label": "Fourniture et pose d'un plancher hourdis : mise en place des poutrelles, calage, pose des entrevous et coulage de la dalle de compression selon DTU 23.1", "price": 96.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-17-FIN", "step": "FINITION", "label": "Réalisation des rives, rebouchages, arases et réglages de niveaux pour réception des cloisons", "price": 18.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-17-NET", "step": "NETTOYAGE", "label": "Nettoyage complet du plancher et évacuation réglementaire des chutes de béton et hourdis", "price": 6.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Plancher hourdis isolant avec entrevous polystyrène",
+          "variant_code": "MAC-18",
+          "items": [
+            { "id": "MAC-18-DEM", "step": "DEMOLITION", "label": "Dépose d'un plancher existant, démontage des éléments porteurs si nécessaire et évacuation en déchetterie spécialisée", "price": 74.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-18-FOU", "step": "FOURNITURE", "label": "Fourniture de poutrelles béton et entrevous polystyrène isolants compatibles RE2020, aciers complémentaires et béton de compression", "price": 72.00, "unit": "m²", "tva_default": 20 },
+            { "id": "MAC-18-POS", "step": "POSE", "label": "Fourniture et pose d'un plancher hourdis isolant : pose des poutrelles, entrevous isolants, treillis et coulage de la dalle de compression selon DTU 23.1", "price": 108.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-18-FIN", "step": "FINITION", "label": "Reprise des nez de dalles, rebouchages ponctuels et traitement des ponts thermiques en périphérie", "price": 22.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-18-NET", "step": "NETTOYAGE", "label": "Nettoyage complet de la surface et évacuation réglementaire des chutes de polystyrène et béton", "price": 7.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Ouverture de mur porteur avec pose d'IPN",
+          "variant_code": "MAC-19",
+          "items": [
+            { "id": "MAC-19-DEM", "step": "DEMOLITION", "label": "Création d'une ouverture dans mur porteur : étaiement, découpe progressive et évacuation en déchetterie spécialisée", "price": 185.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-19-FOU", "step": "FOURNITURE", "label": "Fourniture d'IPN ou HEA dimensionné par bureau d'étude, platines, platines d'appui et mortier sans retrait", "price": 260.00, "unit": "u", "tva_default": 20 },
+            { "id": "MAC-19-POS", "step": "POSE", "label": "Fourniture et pose de l'IPN : percement, mise en place, calage, scellement et reprise de charges selon étude structure et règles BAEL/Eurocode", "price": 360.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-19-FIN", "step": "FINITION", "label": "Rebouchage des tableaux, reprise d'enduit, habillage et préparation pour finitions intérieures", "price": 95.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-19-NET", "step": "NETTOYAGE", "label": "Nettoyage complet de la zone d'ouverture et évacuation réglementaire des gravats", "price": 35.00, "unit": "u", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Reprise en sous-œuvre et massifs béton ponctuels",
+          "variant_code": "MAC-20",
+          "items": [
+            { "id": "MAC-20-DEM", "step": "DEMOLITION", "label": "Démolition localisée des anciennes fondations ou appuis instables avec évacuation en déchetterie spécialisée", "price": 92.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-20-FOU", "step": "FOURNITURE", "label": "Fourniture de béton C30/37, aciers HA10–HA16, coffrage bois et accessoires pour massifs de reprise en sous-œuvre", "price": 140.00, "unit": "u", "tva_default": 20 },
+            { "id": "MAC-20-POS", "step": "POSE", "label": "Fourniture et pose de massifs béton en sous-œuvre : fouille manuelle, mise en place des aciers, coffrage et coulage par passes selon DTU et prescriptions BE", "price": 240.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-20-FIN", "step": "FINITION", "label": "Reprofilage des appuis, calage des maçonneries existantes et injection de coulis si nécessaire", "price": 78.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-20-NET", "step": "NETTOYAGE", "label": "Nettoyage complet du périmètre de reprise et évacuation réglementaire des déblais et coffrages", "price": 26.00, "unit": "u", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Mur de soutènement béton armé hauteur 1,00 à 1,50 m",
+          "variant_code": "MAC-21",
+          "items": [
+            { "id": "MAC-21-DEM", "step": "DEMOLITION", "label": "Démolition de structure existante, purge du terrain en pied de mur et évacuation en déchetterie spécialisée", "price": 72.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-21-FOU", "step": "FOURNITURE", "label": "Fourniture de béton C25/30, armatures HA10–HA16, coffrage bois ou métallique, drains agricoles et géotextile conforme DTU 14.1", "price": 78.00, "unit": "m²", "tva_default": 20 },
+            { "id": "MAC-21-POS", "step": "POSE", "label": "Fourniture et pose du mur de soutènement : fouille, coffrage, ferraillage, mise en place du drain, coulage du béton et respect des règles BAEL / Eurocode 2", "price": 135.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-21-FIN", "step": "FINITION", "label": "Réalisation des arases, traitement des rives, finition des têtes de murs et calfeutrements", "price": 28.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-21-NET", "step": "NETTOYAGE", "label": "Nettoyage complet de la zone, remise en état et évacuation réglementaire des déblais", "price": 7.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Mur en béton banché avec coffrage traditionnel",
+          "variant_code": "MAC-22",
+          "items": [
+            { "id": "MAC-22-DEM", "step": "DEMOLITION", "label": "Démolition d'éléments maçonnés ou béton existants avec évacuation en déchetterie spécialisée", "price": 64.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-22-FOU", "step": "FOURNITURE", "label": "Fourniture de coffrage bois, armatures HA, entretoises, accessoires et béton C30/37 conforme DTU 21", "price": 82.00, "unit": "m²", "tva_default": 20 },
+            { "id": "MAC-22-POS", "step": "POSE", "label": "Fourniture et pose du béton banché : montage coffrage, mise en place des aciers, coulage par passes et vibration conforme DTU 21", "price": 148.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-22-FIN", "step": "FINITION", "label": "Décoffrage, ragréages, finition des parements et reprises ponctuelles", "price": 26.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-22-NET", "step": "NETTOYAGE", "label": "Nettoyage de la surface de travail et évacuation réglementaire des déchets de coffrage", "price": 6.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Refouillement et création de longrine béton armé",
+          "variant_code": "MAC-23",
+          "items": [
+            { "id": "MAC-23-DEM", "step": "DEMOLITION", "label": "Démolition localisée du sol existant et évacuation en déchetterie spécialisée", "price": 52.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-23-FOU", "step": "FOURNITURE", "label": "Fourniture d'aciers HA, coffrage, cales, béton C25/30 et accessoires pour longrines armées", "price": 68.00, "unit": "ml", "tva_default": 20 },
+            { "id": "MAC-23-POS", "step": "POSE", "label": "Fourniture et pose d'une longrine béton : creusement, pose du coffrage, ferraillage, coulage, nivellement selon DTU et prescriptions BE", "price": 118.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-23-FIN", "step": "FINITION", "label": "Réalisation des reprises, arase fine, réglages des niveaux et préparation pour éléments porteurs", "price": 22.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-23-NET", "step": "NETTOYAGE", "label": "Nettoyage final des zones de coulage et évacuation réglementaire des déblais", "price": 5.00, "unit": "ml", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Réalisation de muret en parpaings creux 20×20×50",
+          "variant_code": "MAC-24",
+          "items": [
+            { "id": "MAC-24-DEM", "step": "DEMOLITION", "label": "Démolition d'un ancien muret ou éléments maçonnés et évacuation en déchetterie spécialisée", "price": 34.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-24-FOU", "step": "FOURNITURE", "label": "Fourniture de parpaings creux 20×20×50 NF EN 771-3, mortier bâtard, treillis et aciers ponctuels", "price": 28.00, "unit": "ml", "tva_default": 20 },
+            { "id": "MAC-24-POS", "step": "POSE", "label": "Fourniture et pose du muret : montage des blocs, joints verticaux et horizontaux, réglage à la règle et mise d'aplomb selon DTU 20.1", "price": 58.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-24-FIN", "step": "FINITION", "label": "Réalisation des arases, bouchages et finition sommitale du muret", "price": 14.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-24-NET", "step": "NETTOYAGE", "label": "Nettoyage du chantier et évacuation réglementaire des déchets", "price": 4.00, "unit": "ml", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Réalisation de 4 poteaux + muret façade (entrée principale)",
+          "variant_code": "MAC-25",
+          "items": [
+            { "id": "MAC-25-DEM", "step": "DEMOLITION", "label": "Démolition de l'ancienne entrée, piquage des appuis et évacuation en déchetterie spécialisée", "price": 42.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-25-FOU", "step": "FOURNITURE", "label": "Fourniture de blocs béton, aciers HA, coffrage, mortier, béton prêt à l'emploi et chapeaux de poteaux", "price": 90.00, "unit": "u", "tva_default": 20 },
+            { "id": "MAC-25-POS", "step": "POSE", "label": "Fourniture et pose de 4 poteaux + muret : fondations, ferraillage, montage, coffrage et coulage selon DTU 20.1", "price": 180.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-25-FIN", "step": "FINITION", "label": "Arases, rebouchages, finitions de tête et réglages du muret", "price": 48.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-25-NET", "step": "NETTOYAGE", "label": "Nettoyage final de la zone et évacuation réglementaire des gravats", "price": 12.00, "unit": "u", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Muret de clôture en parpaings enduit",
+          "variant_code": "MAC-26",
+          "items": [
+            { "id": "MAC-26-DEM", "step": "DEMOLITION", "label": "Démolition de l'ancien muret ou clôture maçonnée, dépose soignée et évacuation en déchetterie spécialisée", "price": 28.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-26-FOU", "step": "FOURNITURE", "label": "Fourniture de parpaings creux 20×20×50, mortier de montage, armatures horizontales et verticales selon DTU 20.1", "price": 30.00, "unit": "m²", "tva_default": 20 },
+            { "id": "MAC-26-POS", "step": "POSE", "label": "Fourniture et pose d'un muret en parpaings creux : implantation, montage au mortier, réservation éventuelle pour poteaux et traverses conformément au DTU 20.1", "price": 55.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-26-FIN", "step": "FINITION", "label": "Réalisation d'un enduit de finition sur les deux faces du muret, dressage et talochage pour réception de peinture ou revêtement", "price": 22.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-26-NET", "step": "NETTOYAGE", "label": "Nettoyage complet du pied de muret et des abords, évacuation réglementaire des gravats et emballages en déchetterie spécialisée", "price": 6.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Seuil béton armé pour portail coulissant",
+          "variant_code": "MAC-27",
+          "items": [
+            { "id": "MAC-27-DEM", "step": "DEMOLITION", "label": "Démolition de l'ancien seuil ou bande béton, piquage soigné et évacuation en déchetterie spécialisée", "price": 36.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-27-FOU", "step": "FOURNITURE", "label": "Fourniture de béton C25/30, armatures en acier HA, réservations et gaines pour passage câbles et fixations de rail de portail", "price": 48.00, "unit": "u", "tva_default": 20 },
+            { "id": "MAC-27-POS", "step": "POSE", "label": "Fourniture et pose d'un seuil béton armé pour portail coulissant : fouille, coffrage, mise en place des aciers et coulage du béton avec respect des niveaux de rail", "price": 110.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-27-FIN", "step": "FINITION", "label": "Dressage de la surface, réalisation des pentes éventuelles et préparation pour fixation du rail ou platine de guidage", "price": 28.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-27-NET", "step": "NETTOYAGE", "label": "Nettoyage complet de la zone de portail et évacuation réglementaire des terres, coffrages et gravats en déchetterie spécialisée", "price": 9.00, "unit": "u", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Rejointoiement de façade en briques ou pierres",
+          "variant_code": "MAC-28",
+          "items": [
+            { "id": "MAC-28-DEM", "step": "DEMOLITION", "label": "Piquage et purge des anciens joints dégradés de façade briques ou pierres, grattage manuel et évacuation en déchetterie spécialisée", "price": 18.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-28-FOU", "step": "FOURNITURE", "label": "Fourniture de mortier de jointoiement adapté au support (brique ou pierre), adjuvants éventuels et pigments conformes aux prescriptions patrimoniales", "price": 8.00, "unit": "m²", "tva_default": 20 },
+            { "id": "MAC-28-POS", "step": "POSE", "label": "Fourniture et application du mortier de jointoiement : garnissage des joints, serrage, profilage et finition brossée ou grattée selon DTU 26.1", "price": 52.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-28-FIN", "step": "FINITION", "label": "Retouches ponctuelles, reprise des joints manquants et égalisation de l'aspect général de la façade", "price": 16.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-28-NET", "step": "NETTOYAGE", "label": "Nettoyage des abords, dépoussiérage des appuis et évacuation réglementaire des déchets de piquage et sacs de mortier en déchetterie spécialisée", "price": 5.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Local technique maçonné 2×2 m",
+          "variant_code": "MAC-29",
+          "items": [
+            { "id": "MAC-29-DEM", "step": "DEMOLITION", "label": "Démolition d'un ancien abri ou local léger existant, déconstruction contrôlée et évacuation en déchetterie spécialisée", "price": 48.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-29-FOU", "step": "FOURNITURE", "label": "Fourniture de parpaings, béton pour dalle, aciers, linteaux préfabriqués, mortiers et petites fournitures pour local maçonné 2×2 m", "price": 260.00, "unit": "u", "tva_default": 20 },
+            { "id": "MAC-29-POS", "step": "POSE", "label": "Fourniture et construction complète d'un local technique maçonné : dalle béton, élévation des murs, linteaux et toiture légère selon DTU de maçonnerie en vigueur", "price": 420.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-29-FIN", "step": "FINITION", "label": "Réalisation des enduits extérieurs, arase de couronnement, seuils et habillages nécessaires pour une finition propre du local", "price": 120.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-29-NET", "step": "NETTOYAGE", "label": "Nettoyage complet autour du local, évacuation réglementaire des gravats, chutes de matériaux et emballages en déchetterie spécialisée", "price": 30.00, "unit": "u", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Massifs béton pour équipements lourds (PAC, spa, cuve, etc.)",
+          "variant_code": "MAC-30",
+          "items": [
+            { "id": "MAC-30-DEM", "step": "DEMOLITION", "label": "Démolition des anciens plots ou dalles support existants, cassage contrôlé et évacuation en déchetterie spécialisée", "price": 42.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-30-FOU", "step": "FOURNITURE", "label": "Fourniture de béton C25/30, aciers HA, coffrages et éventuels inserts pour massifs de support d'équipements lourds (PAC, spa, cuve)", "price": 130.00, "unit": "u", "tva_default": 20 },
+            { "id": "MAC-30-POS", "step": "POSE", "label": "Fourniture et réalisation de massifs béton : fouille, coffrage, mise en place des armatures, coulage et mise à niveau selon charges et recommandations fabricant", "price": 210.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-30-FIN", "step": "FINITION", "label": "Dressage des surfaces, réalisation des pentes éventuelles et repérage des emplacements de fixation des équipements", "price": 58.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-30-NET", "step": "NETTOYAGE", "label": "Nettoyage complet de la plateforme et des abords, évacuation réglementaire des déblais, coffrages et gravats en déchetterie spécialisée", "price": 18.00, "unit": "u", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Mur en blocs à bancher remplis béton",
+          "variant_code": "MAC-31",
+          "items": [
+            { "id": "MAC-31-DEM", "step": "DEMOLITION", "label": "Démolition d'un mur existant ou éléments instables, découpe contrôlée et évacuation en déchetterie spécialisée", "price": 52.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-31-FOU", "step": "FOURNITURE", "label": "Fourniture de blocs à bancher norme NF EN 1996-1-1, aciers HA10–HA12, écarteurs et béton de remplissage C25/30 conforme DTU 20.1", "price": 58.00, "unit": "m²", "tva_default": 20 },
+            { "id": "MAC-31-POS", "step": "POSE", "label": "Fourniture et pose d'un mur en blocs à bancher : montage, ferraillage vertical/horizontal, coffrage, remplissage béton selon DTU 20.1", "price": 115.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-31-FIN", "step": "FINITION", "label": "Reprise des arases, traitement des jonctions et préparation à la mise en enduit", "price": 26.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-31-NET", "step": "NETTOYAGE", "label": "Nettoyage complet du chantier, enlèvement des chutes de béton et évacuation réglementaire en déchetterie spécialisée", "price": 6.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Mur en briques BGV Thermo+ RE2020",
+          "variant_code": "MAC-32",
+          "items": [
+            { "id": "MAC-32-DEM", "step": "DEMOLITION", "label": "Démolition d'un mur ou cloison existante en brique ou parpaing, stockage, tri et évacuation en déchetterie spécialisée", "price": 44.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-32-FOU", "step": "FOURNITURE", "label": "Fourniture de briques biomur BGV Thermo+ ou Thermo+ I, mortier mince, renforts périphériques et accessoires conformes RE2020", "price": 58.00, "unit": "m²", "tva_default": 20 },
+            { "id": "MAC-32-POS", "step": "POSE", "label": "Fourniture et pose de briques BGV Thermo+ : montage au mortier mince, contrôle d'alignement, chaînages et encadrements selon DTU 20.1", "price": 110.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-32-FIN", "step": "FINITION", "label": "Réalisation des arases, rebouchages ponctuels et préparation à l'enduisage intérieur/extérieur", "price": 24.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-32-NET", "step": "NETTOYAGE", "label": "Nettoyage complet, enlèvement des chutes de briques et évacuation réglementaire en déchetterie spécialisée", "price": 5.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Création de linteau béton armé sur ouverture",
+          "variant_code": "MAC-33",
+          "items": [
+            { "id": "MAC-33-DEM", "step": "DEMOLITION", "label": "Ouverture localisée du support existant, purge des zones instables et évacuation en déchetterie spécialisée", "price": 58.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-33-FOU", "step": "FOURNITURE", "label": "Fourniture des coffrages, aciers HA10–HA16, béton C25/30, rupteurs et accessoires conformes prescriptions BE et DTU", "price": 95.00, "unit": "u", "tva_default": 20 },
+            { "id": "MAC-33-POS", "step": "POSE", "label": "Fourniture et pose du linteau béton armé : coffrage, mise en place des aciers, coulage et cure selon DTU 23.1", "price": 165.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-33-FIN", "step": "FINITION", "label": "Reprise des tableaux, rebouchage des creux, préparation pour finitions intérieures", "price": 42.00, "unit": "u", "tva_default": 10 },
+            { "id": "MAC-33-NET", "step": "NETTOYAGE", "label": "Nettoyage complet et évacuation réglementaire des coffrages, poussières et gravats", "price": 12.00, "unit": "u", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Pose de longrines préfabriquées avec ancrages",
+          "variant_code": "MAC-34",
+          "items": [
+            { "id": "MAC-34-DEM", "step": "DEMOLITION", "label": "Décaissement localisé ou dépose d'anciennes longrines et évacuation en déchetterie spécialisée", "price": 38.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-34-FOU", "step": "FOURNITURE", "label": "Fourniture de longrines préfabriquées BA, aciers de liaison, mortier de scellement et cales conformes DTU 13.12", "price": 65.00, "unit": "ml", "tva_default": 20 },
+            { "id": "MAC-34-POS", "step": "POSE", "label": "Fourniture et pose de longrines BA : mise en place des appuis, réglage des niveaux, scellement et contrôles d'équerrage", "price": 130.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-34-FIN", "step": "FINITION", "label": "Rebouchage des fouilles, compactage et préparation du support pour dalle ou élévations", "price": 26.00, "unit": "ml", "tva_default": 10 },
+            { "id": "MAC-34-NET", "step": "NETTOYAGE", "label": "Nettoyage complet des zones de pose et évacuation réglementaire des déblais", "price": 8.00, "unit": "ml", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Voile béton coulé en place",
+          "variant_code": "MAC-35",
+          "items": [
+            { "id": "MAC-35-DEM", "step": "DEMOLITION", "label": "Démolition d'un voile ou cloison béton existant, sciage contrôlé et évacuation en déchetterie spécialisée", "price": 62.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-35-FOU", "step": "FOURNITURE", "label": "Fourniture des banches, aciers HA10–HA16, entretoises, béton C30/37 et accessoires selon DTU 23.1", "price": 95.00, "unit": "m²", "tva_default": 20 },
+            { "id": "MAC-35-POS", "step": "POSE", "label": "Fourniture et coulage d'un voile béton : montage banches, ferraillage, vibrage et cure réglementaire", "price": 165.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-35-FIN", "step": "FINITION", "label": "Décoffrage, rebouchage, reprise des nids de gravier et préparation pour enduit technique", "price": 34.00, "unit": "m²", "tva_default": 10 },
+            { "id": "MAC-35-NET", "step": "NETTOYAGE", "label": "Nettoyage complet du chantier béton, lavage à l'eau claire et évacuation des déchets réglementée", "price": 7.00, "unit": "m²", "tva_default": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "trade": "Terrassement - VRD",
+      "trade_code": "TER",
+      "variants": [
+        {
+          "variant": "Décapage de terre végétale sur surface",
+          "variant_code": "TER-01",
+          "items": [
+            { "id": "TER-01-DEM", "step": "DEMOLITION", "label": "Décapage mécanique de la terre végétale sur 20 à 30 cm avec godet lisse, retrait des matériaux impropres et évacuation en déchetterie spécialisée", "price": 12.00, "unit": "m²", "tva_default": 10 },
+            { "id": "TER-01-FOU", "step": "FOURNITURE", "label": "Fourniture de géotextile anti-contamination type 90 g/m² conforme NF EN 13252", "price": 3.00, "unit": "m²", "tva_default": 20 },
+            { "id": "TER-01-POS", "step": "POSE", "label": "Fourniture et pose du géotextile anti-contamination après décapage : déroulage, ajustement et recouvrements réglementaires selon DTU 13.1", "price": 6.00, "unit": "m²", "tva_default": 10 },
+            { "id": "TER-01-FIN", "step": "FINITION", "label": "Reprofilage du fond de forme et réglage des niveaux au laser pour préparation des ouvrages", "price": 2.50, "unit": "m²", "tva_default": 10 },
+            { "id": "TER-01-NET", "step": "NETTOYAGE", "label": "Nettoyage complet de la zone décapée et évacuation réglementaire des déblais résiduels", "price": 1.50, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Terrassement tranchée réseaux EU/EP",
+          "variant_code": "TER-02",
+          "items": [
+            { "id": "TER-02-DEM", "step": "DEMOLITION", "label": "Ouverture et terrassement d'une tranchée en terrain meuble ou semi-rocheux, déblais et évacuation en déchetterie spécialisée", "price": 26.00, "unit": "ml", "tva_default": 10 },
+            { "id": "TER-02-FOU", "step": "FOURNITURE", "label": "Fourniture de lit de pose sable 0/4, graviers roulés 4/10 et matériaux d'entourage conformes DTU 64.1", "price": 9.00, "unit": "ml", "tva_default": 20 },
+            { "id": "TER-02-POS", "step": "POSE", "label": "Fourniture et application du lit de pose, réglage des niveaux, compactage et préparation pour pose des réseaux selon DTU 64.1", "price": 18.00, "unit": "ml", "tva_default": 10 },
+            { "id": "TER-02-FIN", "step": "FINITION", "label": "Recomblement, compactage par couches successives et remise à niveau final", "price": 7.00, "unit": "ml", "tva_default": 10 },
+            { "id": "TER-02-NET", "step": "NETTOYAGE", "label": "Nettoyage de la tranchée, évacuation réglementaire des déblais et purge des surplus de matériaux", "price": 3.00, "unit": "ml", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Fouilles en pleine masse pour fondations",
+          "variant_code": "TER-03",
+          "items": [
+            { "id": "TER-03-DEM", "step": "DEMOLITION", "label": "Décapage et terrassement en pleine masse jusqu'à la profondeur de fondation, évacuation en déchetterie spécialisée", "price": 38.00, "unit": "m³", "tva_default": 10 },
+            { "id": "TER-03-FOU", "step": "FOURNITURE", "label": "Fourniture de matériaux de remblai adaptés type 0/31.5 NF EN 13242, compactables", "price": 14.00, "unit": "m³", "tva_default": 20 },
+            { "id": "TER-03-POS", "step": "POSE", "label": "Fourniture et mise en œuvre des remblais compactés par couches successives selon NF P 94-063", "price": 22.00, "unit": "m³", "tva_default": 10 },
+            { "id": "TER-03-FIN", "step": "FINITION", "label": "Réalisation du fond de forme, réglage laser et préparation pour ferraillage de fondations", "price": 8.00, "unit": "m³", "tva_default": 10 },
+            { "id": "TER-03-NET", "step": "NETTOYAGE", "label": "Nettoyage complet de la fouille et évacuation réglementaire des déblais", "price": 4.00, "unit": "m³", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Remblai compacté autour des fondations",
+          "variant_code": "TER-04",
+          "items": [
+            { "id": "TER-04-DEM", "step": "DEMOLITION", "label": "Purge et retrait des matériaux impropres en périphérie des fondations, évacuation en déchetterie spécialisée", "price": 18.00, "unit": "m³", "tva_default": 10 },
+            { "id": "TER-04-FOU", "step": "FOURNITURE", "label": "Fourniture de matériaux granulaires 0/31.5 pour remblai, conformes NF EN 13242", "price": 12.00, "unit": "m³", "tva_default": 20 },
+            { "id": "TER-04-POS", "step": "POSE", "label": "Fourniture et pose du remblai compacté en couches successives avec plaque vibrante ou pilonneuse, conformément à NF P 94-063", "price": 19.00, "unit": "m³", "tva_default": 10 },
+            { "id": "TER-04-FIN", "step": "FINITION", "label": "Nivellement et réglage final autour de l'ouvrage pour stabilisation", "price": 6.00, "unit": "m³", "tva_default": 10 },
+            { "id": "TER-04-NET", "step": "NETTOYAGE", "label": "Nettoyage complet et évacuation réglementaire des excédents de matériaux", "price": 3.00, "unit": "m³", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Création d'un regard béton pour EU/EP",
+          "variant_code": "TER-05",
+          "items": [
+            { "id": "TER-05-DEM", "step": "DEMOLITION", "label": "Ouverture localisée, purge du terrain et évacuation des déblais en déchetterie spécialisée", "price": 42.00, "unit": "u", "tva_default": 10 },
+            { "id": "TER-05-FOU", "step": "FOURNITURE", "label": "Fourniture d'un regard béton préfabriqué 30×30 ou 40×40, rehausses, tampons fonte et raccords EU/EP", "price": 68.00, "unit": "u", "tva_default": 20 },
+            { "id": "TER-05-POS", "step": "POSE", "label": "Fourniture et pose du regard : mise à niveau, calage, lit de pose, raccordement réseaux et scellement selon DTU 64.1", "price": 115.00, "unit": "u", "tva_default": 10 },
+            { "id": "TER-05-FIN", "step": "FINITION", "label": "Contrôle d'étanchéité, reprise des abords et mise à niveau du tampon fonte", "price": 28.00, "unit": "u", "tva_default": 10 },
+            { "id": "TER-05-NET", "step": "NETTOYAGE", "label": "Nettoyage du périmètre et évacuation réglementaire des déblais", "price": 9.00, "unit": "u", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Pose de bordures béton P1/P2 sur lit de béton",
+          "variant_code": "TER-06",
+          "items": [
+            { "id": "TER-06-DEM", "step": "DEMOLITION", "label": "Démolition des anciennes bordures, purge des sols support et évacuation en déchetterie spécialisée", "price": 24.00, "unit": "ml", "tva_default": 10 },
+            { "id": "TER-06-FOU", "step": "FOURNITURE", "label": "Fourniture de bordures béton type P1 ou P2 conforme NF EN 1340 et béton d'assise dosé 250 kg/m³", "price": 18.00, "unit": "ml", "tva_default": 20 },
+            { "id": "TER-06-POS", "step": "POSE", "label": "Fourniture et pose de bordures P1/P2 : excavation localisée, lit de béton, mise à niveau au cordeau, réglage et scellement selon règles d'art VRD", "price": 32.00, "unit": "ml", "tva_default": 10 },
+            { "id": "TER-06-FIN", "step": "FINITION", "label": "Reprise des joints, serrage latéral et compactage des accotements", "price": 8.00, "unit": "ml", "tva_default": 10 },
+            { "id": "TER-06-NET", "step": "NETTOYAGE", "label": "Nettoyage complet de la zone de pose des bordures et évacuation réglementaire des résidus", "price": 3.00, "unit": "ml", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Réseaux enterrés EU/EP en PVC CR8",
+          "variant_code": "TER-07",
+          "items": [
+            { "id": "TER-07-DEM", "step": "DEMOLITION", "label": "Ouverture de tranchée, découpe de revêtements existants et évacuation en déchetterie spécialisée", "price": 28.00, "unit": "ml", "tva_default": 10 },
+            { "id": "TER-07-FOU", "step": "FOURNITURE", "label": "Fourniture de canalisation PVC CR8 diamètre 100/125/160 mm, joints et accessoires conformes NF EN 1401", "price": 22.00, "unit": "ml", "tva_default": 20 },
+            { "id": "TER-07-POS", "step": "POSE", "label": "Fourniture et pose de PVC CR8 : lit de pose, réglage pente 1 à 3 %, pose à joint, compactage et contrôle selon DTU 64.1", "price": 38.00, "unit": "ml", "tva_default": 10 },
+            { "id": "TER-07-FIN", "step": "FINITION", "label": "Reproductivité du terrain, compactage par couches et remise à niveau final", "price": 9.00, "unit": "ml", "tva_default": 10 },
+            { "id": "TER-07-NET", "step": "NETTOYAGE", "label": "Nettoyage de la tranchée et évacuation réglementaire des déblais", "price": 4.00, "unit": "ml", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Création d'une plateforme en grave 0/31.5",
+          "variant_code": "TER-08",
+          "items": [
+            { "id": "TER-08-DEM", "step": "DEMOLITION", "label": "Décapage du sol existant, retrait des matériaux instables et évacuation en déchetterie spécialisée", "price": 22.00, "unit": "m²", "tva_default": 10 },
+            { "id": "TER-08-FOU", "step": "FOURNITURE", "label": "Fourniture de grave 0/31.5 type GNT conforme NF EN 13242 pour plateforme", "price": 14.00, "unit": "m²", "tva_default": 20 },
+            { "id": "TER-08-POS", "step": "POSE", "label": "Fourniture et mise en œuvre de grave 0/31.5 : étalement, réglage laser et compactage en plusieurs passes selon NF P 98-300", "price": 24.00, "unit": "m²", "tva_default": 10 },
+            { "id": "TER-08-FIN", "step": "FINITION", "label": "Réalisation du fond de forme, correction des points bas et vérification des pentes", "price": 6.00, "unit": "m²", "tva_default": 10 },
+            { "id": "TER-08-NET", "step": "NETTOYAGE", "label": "Nettoyage intégral de la zone et évacuation réglementaire des excédents", "price": 3.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Pose de drains périphériques fondation",
+          "variant_code": "TER-09",
+          "items": [
+            { "id": "TER-09-DEM", "step": "DEMOLITION", "label": "Ouverture de tranchée périphérique, purge des matériaux humides et évacuation en déchetterie spécialisée", "price": 34.00, "unit": "ml", "tva_default": 10 },
+            { "id": "TER-09-FOU", "step": "FOURNITURE", "label": "Fourniture de drain agricole Ø100 mm perforé, lit de graviers roulés 10/20, géotextile filtrant NF EN 13252", "price": 19.00, "unit": "ml", "tva_default": 20 },
+            { "id": "TER-09-POS", "step": "POSE", "label": "Fourniture et pose du drain : réalisation du lit drainant, pose en pente, enveloppement géotextile et remblai selon DTU 20.1", "price": 32.00, "unit": "ml", "tva_default": 10 },
+            { "id": "TER-09-FIN", "step": "FINITION", "label": "Mise en forme des abords, compactage et raccordement au regard de collecte", "price": 8.00, "unit": "ml", "tva_default": 10 },
+            { "id": "TER-09-NET", "step": "NETTOYAGE", "label": "Nettoyage des abords et évacuation réglementaire des déblais", "price": 3.00, "unit": "ml", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Empierrement accès chantier (GNT 0/80)",
+          "variant_code": "TER-10",
+          "items": [
+            { "id": "TER-10-DEM", "step": "DEMOLITION", "label": "Décapage du terrain, retrait de la couche meuble et évacuation en déchetterie spécialisée", "price": 18.00, "unit": "m²", "tva_default": 10 },
+            { "id": "TER-10-FOU", "step": "FOURNITURE", "label": "Fourniture de GNT 0/80 pour empierrement chantier conforme NF EN 13242", "price": 16.00, "unit": "m²", "tva_default": 20 },
+            { "id": "TER-10-POS", "step": "POSE", "label": "Fourniture et mise en œuvre de GNT 0/80 : étalement, réglage et compactage pour accès engins chantier", "price": 26.00, "unit": "m²", "tva_default": 10 },
+            { "id": "TER-10-FIN", "step": "FINITION", "label": "Réalisation des pentes, resserrage des bords et compactage final", "price": 5.00, "unit": "m²", "tva_default": 10 },
+            { "id": "TER-10-NET", "step": "NETTOYAGE", "label": "Nettoyage complet et évacuation réglementaire des excédents et déblais", "price": 3.00, "unit": "m²", "tva_default": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "trade": "Charpente bois",
+      "trade_code": "CHA",
+      "variants": [
+        {
+          "variant": "Pose de fermettes industrielles (charpente légère)",
+          "variant_code": "CHA-01",
+          "items": [
+            { "id": "CHA-01-DEM", "step": "DEMOLITION", "label": "Dépose des éléments de charpente existante, découpe contrôlée, sécurisation et évacuation en déchetterie spécialisée", "price": 42.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-01-FOU", "step": "FOURNITURE", "label": "Fourniture de fermettes industrielles en bois résineux traité classe 2, plates-formes et sabots métalliques conformes DTU 31.3", "price": 58.00, "unit": "m²", "tva_default": 20 },
+            { "id": "CHA-01-POS", "step": "POSE", "label": "Fourniture et pose des fermettes : levage, fixation sur muralières, entretoises, contreventement et ancrages selon DTU 31.3", "price": 96.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-01-FIN", "step": "FINITION", "label": "Alignement final, réglage des entraxes, fixation complémentaire et traitement des points singuliers", "price": 18.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-01-NET", "step": "NETTOYAGE", "label": "Nettoyage complet de la zone de travail et évacuation réglementaire des chutes de bois", "price": 6.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Charpente traditionnelle en bois massif",
+          "variant_code": "CHA-02",
+          "items": [
+            { "id": "CHA-02-DEM", "step": "DEMOLITION", "label": "Dépose de l'ancienne charpente, tri des éléments, démontage sécurisé et évacuation en déchetterie spécialisée", "price": 48.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-02-FOU", "step": "FOURNITURE", "label": "Fourniture de poutres, pannes et chevrons en bois massif résineux ou chêne, taillés selon plans et normes DTU 31.1", "price": 92.00, "unit": "m²", "tva_default": 20 },
+            { "id": "CHA-02-POS", "step": "POSE", "label": "Fourniture et pose d'une charpente traditionnelle : levage, assemblages tenon-mortaise, boulonnage et contreventements selon DTU 31.1", "price": 165.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-02-FIN", "step": "FINITION", "label": "Ajustements, calages, reprise des abouts et traitement fongicide/insecticide des bois visibles", "price": 28.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-02-NET", "step": "NETTOYAGE", "label": "Nettoyage global du chantier et évacuation réglementaire des chutes et sciures", "price": 7.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Création d'un chevêtre bois pour trémie d'escalier",
+          "variant_code": "CHA-03",
+          "items": [
+            { "id": "CHA-03-DEM", "step": "DEMOLITION", "label": "Découpe contrôlée du plancher existant, renforts provisoires et évacuation en déchetterie spécialisée", "price": 58.00, "unit": "u", "tva_default": 10 },
+            { "id": "CHA-03-FOU", "step": "FOURNITURE", "label": "Fourniture de solives, traverses et renforts en bois massif classe 2 ou LVL conforme DTU 31.3", "price": 120.00, "unit": "u", "tva_default": 20 },
+            { "id": "CHA-03-POS", "step": "POSE", "label": "Fourniture et pose du chevêtre : découpe, ancrage, reprise de charge, boulonnage et contreventement supérieur selon règles d'art", "price": 210.00, "unit": "u", "tva_default": 10 },
+            { "id": "CHA-03-FIN", "step": "FINITION", "label": "Rebouchages périphériques, calages et préparation pour cloisonnement ou habillage", "price": 42.00, "unit": "u", "tva_default": 10 },
+            { "id": "CHA-03-NET", "step": "NETTOYAGE", "label": "Nettoyage complet de la trémie et évacuation réglementaire des gravats et chutes", "price": 12.00, "unit": "u", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Traitement curatif charpente (insectes xylophages)",
+          "variant_code": "CHA-04",
+          "items": [
+            { "id": "CHA-04-DEM", "step": "DEMOLITION", "label": "Brossage, purge des bois friables et évacuation en déchetterie spécialisée", "price": 34.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-04-FOU", "step": "FOURNITURE", "label": "Fourniture de produit insecticide fongicide certifié, injection + pulvérisation conforme normes CTB-P+", "price": 28.00, "unit": "m²", "tva_default": 20 },
+            { "id": "CHA-04-POS", "step": "POSE", "label": "Fourniture et application du traitement curatif : percement, injection sous pression, pulvérisation de surface et reprise des zones fragilisées", "price": 56.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-04-FIN", "step": "FINITION", "label": "Obturation des trous d'injection, retouches et vérification finale de toutes les zones traitées", "price": 12.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-04-NET", "step": "NETTOYAGE", "label": "Nettoyage complet du chantier et évacuation réglementaire des poussières et résidus", "price": 5.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Renforcement de charpente existante (pannes/solives)",
+          "variant_code": "CHA-05",
+          "items": [
+            { "id": "CHA-05-DEM", "step": "DEMOLITION", "label": "Purge des éléments de charpente faibles ou endommagés et évacuation en déchetterie spécialisée", "price": 46.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-05-FOU", "step": "FOURNITURE", "label": "Fourniture de bois massif ou contrecollé section 63×175 / 75×225 mm traité classe 2 conforme DTU 31.1", "price": 42.00, "unit": "ml", "tva_default": 20 },
+            { "id": "CHA-05-POS", "step": "POSE", "label": "Fourniture et pose de renforts bois : jumelage, boulonnage, éclisses, reprises de charges et contreventement", "price": 78.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-05-FIN", "step": "FINITION", "label": "Ajustements, rabotages, reprises d'appui et corrections ponctuelles", "price": 16.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-05-NET", "step": "NETTOYAGE", "label": "Nettoyage complet des zones de renforcement et évacuation réglementaire des chutes", "price": 5.00, "unit": "ml", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Remplacement complet de chevrons bois",
+          "variant_code": "CHA-06",
+          "items": [
+            { "id": "CHA-06-DEM", "step": "DEMOLITION", "label": "Dépose complète des anciens chevrons, purge des appuis, découpe contrôlée et évacuation en déchetterie spécialisée", "price": 38.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-06-FOU", "step": "FOURNITURE", "label": "Fourniture de chevrons 63×75 mm bois résineux traité classe 2 conformes DTU 31.1", "price": 26.00, "unit": "ml", "tva_default": 20 },
+            { "id": "CHA-06-POS", "step": "POSE", "label": "Fourniture et pose des nouveaux chevrons : alignement, fixation mécanique, contreventement et traitement des points singuliers selon DTU 31.1", "price": 52.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-06-FIN", "step": "FINITION", "label": "Ajustement des abouts, calages, vérifications d'entraxes et corrections localisées", "price": 14.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-06-NET", "step": "NETTOYAGE", "label": "Nettoyage complet de la zone de toiture et évacuation réglementaire des chutes de bois", "price": 4.00, "unit": "ml", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Pose de plancher bois OSB sur solives",
+          "variant_code": "CHA-07",
+          "items": [
+            { "id": "CHA-07-DEM", "step": "DEMOLITION", "label": "Dépose de l'ancien plancher, démontage des fixations et évacuation en déchetterie spécialisée", "price": 22.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-07-FOU", "step": "FOURNITURE", "label": "Fourniture de panneaux OSB3 épaisseur 18 mm rainure-languette + visserie anti-fendage conforme DTU 51.3", "price": 28.00, "unit": "m²", "tva_default": 20 },
+            { "id": "CHA-07-POS", "step": "POSE", "label": "Fourniture et pose du plancher OSB : coupes, fixation sur solives, joints décalés, respect des jeux périphériques selon DTU 51.3", "price": 48.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-07-FIN", "step": "FINITION", "label": "Ponçage léger, rebouchage des têtes de vis et préparation à la réception de revêtement", "price": 12.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-07-NET", "step": "NETTOYAGE", "label": "Nettoyage complet et évacuation réglementaire des chutes OSB", "price": 3.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Renforcement par poutres LVL type Kerto",
+          "variant_code": "CHA-08",
+          "items": [
+            { "id": "CHA-08-DEM", "step": "DEMOLITION", "label": "Purge des bois faibles, démontage des reprises existantes et évacuation en déchetterie spécialisée", "price": 44.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-08-FOU", "step": "FOURNITURE", "label": "Fourniture de poutres LVL type Kerto-S ou Kerto-Q, sections adaptées aux charges selon Eurocode 5", "price": 76.00, "unit": "ml", "tva_default": 20 },
+            { "id": "CHA-08-POS", "step": "POSE", "label": "Fourniture et pose des poutres LVL : découpe, ancrages métalliques, boulonnage et mise en charge progressive selon règles professionnelles", "price": 118.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-08-FIN", "step": "FINITION", "label": "Reprise des appuis, ajustement des abouts et traitement des zones de contact", "price": 22.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-08-NET", "step": "NETTOYAGE", "label": "Nettoyage complet du plancher/charpente et évacuation des chutes LVL", "price": 5.00, "unit": "ml", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Réparation de ferme ou panne bois existante",
+          "variant_code": "CHA-09",
+          "items": [
+            { "id": "CHA-09-DEM", "step": "DEMOLITION", "label": "Dépose d'éléments affaiblis, purge des zones dégradées et évacuation en déchetterie spécialisée", "price": 36.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-09-FOU", "step": "FOURNITURE", "label": "Fourniture de bois massif traité classe 2 + ferrures, éclisses et boulonnerie conformes DTU 31.1", "price": 34.00, "unit": "ml", "tva_default": 20 },
+            { "id": "CHA-09-POS", "step": "POSE", "label": "Fourniture et pose des renforts : éclissage, vissage/boulonnage, entures et ajustements structurels", "price": 62.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-09-FIN", "step": "FINITION", "label": "Retouches, rebouchages et traitement préventif des bois réparés", "price": 14.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-09-NET", "step": "NETTOYAGE", "label": "Nettoyage global et évacuation réglementaire des chutes de bois et ferrures", "price": 4.00, "unit": "ml", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Création d'un appentis ou extension ossature bois",
+          "variant_code": "CHA-10",
+          "items": [
+            { "id": "CHA-10-DEM", "step": "DEMOLITION", "label": "Dépose d'éléments existants (avancée, couverture ou bardage) et évacuation en déchetterie spécialisée", "price": 42.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-10-FOU", "step": "FOURNITURE", "label": "Fourniture d'ossature bois 45×145 mm, lisses, montants, contreventements et panneaux OSB3 selon DTU 31.2", "price": 64.00, "unit": "m²", "tva_default": 20 },
+            { "id": "CHA-10-POS", "step": "POSE", "label": "Fourniture et pose de l'ossature : assemblage, fixation, contreventement, réglage verticalité et ancrages selon DTU 31.2", "price": 112.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-10-FIN", "step": "FINITION", "label": "Rebouchages, membranes coupe-vent et préparation avant bardage/couverture", "price": 22.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-10-NET", "step": "NETTOYAGE", "label": "Nettoyage complet et évacuation réglementaire des déchets de bois et OSB", "price": 5.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Remplacement ou ajout d'entrait bois sur ferme existante",
+          "variant_code": "CHA-11",
+          "items": [
+            { "id": "CHA-11-DEM", "step": "DEMOLITION", "label": "Dépose des éléments affaiblis, purge des fixations anciennes et évacuation en déchetterie spécialisée", "price": 48.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-11-FOU", "step": "FOURNITURE", "label": "Fourniture d'entrait bois massif section 80×220 mm traité classe 2 + ferrures et boulonnerie conformes DTU 31.1", "price": 74.00, "unit": "ml", "tva_default": 20 },
+            { "id": "CHA-11-POS", "step": "POSE", "label": "Fourniture et pose de l'entrait : levage, mise en place, perçage, boulonnage, serrage et reprise de charges selon règles professionnelles", "price": 128.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-11-FIN", "step": "FINITION", "label": "Ajustement des extrémités, reprise des appuis, retouches et traitement de protection", "price": 26.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-11-NET", "step": "NETTOYAGE", "label": "Nettoyage complet de la zone de travail et évacuation réglementaire des chutes de bois et ferrures", "price": 5.00, "unit": "ml", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Remplacement complet des pannes faîtières et sablières",
+          "variant_code": "CHA-12",
+          "items": [
+            { "id": "CHA-12-DEM", "step": "DEMOLITION", "label": "Dépose sécurisée des anciennes pannes faîtières/sablières, purge des zones dégradées et évacuation en déchetterie spécialisée", "price": 52.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-12-FOU", "step": "FOURNITURE", "label": "Fourniture de pannes bois massif ou lamellé-collé sections adaptées aux charges toiture selon Eurocode 5", "price": 92.00, "unit": "ml", "tva_default": 20 },
+            { "id": "CHA-12-POS", "step": "POSE", "label": "Fourniture et pose des pannes : levage, fixation sur fermes, calage, alignement et ancrage conforme DTU 31.1", "price": 142.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-12-FIN", "step": "FINITION", "label": "Reprise des ancrages, corrections de niveaux et traitement des zones d'appui", "price": 28.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-12-NET", "step": "NETTOYAGE", "label": "Nettoyage complet et évacuation réglementaire des anciennes pannes et cales bois", "price": 5.00, "unit": "ml", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Création d'un chevêtre bois pour ouverture Velux",
+          "variant_code": "CHA-13",
+          "items": [
+            { "id": "CHA-13-DEM", "step": "DEMOLITION", "label": "Découpe localisée de la charpente, dépose des éléments gênants et évacuation en déchetterie spécialisée", "price": 46.00, "unit": "u", "tva_default": 10 },
+            { "id": "CHA-13-FOU", "step": "FOURNITURE", "label": "Fourniture de bois massif traité pour chevêtre, renforts, demi-chevrons et quincailleries spécifiques", "price": 78.00, "unit": "u", "tva_default": 20 },
+            { "id": "CHA-13-POS", "step": "POSE", "label": "Fourniture et pose du chevêtre : découpe, renforts latéraux, fixation mécanique, alignement et mise au gabarit du Velux selon DTU 36.5", "price": 138.00, "unit": "u", "tva_default": 10 },
+            { "id": "CHA-13-FIN", "step": "FINITION", "label": "Reprise des contours, ajustements et préparation pour pose de fenêtre de toit", "price": 34.00, "unit": "u", "tva_default": 10 },
+            { "id": "CHA-13-NET", "step": "NETTOYAGE", "label": "Nettoyage complet de la zone toiture et évacuation réglementaire des chutes bois", "price": 6.00, "unit": "u", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Création d'une mezzanine structure bois",
+          "variant_code": "CHA-14",
+          "items": [
+            { "id": "CHA-14-DEM", "step": "DEMOLITION", "label": "Dépose d'éléments existants gênants (plafond, plancher) et évacuation en déchetterie spécialisée", "price": 28.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-14-FOU", "step": "FOURNITURE", "label": "Fourniture de poutres bois lamellé-collé, solives 75×225 mm, panneaux OSB3 et quincailleries structurelles", "price": 82.00, "unit": "m²", "tva_default": 20 },
+            { "id": "CHA-14-POS", "step": "POSE", "label": "Fourniture et pose de la structure mezzanine : ancrages muraux, pose solives, OSB, calage et stabilité selon DTU 31.1", "price": 128.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-14-FIN", "step": "FINITION", "label": "Reprises de niveaux, joints périphériques et préparation pour garde-corps ou escalier", "price": 22.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-14-NET", "step": "NETTOYAGE", "label": "Nettoyage intégral de l'espace et évacuation réglementaire des chutes bois", "price": 4.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Remplacement complet d'une ferme de charpente",
+          "variant_code": "CHA-15",
+          "items": [
+            { "id": "CHA-15-DEM", "step": "DEMOLITION", "label": "Démontage complet d'une ferme bois existante, dépose des connecteurs et évacuation en déchetterie spécialisée", "price": 85.00, "unit": "u", "tva_default": 10 },
+            { "id": "CHA-15-FOU", "step": "FOURNITURE", "label": "Fourniture d'une ferme complète bois massif ou lamellé-collé dimensionnée selon Eurocode 5 + ferrures et boulons", "price": 240.00, "unit": "u", "tva_default": 20 },
+            { "id": "CHA-15-POS", "step": "POSE", "label": "Fourniture et pose de la ferme : levage, positionnement, fixation, contreventement et réglages selon DTU 31.1", "price": 380.00, "unit": "u", "tva_default": 10 },
+            { "id": "CHA-15-FIN", "step": "FINITION", "label": "Reprise des appuis, ajustements des assemblages et corrections finales", "price": 68.00, "unit": "u", "tva_default": 10 },
+            { "id": "CHA-15-NET", "step": "NETTOYAGE", "label": "Nettoyage final de la zone et évacuation réglementaire des chutes bois", "price": 12.00, "unit": "u", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Traitement préventif charpente — insecticide et fongicide",
+          "variant_code": "CHA-16",
+          "items": [
+            { "id": "CHA-16-DEM", "step": "DEMOLITION", "label": "Dépose ponctuelle des éléments de protection existants (cache-moins, lambrequins, habillages) avec évacuation en déchetterie spécialisée", "price": 24.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-16-FOU", "step": "FOURNITURE", "label": "Fourniture de produit insecticide + fongicide certifié CTB-P+ pour traitement préventif charpente (capricorne, vrillette, lyctus, champignons lignivores)", "price": 18.00, "unit": "m²", "tva_default": 20 },
+            { "id": "CHA-16-POS", "step": "POSE", "label": "Fourniture et application du traitement préventif charpente : brossage, dépoussiérage, application double couche par pulvérisation conforme au DTU 31.1", "price": 42.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-16-FIN", "step": "FINITION", "label": "Repositionnement des éléments déposés, réglages, reprise des fixations et vérifications des accès", "price": 10.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-16-NET", "step": "NETTOYAGE", "label": "Nettoyage complet des zones de travail et évacuation réglementaire des résidus de traitement", "price": 5.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Traitement curatif charpente — capricornes, vrillettes, lyctus",
+          "variant_code": "CHA-17",
+          "items": [
+            { "id": "CHA-17-DEM", "step": "DEMOLITION", "label": "Ouverture et dégagement des zones infestées : dépose ciblée des plinthes, lambris, cache-moineaux et évacuation en déchetterie spécialisée", "price": 32.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-17-FOU", "step": "FOURNITURE", "label": "Fourniture de gel insecticide curatif CTB-P+ haute pénétration contre capricornes, vrillettes et lyctus", "price": 22.00, "unit": "m²", "tva_default": 20 },
+            { "id": "CHA-17-POS", "step": "POSE", "label": "Fourniture et injection curative : forage, injection sous pression, saturation pulvérisée et traitement profond selon protocole CTB-A+", "price": 58.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-17-FIN", "step": "FINITION", "label": "Rebouchage des trous d'injection, reprises localisées des supports, contrôle final d'éradication", "price": 14.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-17-NET", "step": "NETTOYAGE", "label": "Nettoyage complet du chantier, aspiration des poussières et évacuation réglementaire des éléments déposés", "price": 6.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Traitement termites — barrière chimique et injection",
+          "variant_code": "CHA-18",
+          "items": [
+            { "id": "CHA-18-DEM", "step": "DEMOLITION", "label": "Ouverture périphérique, décaissement ponctuel et dépose des éléments infestés avec évacuation en déchetterie spécialisée", "price": 38.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-18-FOU", "step": "FOURNITURE", "label": "Fourniture de termicide agréé anti-termites pour barrière chimique et injection (certification CTB-P+)", "price": 28.00, "unit": "ml", "tva_default": 20 },
+            { "id": "CHA-18-POS", "step": "POSE", "label": "Fourniture et application : forage, injection sous pression, création barrière chimique périmétrique, traitement zones sensibles selon norme EN 335", "price": 74.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-18-FIN", "step": "FINITION", "label": "Rebouchage des forages, remise en état des sols, vérification des continuités de la barrière", "price": 16.00, "unit": "ml", "tva_default": 10 },
+            { "id": "CHA-18-NET", "step": "NETTOYAGE", "label": "Nettoyage complet du périmètre traité et évacuation réglementaire des matériaux contaminés", "price": 5.00, "unit": "ml", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Traitement mérule et champignons lignivores",
+          "variant_code": "CHA-19",
+          "items": [
+            { "id": "CHA-19-DEM", "step": "DEMOLITION", "label": "Démolition et élimination des bois contaminés, purge complète des zones atteintes et évacuation en déchetterie spécialisée", "price": 58.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-19-FOU", "step": "FOURNITURE", "label": "Fourniture de fongicide curatif haute efficacité contre mérule, coniophore, phellinus et autres champignons lignivores", "price": 26.00, "unit": "m²", "tva_default": 20 },
+            { "id": "CHA-19-POS", "step": "POSE", "label": "Fourniture et application curative : brûlage localisé, brossage, injections profondes et pulvérisation renforcée selon prescriptions CTB-A+", "price": 82.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-19-FIN", "step": "FINITION", "label": "Traitement des maçonneries attenantes, rebouchages, assainissement des pieds de murs", "price": 20.00, "unit": "m²", "tva_default": 10 },
+            { "id": "CHA-19-NET", "step": "NETTOYAGE", "label": "Nettoyage approfondi du chantier et évacuation réglementaire des bois contaminés", "price": 7.00, "unit": "m²", "tva_default": 10 }
+          ]
+        },
+        {
+          "variant": "Renforcement structurel charpente — poutres affaiblies",
+          "variant_code": "CHA-20",
+          "items": [
+            { "id": "CHA-20-DEM", "step": "DEMOLITION", "label": "Dépose des revêtements et dégagement des zones faibles de la charpente avec évacuation en déchetterie spécialisée", "price": 42.00, "unit": "u", "tva_default": 10 },
+            { "id": "CHA-20-FOU", "step": "FOURNITURE", "label": "Fourniture de renforts bois ou métalliques, contreplaqués structurels, boulonnerie, résines époxy ou fibres carbone selon étude structure", "price": 85.00, "unit": "u", "tva_default": 20 },
+            { "id": "CHA-20-POS", "step": "POSE", "label": "Fourniture et pose de renforts : boulonnage, collage structural, lamellé-collé ou platines métalliques selon BAEL / Eurocode 5", "price": 165.00, "unit": "u", "tva_default": 10 },
+            { "id": "CHA-20-FIN", "step": "FINITION", "label": "Reprofilage, rebouchage, reprise des appuis et contrôle de rigidité", "price": 32.00, "unit": "u", "tva_default": 10 },
+            { "id": "CHA-20-NET", "step": "NETTOYAGE", "label": "Nettoyage final du chantier et évacuation réglementaire des éléments déposés", "price": 8.00, "unit": "u", "tva_default": 10 }
+          ]
+        }
+      ]
+    }
+  ]
+}

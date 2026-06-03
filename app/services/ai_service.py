@@ -36,7 +36,7 @@ from app.core.prompts import (
 )
 from app.core.utils import JSONHealingError, clean_and_parse_json
 from app.core.btp_validator import validate_btp_context
-from app.services.prestations_engine import process_ai_lots, calculate_global_totals
+from app.services.prestations_engine import process_ai_lots, calculate_global_totals, load_price_map
 from app.schemas.devis import DevisResponse
 from app.services.catalog_service import build_trade_line_context
 from app.services.devis_repair import UnrepairableDevisError
@@ -490,7 +490,8 @@ class AIService:
         logger.info("AI returned %d lots: %s", len(lots), [l.get("metier", "?") for l in lots])
         client_type = parsed.get("client_type", "particulier")
         project_nature = parsed.get("project_nature", "renovation")
-        four_blocks = process_ai_lots(lots, client_type, project_nature)
+        price_map, concept_map = await load_price_map(db)
+        four_blocks = process_ai_lots(lots, client_type, project_nature, price_map=price_map, concept_map=concept_map)
         
         from datetime import datetime, timedelta, timezone
 
