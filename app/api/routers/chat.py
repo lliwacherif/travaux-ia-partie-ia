@@ -24,7 +24,8 @@ async def generate_chat(payload: ChatRequest) -> ChatResponse:
     """Generate a response from the AI assistant."""
     try:
         response_text = await ai_service.generate_chat_response(
-            user_text=payload.text
+            user_text=payload.text,
+            history=payload.history,
         )
         return ChatResponse(text=response_text)
     except AIServiceError as exc:

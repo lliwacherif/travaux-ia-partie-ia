@@ -57,7 +57,7 @@ class Settings(BaseSettings):
         description="OpenAI API key used for all LLM calls.",
     )
     OPENAI_MODEL: str = Field(
-        default="gpt-4o-mini",
+        default="gpt-5",
         description="Default OpenAI model id used by the AI service.",
     )
 

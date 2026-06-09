@@ -1,6 +1,23 @@
 """Pydantic schemas for the chatbot API."""
 
+from __future__ import annotations
+
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
+
+
+class ChatMessage(BaseModel):
+    """A single message in the conversation history."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    role: Literal["user", "assistant"] = Field(
+        ..., description="Who sent this message."
+    )
+    content: str = Field(
+        ..., description="The text content of the message."
+    )
 
 
 class ChatRequest(BaseModel):
@@ -9,6 +26,11 @@ class ChatRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     text: str = Field(..., description="The free-form text input from the user.")
+    history: list[ChatMessage] = Field(
+        default_factory=list,
+        max_length=20,
+        description="Previous conversation turns (oldest first). Max 20 messages.",
+    )
 
 
 class ChatResponse(BaseModel):

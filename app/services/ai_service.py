@@ -32,8 +32,10 @@ from app.core.config import settings
 from app.core.prompts import (
     SYSTEM_PROMPT_GENERATOR,
     TRADE_LINE_PROMPT,
-    CHATBOT_PROMPT
+    build_chatbot_system_prompt,
 )
+from app.core.chat_intent import classify_chat_intent
+from app.schemas.chat import ChatMessage
 from app.core.utils import JSONHealingError, clean_and_parse_json
 from app.core.btp_validator import validate_btp_context
 from app.services.prestations_engine import process_ai_lots, calculate_global_totals, load_price_map
@@ -345,24 +347,48 @@ class AIService:
     async def generate_chat_response(
         self,
         user_text: str,
+        history: list[ChatMessage] | None = None,
     ) -> str:
         """Run the chatbot pipeline and return the generated text response.
 
-        Uses the configured OpenAI model and the `CHATBOT_PROMPT` system context.
+        The system prompt is assembled dynamically:
+
+        * The core persona (``CHATBOT_SYSTEM_BASE``) is **always** included.
+        * UX module guides are injected **only** when the user's question
+          is about app navigation (detected by keyword classification).
+        * Previous conversation turns are prepended so the model has
+          multi-turn context.
         """
         user_text = user_text.strip()
         if not user_text:
             raise ValueError("`user_text` must not be empty.")
 
+        # --- 1. Classify intent (zero-cost keyword scan) ---
+        relevant_modules = classify_chat_intent(user_text)
+        system_prompt = build_chatbot_system_prompt(relevant_modules or None)
+
+        logger.debug(
+            "Chat intent: UX modules=%s, prompt size=%d chars",
+            relevant_modules or "(none — BTP domain)",
+            len(system_prompt),
+        )
+
+        # --- 2. Assemble messages with history ---
+        messages: list[dict[str, str]] = [
+            {"role": "system", "content": system_prompt},
+        ]
+        if history:
+            for msg in history:
+                messages.append({"role": msg.role, "content": msg.content})
+        messages.append({"role": "user", "content": user_text})
+
+        # --- 3. Call the model ---
         try:
             response = await self._client.chat.completions.create(
                 model=self._model,
-                messages=[
-                    {"role": "system", "content": CHATBOT_PROMPT},
-                    {"role": "user", "content": user_text},
-                ],
-                max_tokens=8192,
-                temperature=0.7,
+                messages=messages,
+                max_tokens=4096,
+                temperature=0.4,
                 top_p=1,
                 presence_penalty=0,
                 stream=False,
