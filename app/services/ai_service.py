@@ -207,7 +207,7 @@ class AIService:
     # devis JSON output (15-20 lines with descriptions, prices, TVA) plus
     # the structured prompt context.
     _COMPLETION_PARAMS: Final[dict[str, Any]] = {
-        "max_tokens": 8192,
+        "max_completion_tokens": 8192,
         "temperature": 1,
         "top_p": 1,
         "presence_penalty": 0,
@@ -387,7 +387,7 @@ class AIService:
             response = await self._client.chat.completions.create(
                 model=self._model,
                 messages=messages,
-                max_tokens=4096,
+                max_completion_tokens=4096,
                 temperature=0.4,
                 top_p=1,
                 presence_penalty=0,
