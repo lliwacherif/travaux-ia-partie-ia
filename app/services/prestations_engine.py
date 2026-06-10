@@ -288,7 +288,7 @@ def _get_tva(metier: str, designation: str, client_type: str, project_nature: st
     # 3. 10% by default
     return 10.0
 
-def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, default_designation: str, tva: float) -> List[Dict[str, Any]]:
+def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, default_designation: str, tva: float, metier: str = "") -> List[Dict[str, Any]]:
     """Enforces exactly target_count lines. Sums prices if truncated, injects proportional lines if padded."""
     if target_count <= 0:
         return []
@@ -355,23 +355,97 @@ def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, defau
                 "Réception technique et contrôle final"
             ]
         else:
-            generic_labels = [
-                "Préparation et traitement ponctuel du support",
-                "Découpes, ajustements et façonnage sur mesure",
-                "Fourniture des petits consommables et fixations",
-                "Vérification des niveaux, aplombs et équerrages",
-                "Manutention et approvisionnement à pied d'œuvre",
-                "Traitement des joints et raccords",
-                "Protection spécifique des ouvrages attenants",
-                "Contrôle qualité et essais de fonctionnement",
-                "Acheminement et gestion des gravats intermédiaires",
-                "Finition et retouches de peinture",
-                "Mise en propreté intermédiaire de la zone",
-                "Réglages finaux et paramétrages de mise en service",
-                "Rebouchage et lissage des percements éventuels",
-                "Traitement anti-corrosion ou isolant des fixations",
-                "Repérage et marquage des installations"
-            ]
+            metier_lower = metier.lower()
+            if "climatisation" in metier_lower or "chauffage" in metier_lower or "cvc" in metier_lower:
+                generic_labels = [
+                    "Repérage et tracé des parcours frigorifiques ou hydrauliques",
+                    "Percements et carottages pour passages de liaisons",
+                    "Mise en place des supports et fixations anti-vibratiles",
+                    "Pose et raccordement des liaisons et réseaux",
+                    "Câblage électrique d'interconnexion interne",
+                    "Pose et raccordement des évacuations de condensats",
+                    "Mise sous pression pour test d'étanchéité",
+                    "Tirage au vide de l'installation (si applicable)",
+                    "Appoint de fluide ou traitement des réseaux",
+                    "Tests d'étanchéité et relevés de pressions",
+                    "Vérification des écoulements et pentes",
+                    "Contrôle de l'isolation thermique des liaisons",
+                    "Mise en service, réglages et relevés de températures",
+                    "Vérification de la conformité aux normes",
+                    "Mise en propreté de la zone d'intervention"
+                ]
+            elif "plomberie" in metier_lower or "sanitaire" in metier_lower:
+                generic_labels = [
+                    "Repérage et tracé des parcours de canalisations",
+                    "Percements et saignées pour passages de tuyauteries",
+                    "Fourniture et pose des colliers et supports de fixation",
+                    "Découpes, ébavurages et préparation des tubes",
+                    "Réalisation des assemblages (soudures, sertissages, collages)",
+                    "Raccordement des réseaux d'alimentation (EF/EC)",
+                    "Raccordement des réseaux d'évacuation (EU/EV)",
+                    "Mise en eau et purge des canalisations",
+                    "Tests de mise en pression et recherche de fuites",
+                    "Contrôle des débits et des pentes d'écoulement",
+                    "Isolation thermique ou acoustique ponctuelle des tubes",
+                    "Rebouchage technique des traversées de cloisons",
+                    "Vérification de la conformité des raccordements",
+                    "Paramétrage des organes de régulation",
+                    "Mise en propreté de la zone d'intervention"
+                ]
+            elif "electri" in metier_lower:
+                generic_labels = [
+                    "Repérage et tracé des cheminements électriques",
+                    "Réalisation des saignées et percements",
+                    "Fourniture et pose des cheminements (gaines, goulottes)",
+                    "Tirage des câbles et conducteurs",
+                    "Dénudage et repérage des extrémités de câbles",
+                    "Raccordements des appareillages et boîtes de dérivation",
+                    "Repérage et raccordement au tableau de répartition",
+                    "Vérification de la continuité des conducteurs de protection",
+                    "Mesure de la résistance de prise de terre",
+                    "Contrôle d'isolement des circuits",
+                    "Tests de déclenchement des dispositifs différentiels",
+                    "Rebouchage technique des saignées et scellements",
+                    "Mise sous tension et essais fonctionnels",
+                    "Identification formelle des circuits (étiquetage)",
+                    "Mise en propreté de la zone d'intervention"
+                ]
+            elif "peinture" in metier_lower or "revetement" in metier_lower:
+                generic_labels = [
+                    "Reconnaissance et sondage des supports",
+                    "Lessivage et dégraissage des surfaces",
+                    "Grattage et égrenage des parties non adhérentes",
+                    "Ouverture et traitement des fissures",
+                    "Application d'un enduit de rebouchage ponctuel",
+                    "Application d'un enduit de lissage ou repassage",
+                    "Ponçage soigné et dépoussiérage des fonds",
+                    "Mise en place de bandes de masquage",
+                    "Protection spécifique des menuiseries et appareillages",
+                    "Application d'une couche d'impression ou primaire",
+                    "Traitement spécifique des joints ou réchampissage",
+                    "Vérification de l'opacité et retouches intermédiaires",
+                    "Dépose minutieuse des adhésifs de masquage",
+                    "Contrôle visuel de l'homogénéité du rendu",
+                    "Mise en propreté de la zone d'intervention"
+                ]
+            else:
+                generic_labels = [
+                    "Mise en sécurité spécifique des éléments de l'ouvrage",
+                    "Repérage, traçage et implantation des ouvrages",
+                    "Préparation technique de la zone de travail",
+                    "Manutention et répartition des matériaux à pied d'œuvre",
+                    "Ajustement et calibrage des éléments d'assemblage",
+                    "Fourniture et pose des petits consommables techniques",
+                    "Vérification des alignements, niveaux et aplombs",
+                    "Protection ponctuelle des ouvrages adjacents",
+                    "Contrôle technique des assemblages et raccordements",
+                    "Tests de résistance et de bon fonctionnement",
+                    "Acheminement et tri des déchets d'intervention",
+                    "Vérification de la conformité aux DTU en vigueur",
+                    "Réglages finaux et paramétrages techniques",
+                    "Réception technique intermédiaire de l'ouvrage",
+                    "Mise en propreté de la zone d'intervention"
+                ]
         
         for i in range(needed):
             label_suffix = generic_labels[i] if i < len(generic_labels) else f"Prestation annexe {i+1}"
@@ -499,7 +573,8 @@ def process_ai_lots(
             lot_intervention_lines, 
             target_intervention, 
             f"Travaux et fournitures {metier}",
-            base_tva
+            base_tva,
+            metier
         )
         
         intervention_blocks.append({
