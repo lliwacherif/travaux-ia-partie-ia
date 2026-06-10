@@ -38,7 +38,13 @@ from app.core.chat_intent import classify_chat_intent
 from app.schemas.chat import ChatMessage
 from app.core.utils import JSONHealingError, clean_and_parse_json
 from app.core.btp_validator import validate_btp_context
-from app.services.prestations_engine import process_ai_lots, calculate_global_totals, load_price_map, load_packs_map
+from app.services.prestations_engine import (
+    process_ai_lots,
+    calculate_global_totals,
+    load_price_map,
+    load_packs_map,
+    extract_surface_m2,
+)
 from app.schemas.devis import DevisResponse
 from app.services.catalog_service import build_trade_line_context
 from app.services.devis_repair import UnrepairableDevisError
@@ -531,10 +537,14 @@ class AIService:
         client_type = parsed.get("client_type", "particulier")
         project_nature = parsed.get("project_nature", "renovation")
         
+        surface_m2 = extract_surface_m2(user_text)
+        
         four_blocks = process_ai_lots(
             lots, 
             client_type, 
             project_nature, 
+            surface_m2=surface_m2,
+            user_text=user_text,
             price_map=price_map, 
             concept_map=concept_map, 
             packs_maps=(exact_map, pack_list)

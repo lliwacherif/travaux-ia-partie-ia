@@ -10,6 +10,7 @@ from app.core.metier_rules import ALL_METIER_RULES, safe_eval_formula
 from app.models.bpu_item import BpuItem
 from app.models.pack_travaux import PackTravaux
 import math
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -333,6 +334,144 @@ def decide_tva_finale(designation: str, lot_label: str, client_type: str) -> flo
         return 20.0
     return 10.0
 
+UNIT_MAP = {
+    "m2": "m²", "m²": "m²",
+    "ml": "ml", "m.l": "ml", "m.l.": "ml",
+    "m3": "m³", "m³": "m³",
+    "u": "u", "u.": "u", "unite": "u", "unité": "u", "piece": "u", "pièce": "u",
+    "ens": "ens", "ensemble": "ens",
+    "forfait": "forfait", "ft": "forfait",
+    "h": "h", "heure": "h", "heures": "h",
+    "j": "j", "jour": "j", "jours": "j",
+    "kg": "kg", "t": "t", "tonne": "t", "tonnes": "t",
+    "lot": "lot",
+}
+
+def normalize_unit(raw: str | None) -> str:
+    if not raw:
+        return "u"
+    return UNIT_MAP.get(raw.strip(), UNIT_MAP.get(raw.strip().lower(), "unknown"))
+
+def extract_surface_m2(description: str) -> float:
+    m = re.search(r"(\d+(?:[.,]\d+)?)\s*(?:m[²2]|m[eè]tres?\s*carr[eé]s?)", description, re.I)
+    return float(m.group(1).replace(",", ".")) if m else 50.0
+
+def clamp(v, mn, mx):
+    return max(mn, min(mx, v))
+
+def classify_zone(metier: str) -> str:
+    m = metier.lower()
+    if "toiture terrasse" in m or "terrasse" in m:
+        return "exterieur"
+    if "couverture" in m or "toiture" in m or "charpente" in m:
+        return "toiture"
+    if "facade" in m or "ravalement" in m or "ite" in m or "terrassement" in m or "vrd" in m:
+        return "exterieur"
+    return "interieur"
+
+def compute_geometry(surface_m2: float, metier: str, description: str, user_height_m=None, user_nb_pans=None) -> dict:
+    surface = max(surface_m2, 1)
+    zone = classify_zone(metier)
+
+    aspect = 3.0 if any(x in metier.lower() for x in ["facade", "ravalement", "ite"]) else 2.0
+    if any(x in metier.lower() for x in ["terrassement", "vrd", "gros oeuvre"]):
+        aspect = 1.5
+
+    width = clamp(math.sqrt(surface / aspect), 1.0, 30.0)
+    length = clamp(surface / width, 1.0, 50.0)
+    perimeter = round(2 * (length + width), 2)
+    height = user_height_m or 2.5
+
+    roof_values = None
+    if zone == "toiture":
+        cos35 = 0.8192
+        s_h = surface * cos35
+        roof_w = math.sqrt(s_h / 1.5)
+        roof_l = 1.5 * roof_w
+        rampant = (roof_w / 2) / cos35
+        roof_values = {
+            "faitage_ml": round(roof_l, 2),
+            "rives_ml": round(2 * rampant, 2),
+            "egouts_ml": round(2 * roof_l, 2),
+            "rampant_ml": round(rampant, 2),
+            "emprise_l": round(roof_l, 2),
+            "emprise_w": round(roof_w, 2),
+        }
+        length = roof_values["emprise_l"]
+        width = roof_values["emprise_w"]
+        perimeter = round(2 * (length + width), 2)
+
+    return {
+        "zone": zone,
+        "area_m2": surface,
+        "length_m": round(length, 2),
+        "width_m": round(width, 2),
+        "perimeter_ml": perimeter,
+        "height_m": height,
+        "roof_values": roof_values,
+    }
+
+def calculate_quantity_from_unit(
+    unite: str,
+    surface_m2: float,
+    quantite_pack: float,
+    mode_calcul_ml: str | None = None,
+    coefficient_ml: float | None = None,
+    geometry: dict | None = None,
+) -> tuple[float, str]:
+    u = normalize_unit(unite).lower().strip()
+
+    if u in ("m²", "m2"):
+        return max(surface_m2, 0), "GENERIC_M2_SURFACE"
+
+    if u == "ml":
+        mode = mode_calcul_ml
+        coeff = coefficient_ml or 1.0
+
+        longueur = geometry.get("length_m") if geometry else surface_m2 / math.sqrt(surface_m2 / 2)
+        largeur = geometry.get("width_m") if geometry else math.sqrt(surface_m2 / 2)
+        perimetre = geometry.get("perimeter_ml") if geometry else 2 * (longueur + largeur)
+        hauteur = geometry.get("height_m") if geometry else 2.5
+
+        if not mode:
+            return quantite_pack or 1, "ML_NO_MODE_PACK_QTY"
+
+        if mode == "PERIMETRE":
+            qty = perimetre * coeff
+        elif mode == "LONGUEUR":
+            qty = longueur * coeff
+        elif mode == "LARGEUR":
+            qty = largeur * coeff
+        elif mode == "RATIO_SURFACE":
+            qty = surface_m2 * coeff
+        elif mode == "HAUTEUR":
+            qty = hauteur * coeff
+        elif mode == "RAMPANT":
+            rampant = (geometry or {}).get("roof_values", {}).get("rampant_ml")
+            qty = (rampant if rampant else (largeur / 2) / 0.8192) * coeff
+        elif mode in ("FIXE", "MANUEL"):
+            return quantite_pack or 1, "ML_FIXED_PACK_QTY"
+        elif mode == "AUCUN":
+            return 0, "ML_NONE"
+        else:
+            return quantite_pack or 1, f"ML_UNKNOWN_{mode}"
+
+        return round(qty, 2), f"ML_{mode}"
+
+    if u in ("m³", "m3"):
+        return round(surface_m2 * 0.12, 2), "GENERIC_M3_SURFACE_012"
+
+    if u in ("forfait", "u", "ensemble", "lot", "ens"):
+        return quantite_pack if quantite_pack >= 1 else 1, "GENERIC_FIXED"
+
+    if u in ("jour", "heure", "h", "j"):
+        return quantite_pack if quantite_pack >= 1 else 1, "GENERIC_TIME"
+
+    if u in ("kg", "tonnes", "t"):
+        return quantite_pack if quantite_pack >= 1 else surface_m2, "GENERIC_WEIGHT"
+
+    return quantite_pack if quantite_pack >= 1 else surface_m2, "GENERIC_DEFAULT"
+
 def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, default_designation: str, tva: float, metier: str = "") -> List[Dict[str, Any]]:
     """Enforces exactly target_count lines. Sums prices if truncated, injects proportional lines if padded."""
     if target_count <= 0:
@@ -533,6 +672,8 @@ def process_ai_lots(
     client_type: str = "particulier",
     project_nature: str = "renovation",
     *,
+    surface_m2: float = 50.0,
+    user_text: str = "",
     price_map: Optional[Dict[str, float]] = None,
     concept_map: Optional[Dict[str, Dict[str, float]]] = None,
     packs_maps: Optional[tuple[Dict[str, dict], List[dict]]] = None,
@@ -571,6 +712,14 @@ def process_ai_lots(
         
         lot_intervention_lines = []
         
+        lot_qty = lot.get("quantite", lot.get("qte", 1))
+        try:
+            effective_surface = float(lot_qty) if float(lot_qty) > 1 else surface_m2
+        except (ValueError, TypeError):
+            effective_surface = surface_m2
+            
+        geometry = compute_geometry(effective_surface, metier, user_text)
+        
         for pack in packs:
             pack_id = pack.get("id", "INCONNU")
             quantite_brute = pack.get("quantite", 1)
@@ -583,21 +732,17 @@ def process_ai_lots(
                 
             if matched_pack:
                 for line in matched_pack["pack_json"]:
-                    mode = line.get("mode_calcul_ml", "FIXE")
-                    coef = line.get("coefficient_ml", 1.0)
-                    if coef is None:
-                        coef = 1.0
-                    base_qte = line.get("quantite", 1.0)
+                    qty, rule = calculate_quantity_from_unit(
+                        unite=line.get("unite", "forfait"),
+                        surface_m2=effective_surface,
+                        quantite_pack=line.get("quantite", 1.0),
+                        mode_calcul_ml=line.get("mode_calcul_ml"),
+                        coefficient_ml=line.get("coefficient_ml"),
+                        geometry=geometry
+                    )
                     
-                    if mode == "RATIO_SURFACE":
-                        qte_calc = quantite_brute * coef
-                    elif mode == "PERIMETRE":
-                        qte_calc = 4 * math.sqrt(quantite_brute) * coef
-                    elif mode == "LONGUEUR":
-                        qte_calc = quantite_brute * coef
-                    else:  # FIXE or None
-                        qte_calc = base_qte
-                        
+                    qte_calc = max(round(qty, 2), 0.01)
+                    
                     pu_ht = line.get("prix_unitaire_ht", 0.0)
                     total_ht = round(qte_calc * pu_ht, 2)
                     tva = decide_tva_finale(line.get("designation", ""), metier, client_type)
