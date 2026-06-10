@@ -321,6 +321,10 @@ def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, defau
         needed = target_count - len(lines)
         padded = list(lines)
 
+        target_quantite = 1
+        if lines:
+            target_quantite = max((l.get("quantite", 1) for l in lines), default=1)
+
         # Compute proportional padding price based on existing real lines.
         # Ancillary services (prep, cleanup, etc.) are typically ~10-15% of
         # the main work, spread across the padding lines.
@@ -366,13 +370,17 @@ def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, defau
         
         for i in range(needed):
             label_suffix = generic_labels[i] if i < len(generic_labels) else f"Prestation annexe {i+1}"
+            
+            is_global = "Mise en place" in default_designation or "Nettoyage" in default_designation
+            qte = 1 if is_global else target_quantite
+            
             padded.append({
                 "designation": f"{default_designation} - {label_suffix}",
                 "unite": "forfait",
-                "quantite": 1,
+                "quantite": qte,
                 "pu_ht": pad_pu,
                 "tva": tva,
-                "total_ht": pad_pu
+                "total_ht": round(pad_pu * qte, 2)
             })
         return padded
     return lines

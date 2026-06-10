@@ -6,6 +6,7 @@
 # Web framework & ASGI server
 fastapi>=0.131.0,<1.0.0
 uvicorn[standard]>=0.32.0,<1.0.0
+python-multipart>=0.0.9
 
 # ORM + migrations + async PostgreSQL driver
 sqlalchemy[asyncio]>=2.0.48,<2.1.0
