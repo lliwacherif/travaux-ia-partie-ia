@@ -365,7 +365,12 @@ def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, defau
                 "Protection spécifique des ouvrages attenants",
                 "Contrôle qualité et essais de fonctionnement",
                 "Acheminement et gestion des gravats intermédiaires",
-                "Finition et retouches de peinture"
+                "Finition et retouches de peinture",
+                "Mise en propreté intermédiaire de la zone",
+                "Réglages finaux et paramétrages de mise en service",
+                "Rebouchage et lissage des percements éventuels",
+                "Traitement anti-corrosion ou isolant des fixations",
+                "Repérage et marquage des installations"
             ]
         
         for i in range(needed):
