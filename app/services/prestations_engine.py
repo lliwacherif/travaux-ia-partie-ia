@@ -322,8 +322,20 @@ def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, defau
         padded = list(lines)
 
         target_quantite = 1
+        primary_unit = "forfait"
         if lines:
+            # Detect the primary unit from the first (main) line
+            primary_unit = lines[0].get("unite", "forfait").lower().strip()
             target_quantite = max((l.get("quantite", 1) for l in lines), default=1)
+
+        # SMART QUANTITY RULE:
+        # - Unit "u" (discrete items: splits, radiateurs, fenêtres...) →
+        #   ancillary work is done PER UNIT → inherit quantity
+        # - Units "m²", "ml", "m³", "kg", "l" (surface/volume/weight) →
+        #   ancillary work is done ONCE for the whole job → QTE = 1
+        # - Unit "forfait" → already a lump sum → QTE = 1
+        _DISCRETE_UNITS = {"u"}
+        use_inherited_qty = primary_unit in _DISCRETE_UNITS
 
         # Compute proportional padding price based on existing real lines.
         # Ancillary services (prep, cleanup, etc.) are typically ~10-15% of
@@ -451,7 +463,14 @@ def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, defau
             label_suffix = generic_labels[i] if i < len(generic_labels) else f"Prestation annexe {i+1}"
             
             is_global = "Mise en place" in default_designation or "Nettoyage" in default_designation
-            qte = 1 if is_global else target_quantite
+            # Global blocks (prep/cleanup) always QTE=1.
+            # Intervention blocks: inherit qty only for discrete units (u).
+            if is_global:
+                qte = 1
+            elif use_inherited_qty:
+                qte = target_quantite
+            else:
+                qte = 1
             
             padded.append({
                 "designation": label_suffix,
