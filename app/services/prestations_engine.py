@@ -314,18 +314,23 @@ def _find_pack(pack_id: str, exact_map: Dict[str, dict], pack_list: List[dict]) 
             return p
     return None
 
-def _get_tva(metier: str, designation: str, client_type: str, project_nature: str) -> float:
-    # 1. 5.5% if isolation
-    metier_lower = metier.lower()
-    designation_lower = designation.lower()
-    if "isolation" in metier_lower or "isolation" in designation_lower or "laine" in designation_lower or "énergétique" in designation_lower:
+ISOLATION_TVA_KEYWORDS = [
+    "isolation", "isolant", "laine", "sarking", "ite",
+    "panneau isolant", "ouate", "polystyrene",
+    "polyurethane", "rockwool", "isover",
+]
+
+def decide_tva_finale(designation: str, lot_label: str, client_type: str) -> float:
+    text = (designation or "").lower()
+    lot = (lot_label or "").lower()
+
+    is_isolation_lot = "isolat" in lot
+    is_isolation_line = any(kw in text for kw in ISOLATION_TVA_KEYWORDS)
+
+    if is_isolation_lot or is_isolation_line:
         return 5.5
-        
-    # 2. 20% if neuf or pro
-    if project_nature.lower() == "neuf" or client_type.lower() == "pro":
+    if client_type == "professionnel" or client_type == "pro":
         return 20.0
-        
-    # 3. 10% by default
     return 10.0
 
 def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, default_designation: str, tva: float, metier: str = "") -> List[Dict[str, Any]]:
@@ -560,7 +565,7 @@ def process_ai_lots(
         metier = lot.get("metier", "Métier inconnu")
         lot_key = lot.get("lot_key", "LOT_01")
         packs = lot.get("packs", [])
-        tva = _get_tva(metier, "", client_type, project_nature)
+        tva = decide_tva_finale("", metier, client_type)
         
         matched_rules = next((rules for code, rules in ALL_METIER_RULES.items() if rules["metier"].lower() in metier.lower()), None)
         
@@ -595,7 +600,7 @@ def process_ai_lots(
                         
                     pu_ht = line.get("prix_unitaire_ht", 0.0)
                     total_ht = round(qte_calc * pu_ht, 2)
-                    tva = line.get("taux_tva_defaut", 10.0)
+                    tva = decide_tva_finale(line.get("designation", ""), metier, client_type)
                     
                     line_data = {
                         "designation": line.get("designation", ""),
@@ -625,7 +630,7 @@ def process_ai_lots(
                     desc = rule.get("description", "")
                     clean_key = line_key.replace("_m2", "").replace("_ml", "").replace("_u", "").replace("_kg", "").replace("_l", "").replace("_m3", "").capitalize()
                     designation = f"{clean_key} ({desc})" if desc else clean_key
-                    tva = _get_tva(metier, designation, client_type, project_nature)
+                    tva = decide_tva_finale(designation, metier, client_type)
                     
                     qte_calc = safe_eval_formula(rule["formula"], {"surface": quantite_brute, "longueur": quantite_brute, "hauteur": 2.5})
                     pu_ht = _resolve_price(line_key, rule["unit"], price_map, concept_map=concept_map)
@@ -651,7 +656,7 @@ def process_ai_lots(
             else:
                 clean_pack_id = str(pack_id).replace("_", " ").capitalize()
                 fallback_designation = f"Fourniture et pose : {clean_pack_id}"
-                tva = _get_tva(metier, fallback_designation, client_type, project_nature)
+                tva = decide_tva_finale(fallback_designation, metier, client_type)
                 # Determine the correct unit based on quantity
                 # If qty > 1, it's most likely m² (surface-based packs)
                 if quantite_brute == 1:
@@ -673,7 +678,7 @@ def process_ai_lots(
                 })
         
         # Enforce exact line count for THIS intervention block
-        base_tva = _get_tva(metier, "", client_type, project_nature)
+        base_tva = decide_tva_finale("", metier, client_type)
         lot_intervention_lines = _pad_or_truncate_lines(
             lot_intervention_lines, 
             target_intervention, 
@@ -688,7 +693,7 @@ def process_ai_lots(
         })
         
     # Enforce exact line counts for global blocks
-    global_tva = _get_tva("", "", client_type, project_nature)
+    global_tva = decide_tva_finale("", "", client_type)
     global_mise_en_place_lines = _pad_or_truncate_lines(
         global_mise_en_place_lines,
         target_mise_en_place,
@@ -745,30 +750,32 @@ def process_ai_lots(
     return final_blocks
 
 def calculate_global_totals(lines: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Calculates global TVA, HT and TTC."""
-    tva_groups = {}
-    
+    """Calculates global TVA, HT and TTC according to frontend logic."""
+    total_ht = 0.0
+    total_tva = 0.0
+    by_rate = {}
+
     for line in lines:
-        rate = line.get("tva", 20.0)
-        tva_groups[rate] = tva_groups.get(rate, 0) + line.get("ht", 0)
-        
-    tva_breakdown = {}
-    total_tva = 0
-    
-    for rate, base_ht in tva_groups.items():
-        amount = round((base_ht * rate) / 100, 2)
-        tva_breakdown[str(rate)] = {
-            "base_ht": round(base_ht, 2),
-            "tva_amount": amount
-        }
-        total_tva += amount
-        
-    total_ht = round(sum(base for base in tva_groups.values()), 2)
-    total_ttc = round(total_ht + total_tva, 2)
-    
+        qty = float(line.get("qty") or line.get("quantite") or line.get("qte") or 1)
+        pu_ht = float(line.get("pu") or line.get("pu_ht") or 0)
+        tva = float(line.get("tva_pct") or line.get("tva") or 10)
+
+        line_ht = round(qty * pu_ht, 2)
+        line_tva = round(line_ht * tva / 100, 2)
+
+        total_ht += line_ht
+        total_tva += line_tva
+
+        by_rate.setdefault(tva, {"base_ht": 0.0, "montant_tva": 0.0})
+        by_rate[tva]["base_ht"] = round(by_rate[tva]["base_ht"] + line_ht, 2)
+        by_rate[tva]["montant_tva"] = round(by_rate[tva]["montant_tva"] + line_tva, 2)
+
     return {
-        "total_ht": total_ht,
+        "total_ht": round(total_ht, 2),
         "total_tva": round(total_tva, 2),
-        "total_ttc": total_ttc,
-        "tva_breakdown": tva_breakdown
+        "total_ttc": round(total_ht + total_tva, 2),
+        "tva_breakdown": {
+            str(rate): {"base_ht": values["base_ht"], "tva_amount": values["montant_tva"]}
+            for rate, values in by_rate.items()
+        }
     }
