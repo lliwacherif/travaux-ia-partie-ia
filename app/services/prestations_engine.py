@@ -8,6 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.metier_rules import ALL_METIER_RULES, safe_eval_formula
 from app.models.bpu_item import BpuItem
+from app.models.pack_travaux import PackTravaux
+import math
 
 logger = logging.getLogger(__name__)
 
@@ -274,6 +276,44 @@ async def load_price_map(db: AsyncSession) -> tuple[Dict[str, float], Dict[str, 
     )
     return price_map, concept_map
 
+async def load_packs_map(db: AsyncSession) -> tuple[Dict[str, dict], List[dict]]:
+    """Pre-load all active packs from the packs_travaux table."""
+    stmt = select(PackTravaux).where(PackTravaux.is_active == True)
+    rows = (await db.execute(stmt)).scalars().all()
+    
+    exact_map: Dict[str, dict] = {}
+    pack_list: List[dict] = []
+    
+    for p in rows:
+        pack_data = {
+            "code_pack": p.code_pack,
+            "nom_pack": p.nom_pack,
+            "pack_json": p.pack_json,
+            "corps_metier": p.corps_metier,
+        }
+        exact_map[p.code_pack] = pack_data
+        pack_list.append(pack_data)
+        
+    logger.info("Loaded %d packs from packs_travaux.", len(exact_map))
+    return exact_map, pack_list
+
+def _find_pack(pack_id: str, exact_map: Dict[str, dict], pack_list: List[dict]) -> Optional[dict]:
+    # Exact match
+    if pack_id in exact_map:
+        return exact_map[pack_id]
+        
+    # Fuzzy match
+    norm_pack_id = _normalize_key(pack_id)
+    if not norm_pack_id:
+        return None
+        
+    for p in pack_list:
+        if norm_pack_id == _normalize_key(p["code_pack"]):
+            return p
+        if norm_pack_id in _normalize_key(p["nom_pack"]):
+            return p
+    return None
+
 def _get_tva(metier: str, designation: str, client_type: str, project_nature: str) -> float:
     # 1. 5.5% if isolation
     metier_lower = metier.lower()
@@ -490,6 +530,7 @@ def process_ai_lots(
     *,
     price_map: Optional[Dict[str, float]] = None,
     concept_map: Optional[Dict[str, Dict[str, float]]] = None,
+    packs_maps: Optional[tuple[Dict[str, dict], List[dict]]] = None,
 ) -> List[Dict[str, Any]]:
     """
     Takes the pure semantic AI JSON, evaluates rules, and structures it into
@@ -528,6 +569,51 @@ def process_ai_lots(
         for pack in packs:
             pack_id = pack.get("id", "INCONNU")
             quantite_brute = pack.get("quantite", 1)
+            
+            # Try packs_travaux first
+            matched_pack = None
+            if packs_maps:
+                exact_map, pack_list = packs_maps
+                matched_pack = _find_pack(pack_id, exact_map, pack_list)
+                
+            if matched_pack:
+                for line in matched_pack["pack_json"]:
+                    mode = line.get("mode_calcul_ml", "FIXE")
+                    coef = line.get("coefficient_ml", 1.0)
+                    if coef is None:
+                        coef = 1.0
+                    base_qte = line.get("quantite", 1.0)
+                    
+                    if mode == "RATIO_SURFACE":
+                        qte_calc = quantite_brute * coef
+                    elif mode == "PERIMETRE":
+                        qte_calc = 4 * math.sqrt(quantite_brute) * coef
+                    elif mode == "LONGUEUR":
+                        qte_calc = quantite_brute * coef
+                    else:  # FIXE or None
+                        qte_calc = base_qte
+                        
+                    pu_ht = line.get("prix_unitaire_ht", 0.0)
+                    total_ht = round(qte_calc * pu_ht, 2)
+                    tva = line.get("taux_tva_defaut", 10.0)
+                    
+                    line_data = {
+                        "designation": line.get("designation", ""),
+                        "unite": line.get("unite", "forfait"),
+                        "quantite": round(qte_calc, 2),
+                        "pu_ht": pu_ht,
+                        "tva": tva,
+                        "total_ht": total_ht
+                    }
+                    
+                    bloc = line.get("bloc", 2)
+                    if bloc == 1:
+                        global_mise_en_place_lines.append(line_data)
+                    elif bloc == 4:
+                        global_finition_lines.append(line_data)
+                    else:
+                        lot_intervention_lines.append(line_data)
+                continue
             
             pack_lines_def = None
             if matched_rules and pack_id in matched_rules["rules"]:

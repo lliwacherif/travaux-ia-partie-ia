@@ -38,7 +38,7 @@ from app.core.chat_intent import classify_chat_intent
 from app.schemas.chat import ChatMessage
 from app.core.utils import JSONHealingError, clean_and_parse_json
 from app.core.btp_validator import validate_btp_context
-from app.services.prestations_engine import process_ai_lots, calculate_global_totals, load_price_map
+from app.services.prestations_engine import process_ai_lots, calculate_global_totals, load_price_map, load_packs_map
 from app.schemas.devis import DevisResponse
 from app.services.catalog_service import build_trade_line_context
 from app.services.devis_repair import UnrepairableDevisError
@@ -495,14 +495,28 @@ class AIService:
         
         validate_btp_context(user_text)
         
+        # Load price maps and packs
+        price_map, concept_map = await load_price_map(db)
+        exact_map, pack_list = await load_packs_map(db)
+        
         # Step 2: Generation (Semantic Mapping)
         if on_progress is not None:
             await on_progress(2, PROGRESS_STEPS[1])
             
-        catalog_str = "\\n".join(
-            f"- Métier: {cat_data['metier']}\\n  Packs: {', '.join(cat_data['rules'].keys())}"
-            for cat_data in ALL_METIER_RULES.values()
-        )
+        catalog_by_metier = {}
+        for p in pack_list:
+            cm = p["corps_metier"]
+            if cm not in catalog_by_metier:
+                catalog_by_metier[cm] = []
+            catalog_by_metier[cm].append(f"[{p['code_pack']}] {p['nom_pack']}")
+            
+        catalog_lines = []
+        for cm, packs in catalog_by_metier.items():
+            catalog_lines.append(f"- Métier: {cm}")
+            for p in packs:
+                catalog_lines.append(f"  {p}")
+        catalog_str = "\n".join(catalog_lines)
+        
         prompt = SYSTEM_PROMPT_GENERATOR.replace("{catalog}", catalog_str)
             
         raw = await self._chat(prompt, user_text)
@@ -516,8 +530,15 @@ class AIService:
         logger.info("AI returned %d lots: %s", len(lots), [l.get("metier", "?") for l in lots])
         client_type = parsed.get("client_type", "particulier")
         project_nature = parsed.get("project_nature", "renovation")
-        price_map, concept_map = await load_price_map(db)
-        four_blocks = process_ai_lots(lots, client_type, project_nature, price_map=price_map, concept_map=concept_map)
+        
+        four_blocks = process_ai_lots(
+            lots, 
+            client_type, 
+            project_nature, 
+            price_map=price_map, 
+            concept_map=concept_map, 
+            packs_maps=(exact_map, pack_list)
+        )
         
         from datetime import datetime, timedelta, timezone
 
