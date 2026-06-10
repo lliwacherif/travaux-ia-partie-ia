@@ -454,7 +454,7 @@ def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, defau
             qte = 1 if is_global else target_quantite
             
             padded.append({
-                "designation": f"{default_designation} - {label_suffix}",
+                "designation": label_suffix,
                 "unite": "forfait",
                 "quantite": qte,
                 "pu_ht": pad_pu,
