@@ -394,7 +394,7 @@ class AIService:
                 model=self._model,
                 messages=messages,
                 max_completion_tokens=4096,
-                temperature=0.4,
+                temperature=1,
                 top_p=1,
                 presence_penalty=0,
                 stream=False,
