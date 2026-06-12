@@ -101,7 +101,28 @@ def build_chatbot_provider_fallback_response(user_text: str) -> str:
     return "Bonjour ! Je peux vous aider à gérer vos clients, devis, chantiers et équipes dans Travaux IA."
 
 
+def build_landing_chatbot_provider_fallback_response(user_text: str) -> str:
+    """Return a safe landing-page answer when the model provider is unavailable."""
+    text = user_text.strip()
+    if not text:
+        return (
+            "Bonjour ! Travaux IA aide les professionnels du bâtiment à gérer "
+            "leurs clients, générer des devis IA, organiser leurs documents et "
+            "choisir l'offre adaptée à leur volume."
+        )
+
+    return (
+        "Travaux IA est une application web pour les professionnels du bâtiment : "
+        "gestion clients, devis IA, documents, tableaux de bord, planning et équipes.\n"
+        "Pour choisir vite : **Découverte** pour tester gratuitement, **Pro** pour "
+        "un artisan seul avec 30 devis IA/mois, **Expert** pour 2 utilisateurs et "
+        "100 devis IA/mois, **Premium** pour 3 utilisateurs et 250 devis IA/mois, "
+        "ou **Entreprise** pour un besoin sur mesure."
+    )
+
+
 __all__ = [
     "build_chatbot_provider_fallback_response",
     "build_chatbot_static_response",
+    "build_landing_chatbot_provider_fallback_response",
 ]

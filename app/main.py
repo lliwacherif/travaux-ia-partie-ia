@@ -13,7 +13,13 @@ from typing import Any
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routers import devis_router, trade_line_router, chat_router, voice_router
+from app.api.routers import (
+    chat_router,
+    devis_router,
+    landing_chat_router,
+    trade_line_router,
+    voice_router,
+)
 from app.core.config import settings
 from app.services.ai_service import ai_service
 
@@ -70,6 +76,7 @@ app.add_middleware(
 app.include_router(devis_router, prefix=settings.API_V1_PREFIX)
 app.include_router(trade_line_router, prefix=settings.API_V1_PREFIX)
 app.include_router(chat_router, prefix=settings.API_V1_PREFIX)
+app.include_router(landing_chat_router, prefix=settings.API_V1_PREFIX)
 app.include_router(voice_router, prefix=settings.API_V1_PREFIX)
 
 

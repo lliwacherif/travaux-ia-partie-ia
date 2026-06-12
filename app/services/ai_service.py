@@ -32,8 +32,10 @@ from app.core.config import settings
 from app.core.chat_responses import (
     build_chatbot_provider_fallback_response,
     build_chatbot_static_response,
+    build_landing_chatbot_provider_fallback_response,
 )
 from app.core.prompts import (
+    LANDING_CHATBOT_SYSTEM_PROMPT,
     SYSTEM_PROMPT_GENERATOR,
     build_chatbot_system_prompt,
 )
@@ -473,6 +475,51 @@ class AIService:
         if not content:
             logger.warning("OpenAI returned empty chat completion; returning local fallback.")
             return build_chatbot_provider_fallback_response(user_text)
+        return content
+
+    async def generate_landing_chat_response(
+        self,
+        user_text: str,
+        history: list[ChatMessage] | None = None,
+    ) -> str:
+        """Return a landing-page chatbot response about Travaux IA and plans.
+
+        This bot is intentionally narrower than the in-app assistant: it can
+        explain the product and help visitors choose between the public offers.
+        """
+        user_text = user_text.strip()
+        if not user_text:
+            raise ValueError("`user_text` must not be empty.")
+
+        compact_history = self._compact_chat_history(history)
+        messages: list[dict[str, str]] = [
+            {"role": "system", "content": LANDING_CHATBOT_SYSTEM_PROMPT},
+        ]
+        messages.extend(compact_history)
+        messages.append({"role": "user", "content": user_text})
+
+        try:
+            response = await self._client.chat.completions.create(
+                model=self._model,
+                messages=messages,
+                **self._CHAT_COMPLETION_PARAMS,
+            )
+        except APIError:
+            logger.exception("OpenAI landing chat call failed; returning local fallback.")
+            return build_landing_chatbot_provider_fallback_response(user_text)
+
+        if not response.choices:
+            logger.warning(
+                "OpenAI returned no choices for landing chat; returning local fallback."
+            )
+            return build_landing_chatbot_provider_fallback_response(user_text)
+
+        content = response.choices[0].message.content
+        if not content:
+            logger.warning(
+                "OpenAI returned empty landing chat completion; returning local fallback."
+            )
+            return build_landing_chatbot_provider_fallback_response(user_text)
         return content
 
     async def generate_quote_stream(
