@@ -5,8 +5,8 @@ prestations for a given corps de métier (e.g. `"Peinture"`). Powers the
 "choisir une prestation" picker on the frontend (one card = one option
 the user can add to their devis).
 
-Powered by Scaleway `gpt-oss-120b`, grounded on the `trades` and
-`trade_services` tables.
+Powered primarily by the `trades` and `trade_services` tables. The model is
+used only as a fallback when the catalog has no matching prestations.
 
 **Open endpoint — no auth required.**
 
@@ -14,7 +14,7 @@ Powered by Scaleway `gpt-oss-120b`, grounded on the `trades` and
 
 | Method | Path                              | Returns                                  |
 | ------ | --------------------------------- | ---------------------------------------- |
-| POST   | `/api/v1/trade-line/generate`     | One JSON `TradeLineResponse` (~5–20 s).  |
+| POST   | `/api/v1/trade-line/generate`     | One JSON `TradeLineResponse` (catalog-fast; AI fallback only). |
 
 Base URL is the same as the rest of the API. If you hit it through ngrok,
 keep the `ngrok-skip-browser-warning: true` header.
@@ -146,33 +146,38 @@ export async function generateTradeLine(
 job_corp ──▶ fuzzy ilike on trades + trade_services
                        │
                        ▼
-              build RAG bibliothèque (≤ 2 × limit rows)
+              build response-ready catalog items
                        │
                        ▼
-       TRADE_LINE_PROMPT + job_corp + limit ──▶ Scaleway gpt-oss-120b
-                       │
-                       ▼
-     JSON heal + parse + normalise + Pydantic validate
+        catalog hit? ── yes ──▶ Pydantic validate
+             │
+             no
+             ▼
+       compact fallback prompt ──▶ model
+             │
+             ▼
+      JSON heal + parse + normalise
                        │
                        ▼
                 TradeLineResponse  (job_corp, count, items[])
 ```
 
-1. **Catalog lookup** — `build_trade_line_context()` scopes the catalog
+1. **Catalog lookup** — `build_trade_line_items()` scopes the catalog
    to the corps de métier with a permissive ilike across multiple
-   columns. The fetched window is sized to ~`2 × limit` so the model has
-   breadth to generate `limit` distinct items without repeating itself.
-2. **One AI call** — single shot, single stage. No retry loop, no
-   streaming.
-3. **Prompt rules** — the model is asked to reuse catalog designations
-   verbatim first, then complement with standard prestations from its
-   2025 pricing matrix to reach `limit`. No duplicates, no trivial
-   variants.
-4. **VAT rules** baked into the prompt: `5.5` for isolation /
-   énergétique, `20` for neuf / B2B, `10` (rénovation) by default.
-5. If the input isn't a building trade (e.g. `"voyage"`), the model
-   returns `{"isValidBuildingRequest": false, ...}` and the API
-   answers **HTTP 400**.
+   columns and returns response-ready items directly.
+2. **Fast path** — when catalog rows exist, there is no model call. This
+   keeps the picker endpoint responsive and deterministic.
+3. **Fallback AI call** — only when the catalog has no match, the endpoint
+   builds a compact prompt and asks the model to reject non-BTP input or
+   propose generic trade prestations.
+4. **Price rules** — catalog-backed rows use `estimated_price` when it is
+   greater than zero; otherwise the API uses deterministic BTP reference
+   prices by trade/unit so the frontend does not receive `pu: 0`.
+5. **VAT rules** — catalog-backed rows use `5.5` for isolation /
+   énergétique keywords and `10` (rénovation) by default. The fallback
+   prompt keeps the same VAT contract.
+6. If fallback classifies the input as non-building (e.g. `"voyage"`), the
+   API answers **HTTP 400**.
 
 ## Errors
 
@@ -228,14 +233,15 @@ Invoke-RestMethod `
 
 ## Notes
 
-- A call typically takes **5–20 s** (one LLM round-trip; longer if you
-  ask for `limit=30`). Use a 60 s timeout on the client.
+- Catalog matches return without an LLM round-trip and should feel like a
+  normal database-backed API call. Keep a longer client timeout only for rare
+  fallback cases where the catalog has no match.
 - Output is in French (descriptions reuse catalog designations when
   possible, then are complemented with standard prestations).
 - `pu` is **HT** (hors taxes). Multiply by `(1 + tva / 100)` to get the
   TTC price.
-- The number of items returned is **dynamic**: the model targets
-  `limit` but may return fewer if the catalog + its expertise can't
-  produce that many distinct, non-trivial prestations for that trade.
+- The number of items returned is **dynamic**: the API returns up to `limit`
+  distinct catalog prestations, or fewer if the catalog/fallback cannot
+  produce that many useful options.
 - `count` is always equal to `items.length` — provided as a convenience
   for the frontend.

@@ -46,7 +46,7 @@ from app.services.prestations_engine import (
     extract_surface_m2,
 )
 from app.schemas.devis import DevisResponse
-from app.services.catalog_service import build_trade_line_context
+from app.services.catalog_service import build_trade_line_context, build_trade_line_items
 from app.services.devis_repair import UnrepairableDevisError
 from app.core.metier_rules import ALL_METIER_RULES
 
@@ -219,6 +219,13 @@ class AIService:
         "presence_penalty": 0,
         "stream": False,
     }
+    _TRADE_LINE_COMPLETION_PARAMS: Final[dict[str, Any]] = {
+        "max_completion_tokens": 1200,
+        "temperature": 1,
+        "top_p": 1,
+        "presence_penalty": 0,
+        "stream": False,
+    }
 
     # How many Stage-2 attempts before giving up. 1 initial + (N-1) retries.
     # Each retry passes the previous error back to the model so it can
@@ -249,8 +256,15 @@ class AIService:
     # ------------------------------------------------------------------
     # Low-level call
     # ------------------------------------------------------------------
-    async def _chat(self, system_prompt: str, user_text: str) -> str:
+    async def _chat(
+        self,
+        system_prompt: str,
+        user_text: str,
+        *,
+        completion_params: dict[str, Any] | None = None,
+    ) -> str:
         """Single chat completion call with the mandated parameters."""
+        params = completion_params or self._COMPLETION_PARAMS
         try:
             response = await self._client.chat.completions.create(
                 model=self._model,
@@ -258,7 +272,7 @@ class AIService:
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_text},
                 ],
-                **self._COMPLETION_PARAMS,
+                **params,
             )
         except APIError as exc:
             logger.exception("OpenAI API call failed.")
@@ -308,17 +322,16 @@ class AIService:
     ) -> dict[str, Any]:
         """Return a LIST of representative billable prestations for a corps de métier.
 
-        Powers ``POST /api/v1/trade-line/generate``. Single-shot pipeline:
+        Powers ``POST /api/v1/trade-line/generate``. Fast pipeline:
 
-        1. Fuzzy-load the catalog rows for ``job_corp`` from ``trades`` /
-           ``trade_services`` via :func:`build_trade_line_context` (cap
-           bumped to ``limit * 2`` so the AI can pick + complement).
-        2. Render :data:`TRADE_LINE_PROMPT` with ``job_corp`` + RAG +
-           target ``limit`` and hand it to the model.
-        3. Parse / heal the JSON. Raise
-           :class:`InvalidBuildingRequestError` if Stage 1 rejection
-           triggered. Normalise the dict to ``{job_corp, items}`` so
-           the router can validate against :class:`TradeLineResponse`.
+        1. Fuzzy-load response-ready catalog rows for ``job_corp`` from
+           ``trades`` / ``trade_services`` and return them directly.
+        2. Only when the catalog has no match, fall back to the LLM so it can
+           either reject non-BTP input or propose generic trade prestations.
+        3. Parse / heal the fallback JSON. Raise
+           :class:`InvalidBuildingRequestError` if the fallback rejection
+           triggers. Normalise the dict to ``{job_corp, items}`` so the router
+           can validate against :class:`TradeLineResponse`.
         """
         job_corp = job_corp.strip()
         if not job_corp:
@@ -326,8 +339,23 @@ class AIService:
         if limit <= 0:
             raise ValueError("`limit` must be a positive integer.")
 
-        # Pull a slightly wider catalog so the AI has enough breadth to
-        # produce ``limit`` distinct items without running out of options.
+        catalog_items = await build_trade_line_items(
+            db, job_corp=job_corp, limit=limit
+        )
+        if catalog_items:
+            logger.info(
+                "Trade-line fast path used for job_corp=%r (%d items).",
+                job_corp,
+                len(catalog_items),
+            )
+            return {
+                "job_corp": job_corp,
+                "count": len(catalog_items),
+                "items": catalog_items,
+            }
+
+        # No catalog hit: keep the model as a compatibility fallback, but use
+        # a much smaller completion budget than the full devis pipeline.
         rag_context = await build_trade_line_context(
             db, job_corp=job_corp, limit=max(limit * 2, 20)
         )
@@ -339,7 +367,11 @@ class AIService:
             .replace("{limit}", str(limit))
         )
 
-        raw = await self._chat(prompt, job_corp)
+        raw = await self._chat(
+            prompt,
+            job_corp,
+            completion_params=self._TRADE_LINE_COMPLETION_PARAMS,
+        )
         parsed = clean_and_parse_json(raw)
 
         if parsed.get("isValidBuildingRequest") is False:

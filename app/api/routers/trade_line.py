@@ -58,15 +58,15 @@ async def generate_trade_line(
     request: TradeLineRequest,
     db: AsyncSession = Depends(get_db),
 ) -> TradeLineResponse:
-    """Run the single-shot pipeline and return a :class:`TradeLineResponse`.
+    """Return a :class:`TradeLineResponse` for the picker UI.
 
     Steps:
 
-    1. Fuzzy-load catalog rows that match ``job_corp`` (ilike across
-       ``Trade.name``, ``Trade.category``, ``TradeService.designation``…).
-    2. Hand the prompt + RAG context + target ``limit`` to the LLM.
-    3. Heal / parse the JSON, normalise into ``{job_corp, count, items}``,
-       validate against ``TradeLineResponse``.
+    1. Fuzzy-load catalog rows that match ``job_corp`` and return them
+       directly when possible.
+    2. Fall back to the model only when the catalog has no match.
+    3. Validate the final ``{job_corp, count, items}`` payload against
+       ``TradeLineResponse``.
     """
     limit = request.limit if request.limit is not None else TRADE_LINE_DEFAULT_LIMIT
 
@@ -87,7 +87,7 @@ async def generate_trade_line(
             detail=f"AI returned an unparseable response: {exc}",
         ) from exc
     except AIServiceError as exc:
-        logger.error("Scaleway AI provider error (trade-line): %s", exc)
+        logger.error("AI provider error (trade-line): %s", exc)
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=f"AI provider unavailable: {exc}",

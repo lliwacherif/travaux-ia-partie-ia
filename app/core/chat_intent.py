@@ -22,29 +22,43 @@ from typing import Final
 # keyword maps the user's question to that module.
 
 _MODULE_KEYWORDS: Final[dict[str, set[str]]] = {
-    "finance": {
-        "finance", "dashboard", "tableau de bord", "chiffre d'affaires",
-        "ca ", "bénéfice", "profit", "kpi", "graphique", "courbe",
-        "transaction", "acompte", "facturé", "signé",
+    "dashboard": {
+        "dashboard", "tableau de bord", "total de chantiers",
+        "équipes actives", "devis générés", "chantiers en cours",
+        "statistiques", "stats", "métrique", "métriques", "kpi",
+        "timeline", "vue globale",
     },
     "clients": {
         "client", "crm", "ajouter un client", "nouveau client",
         "fiche client", "contacter", "particulier", "professionnel",
-        "rechercher un client",
+        "rechercher un client", "modifier un client", "supprimer un client",
+        "nombre de chantiers", "email", "téléphone",
     },
     "devis": {
-        "devis", "estimation", "générer le devis", "ligne",
-        "bibliothèque", "dictée vocale", "microphone",
-        "ajouter une ligne", "projet",
+        "devis", "devis ia", "estimation", "générer le devis",
+        "générer le devis avec l'ia", "valider le devis",
+        "envoyer au client", "télécharger en pdf", "description du projet",
+        "type de travaux", "budget estimé", "matériaux souhaités",
+        "quantité", "prix unitaire", "total ht", "tva", "total ttc",
+        "ligne", "projet",
     },
     "planification": {
-        "planification", "calendrier", "planning", "chantier",
-        "équipe", "vue jour", "vue semaine", "vue mois",
-        "statut", "archiver",
+        "planification", "planifier chantier", "planifier le chantier",
+        "calendrier", "planning", "chantier", "date de début",
+        "date de fin", "sélectionner un client", "sélectionner un devis",
+        "sélectionner une équipe", "statut", "planifié", "en cours",
+        "terminé", "modifier chantier planifié",
+        "enregistrer les modifications",
+    },
+    "equipes": {
+        "équipe", "équipes", "gérer les équipes", "créer une équipe",
+        "modifier l'équipe", "chef d'équipe", "membres",
+        "compétences clés", "disponible", "sur un chantier",
+        "mettre à jour l'équipe", "nombre de membres",
     },
     "assistant": {
         "accès rapide", "assistant", "aide", "support",
-        "suggestion", "optimiser les trajets",
+        "suggestion", "copilote",
     },
 }
 
@@ -53,11 +67,11 @@ _MODULE_KEYWORDS: Final[dict[str, set[str]]] = {
 # the user is asking a spatial / navigation question whose scope is unclear.
 # ---------------------------------------------------------------------------
 _GENERIC_UX_KEYWORDS: Final[set[str]] = {
-    "bouton", "menu hamburger", "onglet",
+    "bouton", "onglet", "sidebar", "barre latérale",
     "où se trouve", "où est", "comment faire", "comment naviguer",
-    "interface", "écran", "cliquer", "appuyer",
-    "sur mobile", "sur desktop", "sur le web", "l'application",
-    "naviguer dans",
+    "interface", "écran", "cliquer", "appuyer", "ouvrir",
+    "menu", "navigation", "dans l'application", "l'application",
+    "naviguer dans", "je ne trouve pas", "introuvable",
 }
 
 # All known module keys (cached for the "return everything" path).
@@ -70,9 +84,9 @@ def classify_chat_intent(text: str) -> set[str]:
     Returns
     -------
     set[str]
-        A subset of ``{"finance", "clients", "devis", "planification",
-        "assistant"}``.  An **empty set** means the question is a pure BTP /
-        domain question and no UX guide should be injected.
+        A subset of ``{"dashboard", "clients", "devis", "planification",
+        "equipes", "assistant"}``.  An **empty set** means the question is a
+        pure BTP / domain question and no UX guide should be injected.
     """
     lowered = text.lower()
 
