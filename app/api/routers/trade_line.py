@@ -25,7 +25,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.utils import JSONHealingError
 from app.db import get_db
 from app.schemas.trade_line import (
     TRADE_LINE_DEFAULT_LIMIT,
@@ -33,7 +32,6 @@ from app.schemas.trade_line import (
     TradeLineResponse,
 )
 from app.services.ai_service import (
-    AIServiceError,
     InvalidBuildingRequestError,
     ai_service,
 )
@@ -50,8 +48,7 @@ router = APIRouter(prefix="/trade-line", tags=["trade-line"])
     summary="Generate a list of representative billable prestations for a corps de métier",
     responses={
         400: {"description": "`job_corp` is not a recognised building trade."},
-        502: {"description": "AI returned an invalid / unparseable response."},
-        503: {"description": "AI provider is unreachable."},
+        502: {"description": "Generated response failed schema validation."},
     },
 )
 async def generate_trade_line(
@@ -64,7 +61,8 @@ async def generate_trade_line(
 
     1. Fuzzy-load catalog rows that match ``job_corp`` and return them
        directly when possible.
-    2. Fall back to the model only when the catalog has no match.
+    2. Fall back to deterministic BTP reference items when the catalog has no
+       match.
     3. Validate the final ``{job_corp, count, items}`` payload against
        ``TradeLineResponse``.
     """
@@ -80,18 +78,6 @@ async def generate_trade_line(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Not a valid building trade: {exc}",
         ) from exc
-    except JSONHealingError as exc:
-        logger.warning("AI produced unparseable JSON for trade-line: %s", exc)
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"AI returned an unparseable response: {exc}",
-        ) from exc
-    except AIServiceError as exc:
-        logger.error("AI provider error (trade-line): %s", exc)
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"AI provider unavailable: {exc}",
-        ) from exc
 
     try:
         return TradeLineResponse.model_validate(raw)
@@ -102,7 +88,7 @@ async def generate_trade_line(
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail={
-                "message": "AI returned a JSON that does not match TradeLineResponse.",
+                "message": "Generated trade-line payload does not match TradeLineResponse.",
                 "errors": exc.errors(),
             },
         ) from exc

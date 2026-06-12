@@ -21,6 +21,7 @@ Two pieces of context are produced here:
 from __future__ import annotations
 
 import logging
+import re
 import unicodedata
 from collections.abc import Iterable
 from typing import Any
@@ -154,6 +155,137 @@ _UNIT_REFERENCE_PRICES = {
     "unité": 180,
     "forfait": 450,
 }
+_TRADE_LINE_STOPWORDS = frozenset(
+    {
+        "avec",
+        "dans",
+        "de",
+        "des",
+        "du",
+        "en",
+        "et",
+        "faire",
+        "la",
+        "le",
+        "les",
+        "pour",
+        "sur",
+        "travail",
+        "travaux",
+        "un",
+        "une",
+    }
+)
+_TRADE_LINE_ALIASES: dict[str, tuple[str, ...]] = {
+    "elec": (
+        "electricite",
+        "électricité",
+        "electrique",
+        "électrique",
+        "tableau electrique",
+        "tableau électrique",
+        "prise",
+    ),
+    "electricien": (
+        "electricite",
+        "électricité",
+        "electrique",
+        "électrique",
+        "tableau electrique",
+        "tableau électrique",
+        "prise",
+    ),
+    "electricite": (
+        "electricite",
+        "électricité",
+        "electrique",
+        "électrique",
+        "tableau electrique",
+        "tableau électrique",
+        "prise",
+    ),
+    "macon": ("maconnerie", "maçonnerie", "parpaing"),
+    "maconnerie": ("maconnerie", "maçonnerie", "parpaing"),
+    "peintre": ("peinture", "revetements murs", "revêtements murs"),
+    "peinture": ("peinture", "revetements murs", "revêtements murs", "enduit"),
+    "plombier": ("plomberie", "sanitaires"),
+    "plomberie": ("plomberie", "sanitaires"),
+    "sanitaire": ("plomberie", "sanitaires"),
+    "toit": ("couverture", "toiture", "tuile"),
+    "toiture": ("couverture", "toiture", "tuile"),
+}
+_REFERENCE_TRADE_ITEMS: tuple[tuple[tuple[str, ...], tuple[dict[str, Any], ...]], ...] = (
+    (
+        ("peinture", "peintre", "revetement mural", "revetements murs"),
+        (
+            {"description": "Préparation des supports avant peinture", "unit": "m2", "pu": 12, "tva": 10},
+            {"description": "Application de peinture acrylique mate en deux couches", "unit": "m2", "pu": 20, "tva": 10},
+            {"description": "Application de peinture satinée sur murs intérieurs", "unit": "m2", "pu": 24, "tva": 10},
+            {"description": "Pose d'enduit de lissage avant finition", "unit": "m2", "pu": 18, "tva": 10},
+            {"description": "Protection et nettoyage de fin d'intervention peinture", "unit": "forfait", "pu": 120, "tva": 10},
+        ),
+    ),
+    (
+        ("plomberie", "plombier", "sanitaire", "salle de bain"),
+        (
+            {"description": "Création ou reprise d'un point d'eau sanitaire", "unit": "u", "pu": 350, "tva": 10},
+            {"description": "Pose et raccordement d'un lavabo ou meuble vasque", "unit": "u", "pu": 280, "tva": 10},
+            {"description": "Remplacement d'un robinet ou mitigeur standard", "unit": "u", "pu": 120, "tva": 10},
+            {"description": "Recherche et réparation de fuite accessible", "unit": "forfait", "pu": 220, "tva": 10},
+            {"description": "Pose d'une évacuation PVC pour équipement sanitaire", "unit": "ml", "pu": 55, "tva": 10},
+        ),
+    ),
+    (
+        ("electricite", "electricien", "electrique", "tableau electrique", "elec"),
+        (
+            {"description": "Création d'un point lumineux avec appareillage", "unit": "u", "pu": 115, "tva": 10},
+            {"description": "Pose d'une prise électrique standard encastrée", "unit": "u", "pu": 95, "tva": 10},
+            {"description": "Mise en sécurité d'un circuit électrique existant", "unit": "forfait", "pu": 350, "tva": 10},
+            {"description": "Remplacement d'un tableau électrique divisionnaire", "unit": "forfait", "pu": 550, "tva": 10},
+            {"description": "Tirage de ligne électrique sous gaine ICTA", "unit": "ml", "pu": 35, "tva": 10},
+        ),
+    ),
+    (
+        ("maconnerie", "macon", "parpaing"),
+        (
+            {"description": "Montage de mur en parpaings avec joints courants", "unit": "m2", "pu": 85, "tva": 10},
+            {"description": "Réalisation d'une dalle béton armé standard", "unit": "m2", "pu": 95, "tva": 10},
+            {"description": "Reprise ponctuelle de maçonnerie existante", "unit": "forfait", "pu": 420, "tva": 10},
+            {"description": "Ouverture ou rebouchage de réservation maçonnée", "unit": "u", "pu": 260, "tva": 10},
+            {"description": "Application d'un enduit ciment sur support maçonné", "unit": "m2", "pu": 35, "tva": 10},
+        ),
+    ),
+    (
+        ("couverture", "toiture", "toit", "tuile", "ardoise"),
+        (
+            {"description": "Remplacement ponctuel de tuiles ou ardoises cassées", "unit": "u", "pu": 45, "tva": 10},
+            {"description": "Réfection de couverture en tuiles mécaniques", "unit": "m2", "pu": 100, "tva": 10},
+            {"description": "Pose d'écran sous-toiture avec contre-lattage", "unit": "m2", "pu": 35, "tva": 10},
+            {"description": "Traitement d'un point singulier d'étanchéité toiture", "unit": "forfait", "pu": 380, "tva": 10},
+            {"description": "Nettoyage et contrôle général de couverture", "unit": "forfait", "pu": 280, "tva": 10},
+        ),
+    ),
+    (
+        ("isolation", "isolant", "thermique", "combles"),
+        (
+            {"description": "Pose d'isolation en laine minérale sous rampant", "unit": "m2", "pu": 20, "tva": 5.5},
+            {"description": "Isolation de combles perdus par soufflage", "unit": "m2", "pu": 28, "tva": 5.5},
+            {"description": "Pose de doublage isolant intérieur avec parement", "unit": "m2", "pu": 45, "tva": 5.5},
+            {"description": "Traitement de l'étanchéité à l'air avant finition", "unit": "m2", "pu": 12, "tva": 5.5},
+            {"description": "Dépose partielle d'ancien isolant non conforme", "unit": "m2", "pu": 10, "tva": 5.5},
+        ),
+    ),
+    (
+        ("carrelage", "faience"),
+        (
+            {"description": "Pose de carrelage au sol avec encollage standard", "unit": "m2", "pu": 70, "tva": 10},
+            {"description": "Pose de faïence murale en pièces humides", "unit": "m2", "pu": 75, "tva": 10},
+            {"description": "Ragréage de support avant pose de carrelage", "unit": "m2", "pu": 18, "tva": 10},
+            {"description": "Réalisation de joints de carrelage hydrofuges", "unit": "m2", "pu": 12, "tva": 10},
+            {"description": "Dépose d'ancien revêtement carrelé existant", "unit": "m2", "pu": 35, "tva": 10},
+        ),
+    ),
+)
 
 
 def _normalise_text(value: str) -> str:
@@ -163,6 +295,30 @@ def _normalise_text(value: str) -> str:
         if not unicodedata.combining(char)
     )
     return without_accents.casefold()
+
+
+def _trade_line_search_terms(job_corp: str) -> list[str]:
+    normalised = _normalise_text(job_corp)
+    raw_tokens = re.findall(r"[\w]+", job_corp.casefold(), flags=re.UNICODE)
+    normalised_tokens = re.findall(r"[a-z0-9]+", normalised)
+    terms: list[str] = []
+    for raw_token, token in zip(raw_tokens, normalised_tokens, strict=False):
+        if len(token) < 3 or token in _TRADE_LINE_STOPWORDS:
+            continue
+        terms.append(raw_token)
+        terms.append(token)
+        terms.extend(_TRADE_LINE_ALIASES.get(token, ()))
+
+    if not terms and normalised.strip():
+        terms.append(normalised.strip())
+
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for term in terms:
+        if term and term not in seen:
+            seen.add(term)
+            deduped.append(term)
+    return deduped[:8]
 
 
 def _trade_line_tva(*values: str | None) -> float:
@@ -232,12 +388,13 @@ def _trade_line_item(
 
 
 def _trade_line_stmt(job_corp: str, limit: int):
-    pattern = f"%{job_corp.strip()}%"
-    return (
-        select(TradeService, Trade.name)
-        .join(Trade, Trade.id == TradeService.trade_id)
-        .where(
-            or_(
+    patterns = [f"%{term}%" for term in _trade_line_search_terms(job_corp)]
+    if not patterns:
+        patterns = [f"%{job_corp.strip()}%"]
+    filters = []
+    for pattern in patterns:
+        filters.extend(
+            (
                 Trade.name.ilike(pattern),
                 Trade.description.ilike(pattern),
                 Trade.category.ilike(pattern),
@@ -247,9 +404,30 @@ def _trade_line_stmt(job_corp: str, limit: int):
                 TradeService.category.ilike(pattern),
             )
         )
+    return (
+        select(TradeService, Trade.name)
+        .join(Trade, Trade.id == TradeService.trade_id)
+        .where(or_(*filters))
         .order_by(Trade.name, TradeService.designation)
         .limit(limit)
     )
+
+
+def build_reference_trade_line_items(
+    job_corp: str,
+    *,
+    limit: int | None = None,
+) -> list[dict[str, Any]]:
+    """Return deterministic fallback items for known BTP trades."""
+    normalised = _normalise_text(job_corp)
+    effective_limit = limit if limit is not None and limit > 0 else _TRADE_LINE_LIMIT
+    for keywords, items in _REFERENCE_TRADE_ITEMS:
+        if any(keyword in normalised for keyword in keywords):
+            return [
+                {"job_corp": job_corp, **item}
+                for item in items[:effective_limit]
+            ]
+    return []
 
 
 async def build_trade_line_items(
@@ -325,6 +503,7 @@ async def build_trade_line_context(
 
 __all__ = [
     "build_rag_context",
+    "build_reference_trade_line_items",
     "build_trade_line_context",
     "build_trade_line_items",
     "load_trade_names",

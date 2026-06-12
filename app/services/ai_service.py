@@ -31,7 +31,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.prompts import (
     SYSTEM_PROMPT_GENERATOR,
-    TRADE_LINE_PROMPT,
     build_chatbot_system_prompt,
 )
 from app.core.chat_intent import classify_chat_intent
@@ -46,7 +45,10 @@ from app.services.prestations_engine import (
     extract_surface_m2,
 )
 from app.schemas.devis import DevisResponse
-from app.services.catalog_service import build_trade_line_context, build_trade_line_items
+from app.services.catalog_service import (
+    build_reference_trade_line_items,
+    build_trade_line_items,
+)
 from app.services.devis_repair import UnrepairableDevisError
 from app.core.metier_rules import ALL_METIER_RULES
 
@@ -219,13 +221,15 @@ class AIService:
         "presence_penalty": 0,
         "stream": False,
     }
-    _TRADE_LINE_COMPLETION_PARAMS: Final[dict[str, Any]] = {
-        "max_completion_tokens": 1200,
+    _CHAT_COMPLETION_PARAMS: Final[dict[str, Any]] = {
+        "max_completion_tokens": 900,
         "temperature": 1,
         "top_p": 1,
         "presence_penalty": 0,
         "stream": False,
     }
+    _CHAT_HISTORY_MAX_MESSAGES: Final[int] = 6
+    _CHAT_HISTORY_MESSAGE_MAX_CHARS: Final[int] = 700
 
     # How many Stage-2 attempts before giving up. 1 initial + (N-1) retries.
     # Each retry passes the previous error back to the model so it can
@@ -286,6 +290,27 @@ class AIService:
             raise AIServiceError("OpenAI returned an empty completion.")
         return content
 
+    def _compact_chat_history(
+        self,
+        history: list[ChatMessage] | None,
+    ) -> list[dict[str, str]]:
+        """Keep recent chat context small enough for fast, grounded replies."""
+        if not history:
+            return []
+
+        compacted: list[dict[str, str]] = []
+        for msg in history[-self._CHAT_HISTORY_MAX_MESSAGES:]:
+            content = msg.content.strip()
+            if not content:
+                continue
+            compacted.append(
+                {
+                    "role": msg.role,
+                    "content": _short(content, self._CHAT_HISTORY_MESSAGE_MAX_CHARS),
+                }
+            )
+        return compacted
+
     # ------------------------------------------------------------------
     # (Obsolete _detect_trades and _generate_devis methods removed for V2)
 
@@ -326,12 +351,10 @@ class AIService:
 
         1. Fuzzy-load response-ready catalog rows for ``job_corp`` from
            ``trades`` / ``trade_services`` and return them directly.
-        2. Only when the catalog has no match, fall back to the LLM so it can
-           either reject non-BTP input or propose generic trade prestations.
-        3. Parse / heal the fallback JSON. Raise
-           :class:`InvalidBuildingRequestError` if the fallback rejection
-           triggers. Normalise the dict to ``{job_corp, items}`` so the router
-           can validate against :class:`TradeLineResponse`.
+        2. If the catalog has no match, return deterministic BTP reference
+           items for known trades.
+        3. If neither source can classify the input as BTP, raise
+           :class:`InvalidBuildingRequestError` so the router returns 400.
         """
         job_corp = job_corp.strip()
         if not job_corp:
@@ -354,33 +377,22 @@ class AIService:
                 "items": catalog_items,
             }
 
-        # No catalog hit: keep the model as a compatibility fallback, but use
-        # a much smaller completion budget than the full devis pipeline.
-        rag_context = await build_trade_line_context(
-            db, job_corp=job_corp, limit=max(limit * 2, 20)
-        )
-
-        prompt = (
-            TRADE_LINE_PROMPT
-            .replace("{job_corp}", job_corp)
-            .replace("{database_rag_context}", rag_context)
-            .replace("{limit}", str(limit))
-        )
-
-        raw = await self._chat(
-            prompt,
-            job_corp,
-            completion_params=self._TRADE_LINE_COMPLETION_PARAMS,
-        )
-        parsed = clean_and_parse_json(raw)
-
-        if parsed.get("isValidBuildingRequest") is False:
-            raise InvalidBuildingRequestError(
-                parsed.get("analysis")
-                or f"{job_corp!r} is not a recognised building trade."
+        reference_items = build_reference_trade_line_items(job_corp, limit=limit)
+        if reference_items:
+            logger.info(
+                "Trade-line reference fallback used for job_corp=%r (%d items).",
+                job_corp,
+                len(reference_items),
             )
+            return {
+                "job_corp": job_corp,
+                "count": len(reference_items),
+                "items": reference_items,
+            }
 
-        return _normalise_trade_line_payload(parsed, job_corp=job_corp, limit=limit)
+        raise InvalidBuildingRequestError(
+            f"{job_corp!r} is not a recognised building trade."
+        )
 
     async def generate_chat_response(
         self,
@@ -401,23 +413,33 @@ class AIService:
         if not user_text:
             raise ValueError("`user_text` must not be empty.")
 
+        compact_history = self._compact_chat_history(history)
+
         # --- 1. Classify intent (zero-cost keyword scan) ---
         relevant_modules = classify_chat_intent(user_text)
+        if relevant_modules == {"assistant"} and compact_history:
+            recent_user_text = " ".join(
+                msg["content"] for msg in compact_history if msg["role"] == "user"
+            )
+            history_modules = classify_chat_intent(recent_user_text)
+            specific_history_modules = history_modules - {"assistant"}
+            if specific_history_modules:
+                relevant_modules = relevant_modules | specific_history_modules
+
         system_prompt = build_chatbot_system_prompt(relevant_modules or None)
 
         logger.debug(
-            "Chat intent: UX modules=%s, prompt size=%d chars",
+            "Chat intent: UX modules=%s, prompt size=%d chars, history=%d messages",
             relevant_modules or "(none — BTP domain)",
             len(system_prompt),
+            len(compact_history),
         )
 
         # --- 2. Assemble messages with history ---
         messages: list[dict[str, str]] = [
             {"role": "system", "content": system_prompt},
         ]
-        if history:
-            for msg in history:
-                messages.append({"role": msg.role, "content": msg.content})
+        messages.extend(compact_history)
         messages.append({"role": "user", "content": user_text})
 
         # --- 3. Call the model ---
@@ -425,11 +447,7 @@ class AIService:
             response = await self._client.chat.completions.create(
                 model=self._model,
                 messages=messages,
-                max_completion_tokens=4096,
-                temperature=1,
-                top_p=1,
-                presence_penalty=0,
-                stream=False,
+                **self._CHAT_COMPLETION_PARAMS,
             )
         except APIError as exc:
             logger.exception("OpenAI chat call failed.")

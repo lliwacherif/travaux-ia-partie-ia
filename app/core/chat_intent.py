@@ -30,24 +30,23 @@ _MODULE_KEYWORDS: Final[dict[str, set[str]]] = {
     },
     "clients": {
         "client", "crm", "ajouter un client", "nouveau client",
-        "fiche client", "contacter", "particulier", "professionnel",
+        "fiche client", "contacter",
         "rechercher un client", "modifier un client", "supprimer un client",
-        "nombre de chantiers", "email", "téléphone",
+        "nombre de chantiers",
     },
     "devis": {
         "devis", "devis ia", "estimation", "générer le devis",
         "générer le devis avec l'ia", "valider le devis",
         "envoyer au client", "télécharger en pdf", "description du projet",
         "type de travaux", "budget estimé", "matériaux souhaités",
-        "quantité", "prix unitaire", "total ht", "tva", "total ttc",
-        "ligne", "projet",
+        "prix unitaire", "total ht", "total ttc",
     },
     "planification": {
         "planification", "planifier chantier", "planifier le chantier",
         "calendrier", "planning", "chantier", "date de début",
         "date de fin", "sélectionner un client", "sélectionner un devis",
-        "sélectionner une équipe", "statut", "planifié", "en cours",
-        "terminé", "modifier chantier planifié",
+        "sélectionner une équipe", "statut chantier", "chantier planifié",
+        "modifier chantier planifié",
         "enregistrer les modifications",
     },
     "equipes": {
@@ -63,8 +62,8 @@ _MODULE_KEYWORDS: Final[dict[str, set[str]]] = {
 }
 
 # ---------------------------------------------------------------------------
-# Generic UX triggers — if any of these appear we return ALL modules because
-# the user is asking a spatial / navigation question whose scope is unclear.
+# Generic UX triggers — if any of these appear without a module-specific hit,
+# we inject only the small global assistant guide instead of every module.
 # ---------------------------------------------------------------------------
 _GENERIC_UX_KEYWORDS: Final[set[str]] = {
     "bouton", "onglet", "sidebar", "barre latérale",
@@ -73,10 +72,6 @@ _GENERIC_UX_KEYWORDS: Final[set[str]] = {
     "menu", "navigation", "dans l'application", "l'application",
     "naviguer dans", "je ne trouve pas", "introuvable",
 }
-
-# All known module keys (cached for the "return everything" path).
-_ALL_MODULES: Final[frozenset[str]] = frozenset(_MODULE_KEYWORDS)
-
 
 def classify_chat_intent(text: str) -> set[str]:
     """Return the set of UX-module keys relevant to *text*.
@@ -98,18 +93,24 @@ def classify_chat_intent(text: str) -> set[str]:
         # Single words need word boundaries so 'jour' doesn't match 'bonjour'.
         return bool(re.search(rf"\b{re.escape(keyword)}\b", lowered))
 
-    # 1. Check generic UX triggers first (returns all modules).
-    for kw in _GENERIC_UX_KEYWORDS:
-        if _has(kw):
-            return set(_ALL_MODULES)
-
-    # 2. Check module-specific triggers.
+    # 1. Check module-specific triggers first. This keeps prompts lean for
+    # common questions like "comment créer un devis ?" or "où est Ajouter un
+    # client ?" even though they also contain generic UX words.
     matched: set[str] = set()
     for module, keywords in _MODULE_KEYWORDS.items():
         for kw in keywords:
             if _has(kw):
                 matched.add(module)
                 break  # one hit is enough for this module
+
+    if matched:
+        return matched
+
+    # 2. Generic UI question with no clear module: inject only the compact
+    # assistant/global navigation guide, not the full application map.
+    for kw in _GENERIC_UX_KEYWORDS:
+        if _has(kw):
+            return {"assistant"}
 
     return matched
 

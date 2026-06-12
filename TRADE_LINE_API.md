@@ -5,8 +5,8 @@ prestations for a given corps de métier (e.g. `"Peinture"`). Powers the
 "choisir une prestation" picker on the frontend (one card = one option
 the user can add to their devis).
 
-Powered primarily by the `trades` and `trade_services` tables. The model is
-used only as a fallback when the catalog has no matching prestations.
+Powered by the `trades` and `trade_services` tables, with deterministic BTP
+reference items as a fallback when the catalog has no matching prestations.
 
 **Open endpoint — no auth required.**
 
@@ -14,7 +14,7 @@ used only as a fallback when the catalog has no matching prestations.
 
 | Method | Path                              | Returns                                  |
 | ------ | --------------------------------- | ---------------------------------------- |
-| POST   | `/api/v1/trade-line/generate`     | One JSON `TradeLineResponse` (catalog-fast; AI fallback only). |
+| POST   | `/api/v1/trade-line/generate`     | One JSON `TradeLineResponse` (catalog-fast; no AI call). |
 
 Base URL is the same as the rest of the API. If you hit it through ngrok,
 keep the `ngrok-skip-browser-warning: true` header.
@@ -36,12 +36,15 @@ Optional `limit`:
 | `job_corp` | string | required, 1–255 chars, free-form French          | —       |
 | `limit`    | int    | optional, 1–30                                   | `12`    |
 
-`job_corp` matching is **fuzzy** (case-insensitive substring on
+`job_corp` matching is **fuzzy**: the API extracts useful tokens, expands
+common aliases (for example `electricite` → `électricité` / `électrique`,
+`peintre` → `peinture`), then searches case-insensitive substrings on
 `Trade.name`, `Trade.description`, `Trade.category`, `Trade.subcategory`,
-`TradeService.designation`, `TradeService.description`,
-`TradeService.category`). So `"Peinture"`, `"peinture"`, `"Plomberie"`,
-`"électricité"`, etc. all resolve correctly even if the literal trade
-name is something else (e.g. `"Peinture"` → `Revêtements murs`).
+`TradeService.designation`, `TradeService.description` and
+`TradeService.category`. So `"Peinture"`, `"travaux de peinture"`,
+`"Plomberie"`, `"electricite"`, `"électricité"`, etc. resolve correctly even
+if the literal trade name is something else (e.g. `"Peinture"` →
+`Revêtements murs`).
 
 ## Response — `TradeLineResponse`
 
@@ -153,10 +156,7 @@ job_corp ──▶ fuzzy ilike on trades + trade_services
              │
              no
              ▼
-       compact fallback prompt ──▶ model
-             │
-             ▼
-      JSON heal + parse + normalise
+       deterministic BTP reference items
                        │
                        ▼
                 TradeLineResponse  (job_corp, count, items[])
@@ -167,17 +167,18 @@ job_corp ──▶ fuzzy ilike on trades + trade_services
    columns and returns response-ready items directly.
 2. **Fast path** — when catalog rows exist, there is no model call. This
    keeps the picker endpoint responsive and deterministic.
-3. **Fallback AI call** — only when the catalog has no match, the endpoint
-   builds a compact prompt and asks the model to reject non-BTP input or
-   propose generic trade prestations.
+3. **Deterministic fallback** — only when the catalog has no match, the
+   endpoint uses built-in BTP reference items for known trades such as
+   peinture, plomberie, électricité, maçonnerie, couverture, isolation and
+   carrelage.
 4. **Price rules** — catalog-backed rows use `estimated_price` when it is
    greater than zero; otherwise the API uses deterministic BTP reference
    prices by trade/unit so the frontend does not receive `pu: 0`.
 5. **VAT rules** — catalog-backed rows use `5.5` for isolation /
-   énergétique keywords and `10` (rénovation) by default. The fallback
-   prompt keeps the same VAT contract.
-6. If fallback classifies the input as non-building (e.g. `"voyage"`), the
-   API answers **HTTP 400**.
+   énergétique keywords and `10` (rénovation) by default. The deterministic
+   fallback keeps the same VAT contract.
+6. If neither the catalog nor the deterministic fallback recognises the input
+   as a building trade (e.g. `"voyage"`), the API answers **HTTP 400**.
 
 ## Errors
 
@@ -185,8 +186,7 @@ job_corp ──▶ fuzzy ilike on trades + trade_services
 | ------ | -------------------------------------------------------- |
 | 400    | `job_corp` is not a recognised building trade.           |
 | 422    | Body invalid (empty `job_corp`, `limit` out of bounds…). |
-| 502    | AI returned something we couldn't parse / validate.      |
-| 503    | AI provider unreachable.                                 |
+| 502    | Generated payload failed response schema validation.     |
 
 ## Quick test
 
@@ -233,15 +233,14 @@ Invoke-RestMethod `
 
 ## Notes
 
-- Catalog matches return without an LLM round-trip and should feel like a
-  normal database-backed API call. Keep a longer client timeout only for rare
-  fallback cases where the catalog has no match.
+- The endpoint does not call the AI provider; it should behave like a normal
+  database-backed API call.
 - Output is in French (descriptions reuse catalog designations when
   possible, then are complemented with standard prestations).
 - `pu` is **HT** (hors taxes). Multiply by `(1 + tva / 100)` to get the
   TTC price.
 - The number of items returned is **dynamic**: the API returns up to `limit`
-  distinct catalog prestations, or fewer if the catalog/fallback cannot
+  distinct catalog prestations, or fewer if the catalog/reference fallback cannot
   produce that many useful options.
 - `count` is always equal to `items.length` — provided as a convenience
   for the frontend.

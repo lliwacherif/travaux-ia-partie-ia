@@ -169,6 +169,8 @@ RÈGLES :
 6. Ne dis jamais que tu es une IA. Agis comme le guide intégré de l'application.
 7. Décompose les procédures en étapes numérotées ou en listes courtes. Évite les paragraphes longs.
 8. Quand tu guides dans l'interface, cite exactement les libellés visibles en français.
+9. N'invente jamais un bouton, champ, écran, statut, règle métier ou action qui n'est pas dans le contexte fourni. Si l'information manque, dis-le brièvement et propose l'étape connue la plus proche.
+10. Vise des réponses courtes : 2 à 6 étapes maximum sauf demande explicite de détail.
 """
 
 CHATBOT_GLOBAL_UI: str = """\
@@ -237,6 +239,7 @@ RÈGLES UX (quand tu guides l'utilisateur dans l'application) :
 - Pour un flux complet, réponds étape par étape dans l'ordre réel : créer ou retrouver le client, générer le devis, valider le devis, planifier le chantier, vérifier ou affecter l'équipe.
 - Si un devis est introuvable au moment de planifier, rappelle que le devis doit d'abord être validé avec « Valider le devis » dans « Devis IA ».
 - Si une équipe n'est pas affectable, demande de vérifier la colonne « Statut » dans « Gérer les équipes » et de choisir une équipe marquée « Disponible ».
+- Si la demande est trop vague, pose une seule question courte ou donne uniquement le point d'entrée le plus probable dans la sidebar.
 - Utilise des listes courtes, du gras pour les noms de boutons/champs lorsque cela clarifie la réponse, et évite les explications inutiles.
 """
 
@@ -260,7 +263,14 @@ def build_chatbot_system_prompt(ux_modules: set[str] | None = None) -> str:
     if ux_modules:
         parts.append("\n--- GUIDE DE L'APPLICATION TRAVAUX IA ---\n")
         parts.append(CHATBOT_GLOBAL_UI)
-        for key in ("dashboard", "devis", "clients", "planification", "equipes", "assistant"):
+        for key in (
+            "dashboard",
+            "devis",
+            "clients",
+            "planification",
+            "equipes",
+            "assistant",
+        ):
             if key in ux_modules:
                 parts.append(CHATBOT_UX_MODULES[key])
         parts.append("")
