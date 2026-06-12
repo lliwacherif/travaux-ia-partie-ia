@@ -48,7 +48,9 @@ _MODULE_KEYWORDS: Final[dict[str, set[str]]] = {
         "calendrier", "planning", "chantier", "date de début",
         "date de fin", "sélectionner un client", "sélectionner un devis",
         "sélectionner une équipe", "statut chantier", "chantier planifié",
-        "modifier chantier planifié",
+        "modifier chantier planifié", "avancement", "suivi avancement",
+        "suivre l'avancement", "suivre l’avancement", "facturation", "facture",
+        "préparer la facturation", "preparer la facturation",
         "enregistrer les modifications",
     },
     "equipes": {
@@ -59,7 +61,8 @@ _MODULE_KEYWORDS: Final[dict[str, set[str]]] = {
     },
     "assistant": {
         "accès rapide", "assistant", "aide", "support",
-        "suggestion", "copilote",
+        "suggestion", "copilote", "facturation", "facture",
+        "préparer la facturation", "preparer la facturation",
     },
 }
 

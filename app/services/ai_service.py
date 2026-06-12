@@ -29,7 +29,10 @@ from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.core.chat_responses import build_chatbot_static_response
+from app.core.chat_responses import (
+    build_chatbot_provider_fallback_response,
+    build_chatbot_static_response,
+)
 from app.core.prompts import (
     SYSTEM_PROMPT_GENERATOR,
     build_chatbot_system_prompt,
@@ -459,15 +462,17 @@ class AIService:
                 **self._CHAT_COMPLETION_PARAMS,
             )
         except APIError as exc:
-            logger.exception("OpenAI chat call failed.")
-            raise AIServiceError(f"OpenAI API error: {exc}") from exc
+            logger.exception("OpenAI chat call failed; returning local fallback.")
+            return build_chatbot_provider_fallback_response(user_text)
 
         if not response.choices:
-            raise AIServiceError("OpenAI returned no choices.")
+            logger.warning("OpenAI returned no choices for chat; returning local fallback.")
+            return build_chatbot_provider_fallback_response(user_text)
 
         content = response.choices[0].message.content
         if not content:
-            raise AIServiceError("OpenAI returned an empty completion.")
+            logger.warning("OpenAI returned empty chat completion; returning local fallback.")
+            return build_chatbot_provider_fallback_response(user_text)
         return content
 
     async def generate_quote_stream(

@@ -6,6 +6,7 @@ import logging
 
 from fastapi import APIRouter, HTTPException
 
+from app.core.chat_responses import build_chatbot_provider_fallback_response
 from app.schemas.chat import ChatRequest, ChatResponse
 from app.services.ai_service import AIServiceError, ai_service
 
@@ -18,7 +19,10 @@ router = APIRouter(prefix="/chat", tags=["chat"])
     "",
     response_model=ChatResponse,
     summary="Generate a chatbot response",
-    description="Send free-form text to the chatbot and get a generated response based on the core architecture context.",
+    description=(
+        "Send free-form text to the chatbot and get a Travaux IA workflow "
+        "response. Known UI workflows and provider failures are handled locally."
+    ),
 )
 async def generate_chat(payload: ChatRequest) -> ChatResponse:
     """Generate a response from the AI assistant."""
@@ -29,8 +33,10 @@ async def generate_chat(payload: ChatRequest) -> ChatResponse:
         )
         return ChatResponse(text=response_text)
     except AIServiceError as exc:
-        logger.warning("AI provider error during chat: %s", exc)
-        raise HTTPException(status_code=503, detail=str(exc)) from exc
+        logger.warning("AI provider error during chat; returning fallback: %s", exc)
+        return ChatResponse(
+            text=build_chatbot_provider_fallback_response(payload.text)
+        )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:

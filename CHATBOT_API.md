@@ -54,8 +54,10 @@ curl -X POST "http://localhost:8000/api/v1/chat" \
 
 - `400 Bad Request`: If the `text` payload is missing or empty.
 - `422 Unprocessable Entity`: If the request JSON structure is invalid.
-- `503 Service Unavailable`: If the AI provider cannot be reached or returns an error.
 - `500 Internal Server Error`: For any other unexpected server-side failures.
+
+Provider failures are handled with a local fallback response, so normal chat
+requests should not return `503` when the model provider is unavailable.
 
 ## AI Model Configuration
 
@@ -63,3 +65,9 @@ curl -X POST "http://localhost:8000/api/v1/chat" \
 - **Max Tokens:** 900 for chatbot responses
 - **Temperature:** 1
 - **System Prompt:** Built dynamically. Pure BTP questions use the base assistant prompt only. Known UI questions such as devis, clients, planning and équipes are answered locally; other model-backed UI questions inject only the matching Travaux IA module guide plus compact global navigation context.
+
+## Smoke Test
+
+```bash
+python scripts/smoke_chat_no_503.py
+```
