@@ -2,7 +2,7 @@
 
 This document describes the open text-in/text-out API endpoint provided by the Devis Generation API.
 
-The chatbot acts as the **Travaux IA Assistant** for end users. It answers in French, stays focused on BTP and Travaux IA workflows, and injects only the UI modules relevant to the current question.
+The chatbot acts as the **Travaux IA Assistant** for end users. It answers in French, stays focused on BTP and Travaux IA workflows, and answers known UI/navigation workflows locally before using the model for open-ended BTP questions.
 
 ## Endpoint Overview
 
@@ -62,4 +62,4 @@ curl -X POST "http://localhost:8000/api/v1/chat" \
 - **Model:** Configured by `OPENAI_MODEL`
 - **Max Tokens:** 900 for chatbot responses
 - **Temperature:** 1
-- **System Prompt:** Built dynamically. Pure BTP questions use the base assistant prompt only; UI questions inject only the matching Travaux IA module guide plus compact global navigation context.
+- **System Prompt:** Built dynamically. Pure BTP questions use the base assistant prompt only. Known UI questions such as devis, clients, planning and équipes are answered locally; other model-backed UI questions inject only the matching Travaux IA module guide plus compact global navigation context.

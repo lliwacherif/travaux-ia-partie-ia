@@ -29,6 +29,7 @@ from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
+from app.core.chat_responses import build_chatbot_static_response
 from app.core.prompts import (
     SYSTEM_PROMPT_GENERATOR,
     build_chatbot_system_prompt,
@@ -425,6 +426,14 @@ class AIService:
             specific_history_modules = history_modules - {"assistant"}
             if specific_history_modules:
                 relevant_modules = relevant_modules | specific_history_modules
+
+        static_response = build_chatbot_static_response(relevant_modules)
+        if static_response:
+            logger.debug(
+                "Chat static response used for UX modules=%s",
+                relevant_modules,
+            )
+            return static_response
 
         system_prompt = build_chatbot_system_prompt(relevant_modules or None)
 

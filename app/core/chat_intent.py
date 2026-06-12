@@ -35,7 +35,9 @@ _MODULE_KEYWORDS: Final[dict[str, set[str]]] = {
         "nombre de chantiers",
     },
     "devis": {
-        "devis", "devis ia", "estimation", "générer le devis",
+        "devis", "devis ia", "offre", "offre détaillée", "offre detaillee",
+        "estimation", "générer le devis", "generer un devis",
+        "générer une offre", "generer une offre",
         "générer le devis avec l'ia", "valider le devis",
         "envoyer au client", "télécharger en pdf", "description du projet",
         "type de travaux", "budget estimé", "matériaux souhaités",
