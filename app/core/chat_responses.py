@@ -121,8 +121,28 @@ def build_landing_chatbot_provider_fallback_response(user_text: str) -> str:
     )
 
 
+def build_mobile_chatbot_provider_fallback_response(user_text: str) -> str:
+    """Return a safe mobile-app answer when the model provider is unavailable."""
+    text = user_text.strip()
+    if not text:
+        return (
+            "Bonjour ! Je peux vous guider dans l'application mobile Travaux IA "
+            "pour gérer vos clients, devis, chantiers et équipes."
+        )
+
+    return (
+        "Je peux vous aider sur l'application mobile Travaux IA, mais la réponse "
+        "détaillée n'est pas disponible pour l'instant.\n"
+        "Pour avancer : ouvrez **« Devis IA »** pour générer ou valider un devis, "
+        "**« Clients »** pour gérer une fiche client, **« Chantiers »** pour suivre "
+        "les dates et le statut, ou **« Équipes »** pour vérifier une équipe "
+        "**« Disponible »**."
+    )
+
+
 __all__ = [
     "build_chatbot_provider_fallback_response",
     "build_chatbot_static_response",
     "build_landing_chatbot_provider_fallback_response",
+    "build_mobile_chatbot_provider_fallback_response",
 ]

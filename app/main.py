@@ -17,6 +17,7 @@ from app.api.routers import (
     chat_router,
     devis_router,
     landing_chat_router,
+    mobile_chat_router,
     trade_line_router,
     voice_router,
 )
@@ -77,6 +78,7 @@ app.include_router(devis_router, prefix=settings.API_V1_PREFIX)
 app.include_router(trade_line_router, prefix=settings.API_V1_PREFIX)
 app.include_router(chat_router, prefix=settings.API_V1_PREFIX)
 app.include_router(landing_chat_router, prefix=settings.API_V1_PREFIX)
+app.include_router(mobile_chat_router, prefix=settings.API_V1_PREFIX)
 app.include_router(voice_router, prefix=settings.API_V1_PREFIX)
 
 

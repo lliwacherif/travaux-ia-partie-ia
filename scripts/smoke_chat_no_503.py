@@ -17,6 +17,7 @@ if str(ROOT) not in sys.path:
 
 from app.api.routers import chat as chat_router
 from app.api.routers import landing_chat as landing_chat_router
+from app.api.routers import mobile_chat as mobile_chat_router
 from app.core.chat_intent import classify_chat_intent
 from app.schemas.chat import ChatRequest
 from app.services.ai_service import AIService, AIServiceError
@@ -67,6 +68,27 @@ async def _assert_landing_router_provider_error_is_not_503() -> None:
     assert "Expert" in response.text or "Premium" in response.text
 
 
+async def _assert_mobile_router_provider_error_is_not_503() -> None:
+    original = mobile_chat_router.ai_service.generate_mobile_chat_response
+
+    async def failing_generate_mobile_chat_response(*args, **kwargs) -> str:
+        raise AIServiceError("simulated provider failure")
+
+    mobile_chat_router.ai_service.generate_mobile_chat_response = (
+        failing_generate_mobile_chat_response
+    )
+    try:
+        response = await mobile_chat_router.generate_mobile_chat(
+            ChatRequest(text="comment planifier un chantier sur mobile ?")
+        )
+    finally:
+        mobile_chat_router.ai_service.generate_mobile_chat_response = original
+
+    assert response.text
+    assert "application mobile Travaux IA" in response.text
+    assert "Chantiers" in response.text or "Devis IA" in response.text
+
+
 async def main() -> None:
     assert classify_chat_intent("Suivre l’avancement et préparer la facturation") == {
         "assistant",
@@ -87,6 +109,7 @@ async def main() -> None:
     )
     await _assert_router_provider_error_is_not_503()
     await _assert_landing_router_provider_error_is_not_503()
+    await _assert_mobile_router_provider_error_is_not_503()
     print("chat no-503 smoke checks passed")
 
 
