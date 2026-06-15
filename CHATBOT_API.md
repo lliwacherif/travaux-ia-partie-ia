@@ -2,7 +2,7 @@
 
 This document describes the open text-in/text-out API endpoint provided by the Devis Generation API.
 
-The chatbot acts as the **Travaux IA Assistant** for end users. It answers in French, stays focused on BTP and Travaux IA workflows, and answers known UI/navigation workflows locally before using the model for open-ended BTP questions.
+The chatbot acts as the **Travaux IA Web Copilot** for end users. It answers in French, stays focused on BTP and Travaux IA web workflows, and answers known UI/navigation workflows locally before using the model for open-ended BTP questions.
 
 ## Endpoint Overview
 
@@ -46,7 +46,7 @@ curl -X POST "http://localhost:8000/api/v1/chat" \
 
 ```json
 {
-  "text": "1. Cliquez sur « Devis IA » dans la sidebar de gauche.\n2. Remplissez « Description du projet », « Type de travaux », « Budget estimé (€) » et « Matériaux souhaités ».\n3. Cliquez sur « Générer le devis avec l'IA ».\n4. Relisez les lignes, puis cliquez sur « Valider le devis » si tout est correct."
+  "text": "1. Accédez à l'onglet « DEVIS IA » et vérifiez la « Sélection du client ».\n2. Décrivez les travaux dans la zone de prompt ou utilisez « Dictée vocale ».\n3. Laissez le workflow avancer : Analyse -> Lots -> Quantités -> Finalisation.\n4. Relisez l'Éditeur de lignes de devis puis contrôlez les Paramètres du devis avant validation."
 }
 ```
 
@@ -64,7 +64,7 @@ requests should not return `503` when the model provider is unavailable.
 - **Model:** Configured by `OPENAI_MODEL`
 - **Max Tokens:** 900 for chatbot responses
 - **Temperature:** 1
-- **System Prompt:** Built dynamically. Pure BTP questions use the base assistant prompt only. Known UI questions such as devis, clients, planning and équipes are answered locally; other model-backed UI questions inject only the matching Travaux IA module guide plus compact global navigation context.
+- **System Prompt:** Built dynamically for the web app. Pure BTP questions use the base web copilot prompt only. Known UI questions such as finance, clients, Devis IA, documents, pricing libraries and planning are answered locally when possible; other model-backed UI questions inject only the matching Travaux IA web module guide plus compact global navigation context.
 
 ## Smoke Test
 

@@ -94,6 +94,12 @@ async def main() -> None:
         "assistant",
         "planification",
     }
+    assert classify_chat_intent("Où en est mon chiffre d'affaires ?") == {
+        "dashboard",
+    }
+    assert classify_chat_intent("Comment ajouter un prix spécifique pour le carrelage ?") == {
+        "catalogue",
+    }
 
     await _assert_static_response(
         "Suivre l’avancement et préparer la facturation",
@@ -106,6 +112,10 @@ async def main() -> None:
     await _assert_static_response(
         "devis",
         "Pour générer une offre détaillée",
+    )
+    await _assert_static_response(
+        "Comment ajouter un prix spécifique pour le carrelage ?",
+        "Bibliothèque personnalisée",
     )
     await _assert_router_provider_error_is_not_503()
     await _assert_landing_router_provider_error_is_not_503()

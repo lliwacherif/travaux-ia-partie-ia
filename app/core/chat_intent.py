@@ -26,7 +26,11 @@ _MODULE_KEYWORDS: Final[dict[str, set[str]]] = {
         "dashboard", "tableau de bord", "total de chantiers",
         "équipes actives", "devis générés", "chantiers en cours",
         "statistiques", "stats", "métrique", "métriques", "kpi",
-        "timeline", "vue globale",
+        "timeline", "vue globale", "finance", "finances",
+        "chiffre d'affaires", "ca en cours", "ca signé", "ca signe",
+        "ca facturé", "ca facture", "ca total", "taux de conversion",
+        "conversion", "ca moyen", "total docs", "acomptes", "acompte",
+        "avoirs", "factures", "transactions",
     },
     "clients": {
         "client", "crm", "ajouter un client", "nouveau client",
@@ -41,7 +45,12 @@ _MODULE_KEYWORDS: Final[dict[str, set[str]]] = {
         "générer le devis avec l'ia", "valider le devis",
         "envoyer au client", "télécharger en pdf", "description du projet",
         "type de travaux", "budget estimé", "matériaux souhaités",
-        "prix unitaire", "total ht", "total ttc",
+        "prix unitaire", "total ht", "total ttc", "sélection du client",
+        "selection du client", "analyse", "lots", "quantités", "quantites",
+        "finalisation", "éditeur de lignes", "editeur de lignes",
+        "paramètres du devis", "parametres du devis", "validité du devis",
+        "validite du devis", "retenue de garantie", "mentions légales",
+        "mentions legales", "dictée vocale", "dictee vocale",
     },
     "planification": {
         "planification", "planifier chantier", "planifier le chantier",
@@ -51,7 +60,10 @@ _MODULE_KEYWORDS: Final[dict[str, set[str]]] = {
         "modifier chantier planifié", "avancement", "suivi avancement",
         "suivre l'avancement", "suivre l’avancement", "facturation", "facture",
         "préparer la facturation", "preparer la facturation",
-        "enregistrer les modifications",
+        "enregistrer les modifications", "google maps", "waze",
+        "itinéraire", "itineraire", "route", "localisation", "adresse chantier",
+        "chantier du", "dr. martin", "dr martin", "partiel", "encaisse",
+        "encaissé",
     },
     "equipes": {
         "équipe", "équipes", "gérer les équipes", "créer une équipe",
@@ -63,6 +75,20 @@ _MODULE_KEYWORDS: Final[dict[str, set[str]]] = {
         "accès rapide", "assistant", "aide", "support",
         "suggestion", "copilote", "facturation", "facture",
         "préparer la facturation", "preparer la facturation",
+    },
+    "documents": {
+        "documents", "document", "total docs", "facture", "factures",
+        "acompte", "acomptes", "avoir", "avoirs", "credit note",
+        "note de crédit", "note de credit",
+    },
+    "catalogue": {
+        "bibliothèque", "bibliotheque", "bibliothèque travaux ia",
+        "bibliotheque travaux ia", "bibliothèque personnalisée",
+        "bibliotheque personnalisee", "catalogue", "prix spécifique",
+        "prix specifique", "prestation personnalisée",
+        "prestation personnalisee", "créer une ligne personnalisée",
+        "creer une ligne personnalisee", "corps de métier", "corps de metier",
+        "prix unitaire ht", "tva", "carrelage", "isolation",
     },
 }
 
@@ -85,8 +111,9 @@ def classify_chat_intent(text: str) -> set[str]:
     -------
     set[str]
         A subset of ``{"dashboard", "clients", "devis", "planification",
-        "equipes", "assistant"}``.  An **empty set** means the question is a
-        pure BTP / domain question and no UX guide should be injected.
+        "equipes", "documents", "catalogue", "assistant"}``. An **empty set**
+        means the question is a pure BTP / domain question and no UX guide
+        should be injected.
     """
     lowered = text.lower()
 

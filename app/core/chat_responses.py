@@ -16,68 +16,91 @@ def build_chatbot_static_response(ux_modules: set[str]) -> str | None:
     if "devis" in ux_modules:
         return (
             "Pour générer une offre détaillée :\n"
-            "1. Cliquez sur **« Devis IA »** dans la sidebar de gauche.\n"
-            "2. Remplissez **« Description du projet »**, **« Type de travaux »**, "
-            "**« Budget estimé (€) »** et **« Matériaux souhaités »**.\n"
-            "3. Cliquez sur **« Générer le devis avec l'IA »**.\n"
-            "4. Relisez le tableau avec **« Désignation »**, **« Quantité »**, "
-            "**« Prix Unitaire »**, **« Total HT »**, **« TVA (%) »** et "
-            "**« Total TTC »**.\n"
-            "5. En bas, utilisez **« Valider le devis »**, **« Envoyer au client »** "
-            "ou **« Télécharger en PDF »**."
+            "1. Accédez à l'onglet **« DEVIS IA »** et vérifiez la "
+            "**« Sélection du client »**.\n"
+            "2. Décrivez les travaux dans la zone de prompt ou utilisez "
+            "**« Dictée vocale »**. Ajoutez surfaces, pièces et matériaux.\n"
+            "3. Laissez le workflow avancer : **Analyse -> Lots -> Quantités -> "
+            "Finalisation**.\n"
+            "4. Relisez l'**Éditeur de lignes de devis** : **Désignation**, "
+            "**Qté**, **Unité**, **PU HT**, **TVA (%)**, **Total HT**.\n"
+            "5. Avant validation, contrôlez les **Paramètres du devis** : "
+            "**Validité du devis**, **Acompte**, **Retenue de garantie** et "
+            "**Mentions légales**, puis utilisez **« Valider ce devis »**."
         )
 
     if "planification" in ux_modules and "assistant" in ux_modules:
         return (
             "Pour suivre l'avancement et préparer la facturation :\n"
-            "1. Cliquez sur **« Tableau de bord »** dans la sidebar de gauche pour "
-            "voir les **« Chantiers en cours »** et le planning global.\n"
-            "2. Ouvrez **« Planifier Chantier »** pour retrouver le chantier et "
-            "mettre à jour le champ **« Statut »** : **« Planifié »**, "
-            "**« En cours »** ou **« Terminé »**.\n"
-            "3. Si besoin, ouvrez **« Modifier chantier planifié »**, ajustez "
-            "l'équipe, les dates ou le statut, puis cliquez sur "
-            "**« Enregistrer les modifications »**.\n"
-            "4. Pour préparer la facturation, revenez au devis validé dans "
-            "**« Devis IA »** et utilisez les lignes **HT**, **TVA** et **TTC** "
-            "comme base de facturation."
+            "1. Ouvrez **« FINANCE »** pour lire les KPI **DEVIS**, "
+            "**ACOMPTE**, **FACTURES**, **AVOIRS** et le tunnel **CA EN COURS "
+            "-> CA SIGNÉ -> CA FACTURÉ -> CA TOTAL**.\n"
+            "2. Accédez à **« PLANIFICATION »**, puis à la modale **Chantiers** "
+            "pour retrouver le projet actif.\n"
+            "3. Vérifiez la progression financière **Total** vs **Encaissé** et "
+            "les badges **PARTIEL** ou **ACOMPTE**.\n"
+            "4. Pour envoyer une équipe, ouvrez la carte du chantier et utilisez "
+            "**Google Maps** ou **Waze**."
         )
 
-    if {"clients", "planification", "equipes"} & ux_modules:
+    if "catalogue" in ux_modules:
+        return (
+            "Pour ajouter un prix spécifique :\n"
+            "1. Ouvrez la **« Bibliothèque personnalisée »**.\n"
+            "2. Cliquez sur **« Créer Une Ligne Personnalisée »**.\n"
+            "3. Renseignez le **corps de métier**, la **désignation**, "
+            "l'**unité**, le **prix unitaire HT** et la **TVA**.\n"
+            "4. La **Bibliothèque TRAVAUX IA** sert de base globale de prix ; "
+            "votre **Bibliothèque personnalisée** conserve vos propres prix pour "
+            "les prochaines générations de devis."
+        )
+
+    if {"clients", "planification", "equipes", "documents"} & ux_modules:
         steps: list[str] = []
         if "clients" in ux_modules:
             steps.append(
-                "Allez dans **« Clients »** puis utilisez **« Ajouter un client »** "
-                "en haut à droite, ou **« Modifier »** sur la ligne du client."
+                "Accédez à **« CLIENT »** puis utilisez la recherche par nom, "
+                "téléphone ou adresse. Pour créer une fiche, choisissez "
+                "**Client Professionnel** ou **Client Particulier**."
             )
         if "planification" in ux_modules:
             steps.append(
-                "Allez dans **« Planifier Chantier »**, choisissez "
-                "**« Sélectionner un Client »**, **« Sélectionner un Devis »**, les "
-                "dates, l'équipe et le **« Statut »**, puis cliquez sur "
-                "**« Planifier le chantier »**."
+                "Accédez à **« PLANIFICATION »** puis ouvrez la modale "
+                "**Chantiers** pour consulter le projet, sa progression "
+                "financière, la carte et les liens **Google Maps** / **Waze**."
             )
-        if "equipes" in ux_modules:
+            if "equipes" in ux_modules:
+                steps.append(
+                    "Pour la logistique équipe, utilisez les informations du "
+                    "chantier actif et l'itinéraire intégré avant d'envoyer les "
+                    "intervenants."
+                )
+        if "documents" in ux_modules:
             steps.append(
-                "Allez dans **« Gérer les équipes »** et vérifiez que la colonne "
-                "**« Statut »** indique **« Disponible »** avant d'affecter une équipe."
+                "Accédez à **« DOCUMENTS »** pour les pièces, ou à **« FINANCE »** "
+                "pour suivre les volumes **DEVIS**, **ACOMPTE**, **FACTURES**, "
+                "**AVOIRS** et **TOTAL DOCS**."
             )
         return "\n".join(f"{idx}. {step}" for idx, step in enumerate(steps, 1))
 
     if "dashboard" in ux_modules:
         return (
-            "Pour consulter l'activité :\n"
-            "1. Cliquez sur **« Tableau de bord »** dans la sidebar de gauche.\n"
-            "2. Consultez les cartes **« Total de chantiers »**, **« Équipes "
-            "Actives »**, **« Devis Générés »** et **« Chantiers en cours »**.\n"
-            "3. Utilisez le calendrier ou la timeline centrale pour voir le planning."
+            "Pour lire vos finances :\n"
+            "1. Accédez à l'onglet **« FINANCE »**.\n"
+            "2. Consultez les widgets **CLIENTS**, **DEVIS**, **ACOMPTE**, "
+            "**FACTURES**, **AVOIRS** et **TOTAL DOCS**.\n"
+            "3. Analysez le tunnel **CA EN COURS -> CA SIGNÉ -> CA FACTURÉ -> "
+            "CA TOTAL**.\n"
+            "4. En bas, surveillez **TAUX DE CONVERSION** et **CA MOYEN PAR "
+            "DEVIS SIGNÉ**. Si le taux baisse, priorisez les devis en attente."
         )
 
     if "assistant" in ux_modules:
         return (
             "Je peux vous guider dans Travaux IA. Dites-moi si vous voulez gérer "
-            "un **client**, générer un **devis**, **planifier un chantier** ou "
-            "gérer une **équipe**."
+            "un **client**, générer un **devis IA**, consulter **FINANCE**, "
+            "retrouver un **document**, gérer une **bibliothèque de prix** ou "
+            "localiser un **chantier**."
         )
 
     return None
@@ -91,12 +114,13 @@ def build_chatbot_provider_fallback_response(user_text: str) -> str:
             "Je peux vous aider sur Travaux IA, mais la réponse détaillée n'est "
             "pas disponible pour l'instant.\n"
             "Pour avancer tout de suite :\n"
-            "1. Utilisez **« Devis IA »** pour générer ou valider un devis.\n"
-            "2. Utilisez **« Clients »** pour créer ou modifier une fiche client.\n"
-            "3. Utilisez **« Planifier Chantier »** pour suivre les dates et le "
-            "statut du chantier.\n"
-            "4. Utilisez **« Gérer les équipes »** pour vérifier les équipes "
-            "**« Disponible »**."
+            "1. Utilisez **« DEVIS IA »** pour sélectionner un client et générer "
+            "un devis.\n"
+            "2. Utilisez **« CLIENT »** pour rechercher ou créer une fiche.\n"
+            "3. Utilisez **« FINANCE »** pour suivre CA, factures, acomptes et "
+            "taux de conversion.\n"
+            "4. Utilisez **« PLANIFICATION »** pour retrouver un chantier et ses "
+            "liens **Google Maps** / **Waze**."
         )
     return "Bonjour ! Je peux vous aider à gérer vos clients, devis, chantiers et équipes dans Travaux IA."
 
