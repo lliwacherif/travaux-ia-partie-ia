@@ -230,7 +230,7 @@ class AIService:
         "stream": False,
     }
     _CHAT_COMPLETION_PARAMS: Final[dict[str, Any]] = {
-        "max_completion_tokens": 900,
+        "max_completion_tokens": 4096,
         "temperature": 1,
         "top_p": 1,
         "presence_penalty": 0,
