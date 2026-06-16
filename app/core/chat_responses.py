@@ -15,32 +15,30 @@ def build_chatbot_static_response(ux_modules: set[str]) -> str | None:
 
     if "devis" in ux_modules:
         return (
-            "Pour générer une offre détaillée :\n"
+            "Pour générer un devis détaillé :\n"
             "1. Accédez à l'onglet **« DEVIS IA »** et vérifiez la "
             "**« Sélection du client »**.\n"
-            "2. Décrivez les travaux dans la zone de prompt ou utilisez "
-            "**« Dictée vocale »**. Ajoutez surfaces, pièces et matériaux.\n"
-            "3. Laissez le workflow avancer : **Analyse -> Lots -> Quantités -> "
-            "Finalisation**.\n"
-            "4. Relisez l'**Éditeur de lignes de devis** : **Désignation**, "
-            "**Qté**, **Unité**, **PU HT**, **TVA (%)**, **Total HT**.\n"
-            "5. Avant validation, contrôlez les **Paramètres du devis** : "
-            "**Validité du devis**, **Acompte**, **Retenue de garantie** et "
-            "**Mentions légales**, puis utilisez **« Valider ce devis »**."
+            "2. Choisissez et validez le chantier concerné.\n"
+            "3. Dans l'espace de prompt (texte), saisissez la description du "
+            "travail ou des travaux à réaliser pour le devis. Vous pouvez "
+            "également utiliser la dictée vocale.\n"
+            "4. Lancez la génération du devis.\n"
+            "5. Une fois le devis généré, vérifiez les lignes proposées et "
+            "apportez les modifications nécessaires.\n"
+            "6. Enfin, validez le devis pour confirmer sa création."
         )
 
     if "planification" in ux_modules and "assistant" in ux_modules:
         return (
-            "Pour suivre l'avancement et préparer la facturation :\n"
-            "1. Ouvrez **« FINANCE »** pour lire les KPI **DEVIS**, "
-            "**ACOMPTE**, **FACTURES**, **AVOIRS** et le tunnel **CA EN COURS "
-            "-> CA SIGNÉ -> CA FACTURÉ -> CA TOTAL**.\n"
-            "2. Accédez à **« PLANIFICATION »**, puis à la modale **Chantiers** "
-            "pour retrouver le projet actif.\n"
-            "3. Vérifiez la progression financière **Total** vs **Encaissé** et "
-            "les badges **PARTIEL** ou **ACOMPTE**.\n"
-            "4. Pour envoyer une équipe, ouvrez la carte du chantier et utilisez "
-            "**Google Maps** ou **Waze**."
+            "Pour générer une facture à partir d'un devis :\n"
+            "1. Validez d'abord le devis concerné.\n"
+            "2. Accédez à la page **« Documents »** via le bouton situé en "
+            "haut de l'interface.\n"
+            "3. Sélectionnez le devis à facturer dans la liste des documents.\n"
+            "4. Assurez-vous que le devis est bien signé.\n"
+            "5. Cliquez sur le menu des trois points **(⋯)** associé au devis.\n"
+            "6. Sélectionnez l'option **« Créer une facture »** pour générer "
+            "la facture."
         )
 
     if "catalogue" in ux_modules:
