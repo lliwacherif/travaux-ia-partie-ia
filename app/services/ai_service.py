@@ -115,8 +115,8 @@ _DEVIS_RESPONSE_FORMAT: dict[str, Any] = {
 from app.services.prestations_engine import (
     process_ai_lots,
     calculate_global_totals,
-    load_price_map,
-    load_packs_map,
+    get_cached_price_map,
+    get_cached_packs_map,
     extract_surface_m2,
 )
 from app.schemas.devis import DevisResponse
@@ -734,9 +734,9 @@ class AIService:
         
         validate_btp_context(user_text)
         
-        # Load price maps and packs
-        price_map, concept_map = await load_price_map(db)
-        exact_map, pack_list = await load_packs_map(db)
+        # Load price maps and packs (cached in RAM after first call)
+        price_map, concept_map = await get_cached_price_map(db)
+        exact_map, pack_list = await get_cached_packs_map(db)
         
         # Step 2: Generation (Semantic Mapping)
         if on_progress is not None:

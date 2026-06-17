@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import unicodedata
 import re
@@ -297,6 +298,45 @@ async def load_packs_map(db: AsyncSession) -> tuple[Dict[str, dict], List[dict]]
         
     logger.info("Loaded %d packs from packs_travaux.", len(exact_map))
     return exact_map, pack_list
+
+
+# ---------------------------------------------------------------------------
+# In-memory cache — prices & packs are static BPU data that only change
+# when the seed script runs (which restarts the server, clearing this).
+# ---------------------------------------------------------------------------
+_cache_lock = asyncio.Lock()
+_cached_prices: tuple[Dict[str, float], Dict[str, Dict[str, float]]] | None = None
+_cached_packs: tuple[Dict[str, dict], List[dict]] | None = None
+
+
+async def get_cached_price_map(
+    db: AsyncSession,
+) -> tuple[Dict[str, float], Dict[str, Dict[str, float]]]:
+    """Return the price_map and concept_map, loading from DB only once."""
+    global _cached_prices
+    if _cached_prices is not None:
+        return _cached_prices
+    async with _cache_lock:
+        if _cached_prices is not None:  # double-check after acquiring lock
+            return _cached_prices
+        _cached_prices = await load_price_map(db)
+        logger.info("Price map cached in RAM.")
+        return _cached_prices
+
+
+async def get_cached_packs_map(
+    db: AsyncSession,
+) -> tuple[Dict[str, dict], List[dict]]:
+    """Return the packs exact_map and pack_list, loading from DB only once."""
+    global _cached_packs
+    if _cached_packs is not None:
+        return _cached_packs
+    async with _cache_lock:
+        if _cached_packs is not None:  # double-check after acquiring lock
+            return _cached_packs
+        _cached_packs = await load_packs_map(db)
+        logger.info("Packs map cached in RAM.")
+        return _cached_packs
 
 def _find_pack(pack_id: str, exact_map: Dict[str, dict], pack_list: List[dict]) -> Optional[dict]:
     # Exact match
