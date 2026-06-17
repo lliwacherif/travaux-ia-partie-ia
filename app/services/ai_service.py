@@ -45,6 +45,73 @@ from app.core.chat_intent import classify_chat_intent
 from app.schemas.chat import ChatMessage
 from app.core.utils import JSONHealingError, clean_and_parse_json
 from app.core.btp_validator import validate_btp_context
+
+# ---------------------------------------------------------------------------
+# OpenAI Structured Outputs — JSON Schema for devis generation
+# ---------------------------------------------------------------------------
+# This schema mirrors EXACTLY the JSON format the AI already returns.
+# By passing it via response_format, OpenAI enforces valid JSON at the
+# decoding layer — the model no longer wastes reasoning tokens on
+# formatting, and JSONHealingError becomes virtually impossible.
+# ---------------------------------------------------------------------------
+_DEVIS_RESPONSE_FORMAT: dict[str, Any] = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "devis_generation",
+        "strict": True,
+        "schema": {
+            "type": "object",
+            "properties": {
+                "client_type": {
+                    "type": "string",
+                    "enum": ["pro", "particulier"],
+                },
+                "project_nature": {
+                    "type": "string",
+                    "enum": ["neuf", "renovation"],
+                },
+                "lots": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "lot_key": {"type": "string"},
+                            "metier": {"type": "string"},
+                            "zone": {
+                                "type": "string",
+                                "enum": ["interieur", "exterieur"],
+                            },
+                            "packs": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {"type": "string"},
+                                        "type": {
+                                            "type": "string",
+                                            "enum": [
+                                                "PRESTATION",
+                                                "DEPANNAGE",
+                                            ],
+                                        },
+                                        "quantite": {"type": "number"},
+                                    },
+                                    "required": ["id", "type", "quantite"],
+                                    "additionalProperties": False,
+                                },
+                            },
+                        },
+                        "required": ["lot_key", "metier", "zone", "packs"],
+                        "additionalProperties": False,
+                    },
+                },
+            },
+            "required": ["client_type", "project_nature", "lots"],
+            "additionalProperties": False,
+        },
+    },
+}
+
 from app.services.prestations_engine import (
     process_ai_lots,
     calculate_global_totals,
@@ -274,9 +341,21 @@ class AIService:
         user_text: str,
         *,
         completion_params: dict[str, Any] | None = None,
+        response_format: dict[str, Any] | None = None,
     ) -> str:
-        """Single chat completion call with the mandated parameters."""
-        params = completion_params or self._COMPLETION_PARAMS
+        """Single chat completion call with the mandated parameters.
+
+        Parameters
+        ----------
+        response_format
+            Optional OpenAI ``response_format`` dict.  When set to a
+            ``{"type": "json_schema", ...}`` payload, the API enforces
+            valid JSON output at the decoding layer — no post-hoc
+            healing needed.
+        """
+        params = dict(completion_params or self._COMPLETION_PARAMS)
+        if response_format is not None:
+            params["response_format"] = response_format
         try:
             response = await self._client.chat.completions.create(
                 model=self._model,
@@ -679,7 +758,13 @@ class AIService:
         
         prompt = SYSTEM_PROMPT_GENERATOR.replace("{catalog}", catalog_str)
             
-        raw = await self._chat(prompt, user_text)
+        raw = await self._chat(
+            prompt,
+            user_text,
+            response_format=_DEVIS_RESPONSE_FORMAT,
+        )
+        # Structured Outputs guarantees valid JSON, but we keep the
+        # healer as a safety net — it's a no-op when input is clean.
         parsed = clean_and_parse_json(raw)
         
         # Step 3: Calculation (Deterministic engine)
