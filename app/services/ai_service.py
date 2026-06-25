@@ -230,6 +230,33 @@ def _format_interventions_block(
 # ---------------------------------------------------------------------------
 # Streaming - progress event vocabulary
 # ---------------------------------------------------------------------------
+class TokenUsage(TypedDict):
+    """Token counts returned alongside every chat response."""
+
+    prompt_tokens: int
+    completion_tokens: int
+    total_tokens: int
+
+
+ZERO_USAGE: TokenUsage = {
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "total_tokens": 0,
+}
+
+
+def _extract_usage(response: Any) -> TokenUsage:
+    """Pull token counts from an OpenAI chat completion response."""
+    usage = getattr(response, "usage", None)
+    if usage is None:
+        return dict(ZERO_USAGE)  # type: ignore[return-value]
+    return TokenUsage(
+        prompt_tokens=getattr(usage, "prompt_tokens", 0) or 0,
+        completion_tokens=getattr(usage, "completion_tokens", 0) or 0,
+        total_tokens=getattr(usage, "total_tokens", 0) or 0,
+    )
+
+
 class StreamEvent(TypedDict, total=False):
     """A single event yielded by :meth:`AIService.generate_quote_stream`.
 
@@ -485,8 +512,8 @@ class AIService:
         self,
         user_text: str,
         history: list[ChatMessage] | None = None,
-    ) -> str:
-        """Run the chatbot pipeline and return the generated text response.
+    ) -> tuple[str, TokenUsage]:
+        """Run the chatbot pipeline and return ``(text, token_usage)``.
 
         The system prompt is assembled dynamically:
 
@@ -519,7 +546,7 @@ class AIService:
                 "Chat static response used for UX modules=%s",
                 relevant_modules,
             )
-            return static_response
+            return static_response, dict(ZERO_USAGE)  # type: ignore[return-value]
 
         system_prompt = build_chatbot_system_prompt(relevant_modules or None)
 
@@ -546,24 +573,24 @@ class AIService:
             )
         except APIError as exc:
             logger.exception("OpenAI chat call failed; returning local fallback.")
-            return build_chatbot_provider_fallback_response(user_text)
+            return build_chatbot_provider_fallback_response(user_text), dict(ZERO_USAGE)  # type: ignore[return-value]
 
         if not response.choices:
             logger.warning("OpenAI returned no choices for chat; returning local fallback.")
-            return build_chatbot_provider_fallback_response(user_text)
+            return build_chatbot_provider_fallback_response(user_text), _extract_usage(response)
 
         content = response.choices[0].message.content
         if not content:
             logger.warning("OpenAI returned empty chat completion; returning local fallback.")
-            return build_chatbot_provider_fallback_response(user_text)
-        return content
+            return build_chatbot_provider_fallback_response(user_text), _extract_usage(response)
+        return content, _extract_usage(response)
 
     async def generate_landing_chat_response(
         self,
         user_text: str,
         history: list[ChatMessage] | None = None,
-    ) -> str:
-        """Return a landing-page chatbot response about Travaux IA and plans.
+    ) -> tuple[str, TokenUsage]:
+        """Return ``(text, token_usage)`` for the landing-page chatbot.
 
         This bot is intentionally narrower than the in-app assistant: it can
         explain the product and help visitors choose between the public offers.
@@ -587,28 +614,28 @@ class AIService:
             )
         except APIError:
             logger.exception("OpenAI landing chat call failed; returning local fallback.")
-            return build_landing_chatbot_provider_fallback_response(user_text)
+            return build_landing_chatbot_provider_fallback_response(user_text), dict(ZERO_USAGE)  # type: ignore[return-value]
 
         if not response.choices:
             logger.warning(
                 "OpenAI returned no choices for landing chat; returning local fallback."
             )
-            return build_landing_chatbot_provider_fallback_response(user_text)
+            return build_landing_chatbot_provider_fallback_response(user_text), _extract_usage(response)
 
         content = response.choices[0].message.content
         if not content:
             logger.warning(
                 "OpenAI returned empty landing chat completion; returning local fallback."
             )
-            return build_landing_chatbot_provider_fallback_response(user_text)
-        return content
+            return build_landing_chatbot_provider_fallback_response(user_text), _extract_usage(response)
+        return content, _extract_usage(response)
 
     async def generate_mobile_chat_response(
         self,
         user_text: str,
         history: list[ChatMessage] | None = None,
-    ) -> str:
-        """Return a mobile-app chatbot response for Travaux IA UI guidance."""
+    ) -> tuple[str, TokenUsage]:
+        """Return ``(text, token_usage)`` for the mobile-app chatbot."""
         user_text = user_text.strip()
         if not user_text:
             raise ValueError("`user_text` must not be empty.")
@@ -628,21 +655,21 @@ class AIService:
             )
         except APIError:
             logger.exception("OpenAI mobile chat call failed; returning local fallback.")
-            return build_mobile_chatbot_provider_fallback_response(user_text)
+            return build_mobile_chatbot_provider_fallback_response(user_text), dict(ZERO_USAGE)  # type: ignore[return-value]
 
         if not response.choices:
             logger.warning(
                 "OpenAI returned no choices for mobile chat; returning local fallback."
             )
-            return build_mobile_chatbot_provider_fallback_response(user_text)
+            return build_mobile_chatbot_provider_fallback_response(user_text), _extract_usage(response)
 
         content = response.choices[0].message.content
         if not content:
             logger.warning(
                 "OpenAI returned empty mobile chat completion; returning local fallback."
             )
-            return build_mobile_chatbot_provider_fallback_response(user_text)
-        return content
+            return build_mobile_chatbot_provider_fallback_response(user_text), _extract_usage(response)
+        return content, _extract_usage(response)
 
     async def generate_quote_stream(
         self,
@@ -827,6 +854,8 @@ __all__ = [
     "InvalidBuildingRequestError",
     "PROGRESS_STEPS",
     "StreamEvent",
+    "TokenUsage",
     "UnrepairableDevisError",
+    "ZERO_USAGE",
     "ai_service",
 ]

@@ -15,6 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routers import (
     chat_router,
+    chat_supervisor_router,
     devis_router,
     landing_chat_router,
     mobile_chat_router,
@@ -80,6 +81,7 @@ app.include_router(chat_router, prefix=settings.API_V1_PREFIX)
 app.include_router(landing_chat_router, prefix=settings.API_V1_PREFIX)
 app.include_router(mobile_chat_router, prefix=settings.API_V1_PREFIX)
 app.include_router(voice_router, prefix=settings.API_V1_PREFIX)
+app.include_router(chat_supervisor_router, prefix=settings.API_V1_PREFIX)
 
 
 @app.get("/health", tags=["system"], summary="Liveness probe")
