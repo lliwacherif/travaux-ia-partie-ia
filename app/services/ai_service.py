@@ -346,6 +346,7 @@ class AIService:
         model: str | None = None,
     ) -> None:
         self._model: str = model or settings.OPENAI_MODEL
+        self._mobile_model: str = settings.OPENAI_MOBILE_MODEL
         self._client: AsyncOpenAI = AsyncOpenAI(
             api_key=api_key or settings.OPENAI_API_KEY,
             base_url=base_url or "https://api.openai.com/v1",
@@ -649,7 +650,7 @@ class AIService:
 
         try:
             response = await self._client.chat.completions.create(
-                model=self._model,
+                model=self._mobile_model,
                 messages=messages,
                 **self._CHAT_COMPLETION_PARAMS,
             )

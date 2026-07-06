@@ -60,6 +60,10 @@ class Settings(BaseSettings):
         default="gpt-5",
         description="Default OpenAI model id used by the AI service.",
     )
+    OPENAI_MOBILE_MODEL: str = Field(
+        default="gpt-4o-mini",
+        description="Faster OpenAI model used by the mobile chatbot for lower latency.",
+    )
 
     # ---------------------------- Scaleway AI (legacy) ---------------------
     # Kept for backward-compatibility. The active provider is OpenAI above.
