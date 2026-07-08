@@ -15,6 +15,12 @@ The frontend captures microphone audio, encodes it, and streams it to the
 backend.  The backend securely relays the audio to OpenAI's Realtime API and
 forwards transcription events back to the frontend.
 
+This endpoint is transcription-only. It does not return assistant messages,
+spoken replies, or chat completions. If the UI shows an AI answer after using
+this socket, the frontend is either connected to the wrong voice-agent API or
+is forwarding `transcript_final` into a chatbot/devis endpoint after the
+transcription completes.
+
 ```
 ┌──────────┐   WebSocket    ┌──────────┐   WebSocket    ┌──────────┐
 │ Frontend │ ────────────►  │ Backend  │ ────────────►  │ OpenAI   │
@@ -124,13 +130,15 @@ function arrayBufferToBase64(buffer) {
 | Type            | Payload                              | When                            |
 |-----------------|--------------------------------------|---------------------------------|
 | `audio_chunk`   | `{ "type": "audio_chunk", "audio": "<base64>" }` | Continuously while recording    |
-| `audio_commit`  | `{ "type": "audio_commit" }`         | (Optional) Force end of utterance |
+| `audio_commit`  | `{ "type": "audio_commit" }`         | End the current utterance and request transcription |
 | `ping`          | `{ "type": "ping" }`                | Keep-alive / latency check      |
 
-> **Note:** You do NOT need to send `audio_commit` manually. The backend uses
-> OpenAI's **server-side Voice Activity Detection (VAD)** to automatically
-> detect when the user stops speaking. Only use `audio_commit` if you want
-> explicit control (e.g., a "Send" button).
+> **Note:** Send `audio_commit` when the user pauses, releases push-to-talk, or
+> taps stop. The backend uses OpenAI's `gpt-realtime-whisper` in a
+> transcription-only session; for this model the OpenAI Realtime transcription
+> docs say to omit/null turn detection and commit audio manually. For hands-free
+> UX, implement client-side silence detection and send `audio_commit` at pause
+> boundaries.
 
 ---
 
@@ -190,7 +198,7 @@ function updateUI(text) {
 ## 5. Stopping Recording
 
 ```javascript
-function stopRecording() {
+async function stopRecording() {
     // 1. Stop the audio processor
     if (processor) {
         processor.disconnect();
@@ -205,8 +213,10 @@ function stopRecording() {
         audioContext = null;
     }
 
-    // 2. Close the WebSocket
+    // 2. Commit the buffered audio before closing so the final transcript arrives
     if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "audio_commit" }));
+        await new Promise((resolve) => setTimeout(resolve, 1500));
         ws.close();
     }
 }
@@ -239,6 +249,8 @@ function stopRecording() {
     <script>
         let ws, audioContext, processor, source;
         let partialText = "", finalText = "";
+        let shouldCloseAfterFinal = false;
+        let closeTimer = null;
 
         document.getElementById("startBtn").onclick = () => {
             ws = new WebSocket("ws://localhost:8000/api/v1/voice/stream");
@@ -256,6 +268,10 @@ function stopRecording() {
                     finalText += data.text + " ";
                     partialText = "";
                     document.getElementById("output").textContent = finalText;
+                    if (shouldCloseAfterFinal && ws.readyState === WebSocket.OPEN) {
+                        clearTimeout(closeTimer);
+                        ws.close();
+                    }
                 } else if (data.type === "error") {
                     console.error("Error:", data.message);
                 }
@@ -266,7 +282,13 @@ function stopRecording() {
 
         document.getElementById("stopBtn").onclick = () => {
             stopMic();
-            if (ws) ws.close();
+            shouldCloseAfterFinal = true;
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: "audio_commit" }));
+                closeTimer = setTimeout(() => {
+                    if (ws.readyState === WebSocket.OPEN) ws.close();
+                }, 1500);
+            }
             document.getElementById("startBtn").disabled = false;
             document.getElementById("stopBtn").disabled = true;
         };
@@ -322,8 +344,12 @@ function stopRecording() {
 
 - **Audio format is strict**: OpenAI expects **PCM16, 24 kHz, mono**.
   Any other sample rate or encoding will cause errors or garbled output.
-- **Server VAD is enabled**: The backend auto-detects when the user stops
-  speaking. You don't need to implement silence detection on the frontend.
+- **Manual commits are required**: The backend uses a transcription-only
+  `gpt-realtime-whisper` session with turn detection disabled. Send
+  `audio_commit` when an utterance should be transcribed.
+- **No assistant response is produced by this socket**: Treat
+  `transcript_final` as text only. Do not pass it into a chat/devis endpoint
+  unless the user explicitly submits the transcript for an AI response.
 - **The existing `/voice` endpoint still works**: For one-shot file uploads
   (e.g., sending a pre-recorded audio file), continue using `POST /api/v1/voice`.
 - **CORS / WebSocket origin**: The current CORS config allows all origins.

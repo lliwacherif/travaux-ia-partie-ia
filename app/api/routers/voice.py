@@ -55,29 +55,31 @@ async def transcribe_audio(file: UploadFile = File(...)):
 # 2. Real-time streaming transcription via OpenAI Realtime API
 # ---------------------------------------------------------------------------
 
-_OPENAI_REALTIME_URL = "wss://api.openai.com/v1/realtime?model=gpt-realtime-2.1"
+_OPENAI_REALTIME_TRANSCRIPTION_MODEL = "gpt-realtime-whisper"
+_OPENAI_REALTIME_URL = (
+    "wss://api.openai.com/v1/realtime"
+    f"?model={_OPENAI_REALTIME_TRANSCRIPTION_MODEL}"
+)
 
 # Session configuration sent to OpenAI once the connection opens.
-# We configure a standard realtime session with server_vad so the
-# API automatically detects when the user finishes speaking and commits
-# the audio to trigger the transcription.
-# We ignore the AI's generated response in the relay loop.
+# Keep this as a transcription-only session. A regular realtime session can
+# generate assistant responses; this endpoint must only return speech-to-text.
 _SESSION_CONFIG = {
     "type": "session.update",
     "session": {
-        "type": "realtime",
+        "type": "transcription",
         "audio": {
             "input": {
-                "transcription": {
-                    "model": "whisper-1",
-                    "language": "fr",
+                "format": {
+                    "type": "audio/pcm",
+                    "rate": 24000,
                 },
-                "turn_detection": {
-                    "type": "server_vad",
-                    "threshold": 0.5,
-                    "prefix_padding_ms": 300,
-                    "silence_duration_ms": 500,
-                }
+                "transcription": {
+                    "model": _OPENAI_REALTIME_TRANSCRIPTION_MODEL,
+                    "language": "fr",
+                    "delay": "low",
+                },
+                "turn_detection": None,
             }
         },
     },
@@ -95,8 +97,7 @@ async def voice_stream(ws: WebSocket):
 
            {"type": "audio_chunk", "audio": "<base64-encoded PCM16 24kHz mono>"}
 
-       To signal the end of an utterance explicitly (optional — server VAD
-       handles this automatically)::
+       To signal the end of an utterance and request transcription::
 
            {"type": "audio_commit"}
 
@@ -139,6 +140,7 @@ async def voice_stream(ws: WebSocket):
 
         async def _relay_frontend_to_openai():
             """Read audio chunks from the frontend and forward to OpenAI."""
+            has_pending_audio = False
             try:
                 while True:
                     raw = await ws.receive_text()
@@ -164,12 +166,15 @@ async def voice_stream(ws: WebSocket):
                             "type": "input_audio_buffer.append",
                             "audio": audio_b64,
                         }))
+                        has_pending_audio = True
 
                     elif msg_type == "audio_commit":
-                        # Frontend explicitly ends an utterance
-                        await openai_ws.send(json.dumps({
-                            "type": "input_audio_buffer.commit",
-                        }))
+                        # Frontend explicitly ends an utterance.
+                        if has_pending_audio:
+                            await openai_ws.send(json.dumps({
+                                "type": "input_audio_buffer.commit",
+                            }))
+                            has_pending_audio = False
 
                     elif msg_type == "ping":
                         await ws.send_json({"type": "pong"})
@@ -184,6 +189,7 @@ async def voice_stream(ws: WebSocket):
 
         async def _relay_openai_to_frontend():
             """Read events from OpenAI and forward transcripts to the frontend."""
+            session_ready_sent = False
             try:
                 async for raw_event in openai_ws:
                     try:
@@ -193,14 +199,13 @@ async def voice_stream(ws: WebSocket):
 
                     event_type = event.get("type", "")
 
-                    # Session is configured and ready
+                    # Session is configured and ready.
                     if event_type in (
-                        "session.created",
                         "session.updated",
-                        "transcription_session.created",
                         "transcription_session.updated",
-                    ):
+                    ) and not session_ready_sent:
                         await ws.send_json({"type": "session_ready"})
+                        session_ready_sent = True
 
                     # Partial transcript (real-time updating text)
                     elif event_type == "conversation.item.input_audio_transcription.delta":
