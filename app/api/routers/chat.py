@@ -21,7 +21,7 @@ router = APIRouter(prefix="/chat", tags=["chat"])
     response_model=ChatResponse,
     summary="Generate a chatbot response",
     description=(
-        "Send free-form text to the chatbot and get a Travaux IA workflow "
+        "Send free-form text to the chatbot and get a Travaux IA workflow"
         "response. Known UI workflows and provider failures are handled locally."
     ),
 )
@@ -53,6 +53,7 @@ async def generate_chat(
         user_message=payload.text,
         ai_response=response_text,
         prompt_tokens=usage["prompt_tokens"],
+
         completion_tokens=usage["completion_tokens"],
         is_fallback=is_fallback,
     )

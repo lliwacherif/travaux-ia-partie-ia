@@ -31,7 +31,7 @@ class ChatRequest(BaseModel):
         max_length=20,
         description=(
             "Previous conversation turns (oldest first). Max 20 messages accepted; "
-            "the service compacts the latest turns before calling the model."
+            "the service compacts the latest turns before calling the model." 
         ),
     )
 

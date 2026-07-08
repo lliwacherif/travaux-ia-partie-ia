@@ -24,5 +24,8 @@ openai>=1.50.0,<2.0.0
 # Defensive JSON parsing for LLM output (handles malformed JSON robustly)
 json-repair>=0.30.0,<1.0.0
 
+# WebSocket client for OpenAI Realtime API (streaming transcription)
+websockets>=14.0,<15.0
+
 # Environment variables
 python-dotenv>=1.0.1,<2.0.0
