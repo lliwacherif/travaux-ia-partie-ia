@@ -5,6 +5,7 @@ import json
 import asyncio
 import base64
 import logging
+from typing import Any
 
 import websockets
 
@@ -13,6 +14,73 @@ from app.core.config import settings
 
 router = APIRouter(tags=["voice"])
 logger = logging.getLogger(__name__)
+
+_BATCH_TRANSCRIPTION_MODEL = "whisper-1"
+_SILENCE_SHORT_TRANSCRIPT_WORD_LIMIT = 6
+_SILENCE_NO_SPEECH_PROB_THRESHOLD = 0.6
+_SILENCE_STRICT_NO_SPEECH_PROB_THRESHOLD = 0.75
+_SILENCE_LOW_CONFIDENCE_LOGPROB_THRESHOLD = -0.8
+
+
+def _get_field(value: Any, field: str, default: Any = None) -> Any:
+    """Return ``field`` from a Pydantic model or dict-like object."""
+    if isinstance(value, dict):
+        return value.get(field, default)
+    return getattr(value, field, default)
+
+
+def _extract_transcription_text(transcription: Any) -> str:
+    """Normalise OpenAI transcription payloads into a plain string."""
+    if isinstance(transcription, str):
+        return transcription.strip()
+
+    text = _get_field(transcription, "text", "")
+    return text.strip() if isinstance(text, str) else ""
+
+
+def _should_suppress_silent_transcription(transcription: Any) -> bool:
+    """Detect likely silence/noise hallucinations from Whisper segment stats."""
+    text = _extract_transcription_text(transcription)
+    if not text:
+        return True
+
+    segments = _get_field(transcription, "segments", []) or []
+    if not isinstance(segments, list) or not segments:
+        return False
+
+    if len(text.split()) > _SILENCE_SHORT_TRANSCRIPT_WORD_LIMIT:
+        return False
+
+    no_speech_scores: list[float] = []
+    low_confidence_segments = 0
+
+    for segment in segments:
+        no_speech_prob = _get_field(segment, "no_speech_prob")
+        avg_logprob = _get_field(segment, "avg_logprob")
+
+        if isinstance(no_speech_prob, (int, float)):
+            no_speech_scores.append(float(no_speech_prob))
+
+        if (
+            isinstance(avg_logprob, (int, float))
+            and float(avg_logprob) <= _SILENCE_LOW_CONFIDENCE_LOGPROB_THRESHOLD
+        ):
+            low_confidence_segments += 1
+
+    if not no_speech_scores:
+        return False
+
+    avg_no_speech_prob = sum(no_speech_scores) / len(no_speech_scores)
+    short_transcript = len(text.split()) <= 3
+    all_segments_low_confidence = low_confidence_segments == len(segments)
+
+    if short_transcript and avg_no_speech_prob >= _SILENCE_NO_SPEECH_PROB_THRESHOLD:
+        return True
+
+    return (
+        avg_no_speech_prob >= _SILENCE_STRICT_NO_SPEECH_PROB_THRESHOLD
+        and all_segments_low_confidence
+    )
 
 # ---------------------------------------------------------------------------
 # 1. Batch transcription (existing endpoint — unchanged)
@@ -23,24 +91,38 @@ async def transcribe_audio(file: UploadFile = File(...)):
     """Transcribes an uploaded audio file to text using OpenAI's Whisper model."""
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file uploaded")
-    
+
     suffix = ""
     if "." in file.filename:
         suffix = f".{file.filename.split('.')[-1]}"
-    
+
+    content = await file.read()
+    if not content:
+        return {"text": ""}
+
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
-        content = await file.read()
         tmp.write(content)
         tmp_path = tmp.name
 
     try:
         with open(tmp_path, "rb") as audio_file:
             transcription = await ai_service._client.audio.transcriptions.create(
-                model="whisper-1",
+                model=_BATCH_TRANSCRIPTION_MODEL,
                 file=audio_file,
-                response_format="text"
+                response_format="verbose_json",
+                temperature=0,
+                timestamp_granularities=["segment"],
             )
-        return {"text": transcription}
+
+        text = _extract_transcription_text(transcription)
+        if _should_suppress_silent_transcription(transcription):
+            logger.info(
+                "Suppressed probable no-speech transcription for uploaded file '%s'.",
+                file.filename,
+            )
+            text = ""
+
+        return {"text": text}
     except Exception as e:
         logger.exception("Voice transcription failed.")
         raise HTTPException(status_code=500, detail=str(e))
