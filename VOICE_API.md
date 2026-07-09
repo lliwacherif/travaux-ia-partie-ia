@@ -1,7 +1,7 @@
 # Voice Transcription Endpoint
 
 **Endpoint:** `POST /api/v1/voice`  
-**Description:** Receives an audio file (recorded from the user's microphone) and returns the transcribed text using the OpenAI Whisper model.  
+**Description:** Receives an audio file (recorded from the user's microphone) and returns the transcribed text using the configured OpenAI speech-to-text model (default: `gpt-4o-transcribe`).  
 **Authentication:** None required.  
 
 ### Request format

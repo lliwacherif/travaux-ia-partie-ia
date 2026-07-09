@@ -68,6 +68,23 @@ class Settings(BaseSettings):
         default="gpt-4o-mini",
         description="Faster OpenAI model used by the landing-page chatbot for lower latency.",
     )
+    OPENAI_VOICE_TRANSCRIPTION_MODEL: str = Field(
+        default="gpt-4o-transcribe",
+        description="OpenAI model id used by the file-upload voice transcription endpoint.",
+    )
+    OPENAI_VOICE_TRANSCRIPTION_LANGUAGE: str = Field(
+        default="fr",
+        description="ISO-639-1 language hint used by the file-upload voice transcription endpoint.",
+    )
+    OPENAI_VOICE_TRANSCRIPTION_PROMPT: str = Field(
+        default=(
+            "Transcris uniquement les mots reellement prononces. "
+            "N'ajoute aucun mot qui n'a pas ete dit. "
+            "Si l'audio est silencieux, contient seulement du bruit, "
+            "ou est inintelligible, retourne une transcription vide."
+        ),
+        description="Prompt used to keep uploaded-audio transcriptions literal and concise.",
+    )
 
     # ---------------------------- Scaleway AI (legacy) ---------------------
     # Kept for backward-compatibility. The active provider is OpenAI above.

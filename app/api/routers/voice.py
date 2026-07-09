@@ -15,11 +15,16 @@ from app.core.config import settings
 router = APIRouter(tags=["voice"])
 logger = logging.getLogger(__name__)
 
-_BATCH_TRANSCRIPTION_MODEL = "whisper-1"
+_BATCH_TRANSCRIPTION_MODEL = settings.OPENAI_VOICE_TRANSCRIPTION_MODEL.strip() or "gpt-4o-transcribe"
+_BATCH_TRANSCRIPTION_LANGUAGE = settings.OPENAI_VOICE_TRANSCRIPTION_LANGUAGE.strip()
+_BATCH_TRANSCRIPTION_PROMPT = settings.OPENAI_VOICE_TRANSCRIPTION_PROMPT.strip()
 _SILENCE_SHORT_TRANSCRIPT_WORD_LIMIT = 6
 _SILENCE_NO_SPEECH_PROB_THRESHOLD = 0.6
 _SILENCE_STRICT_NO_SPEECH_PROB_THRESHOLD = 0.75
 _SILENCE_LOW_CONFIDENCE_LOGPROB_THRESHOLD = -0.8
+_TRANSCRIPT_LOW_CONFIDENCE_WORD_LIMIT = 4
+_TRANSCRIPT_TOKEN_LOGPROB_THRESHOLD = -1.0
+_TRANSCRIPT_AVG_LOGPROB_THRESHOLD = -0.9
 
 
 def _get_field(value: Any, field: str, default: Any = None) -> Any:
@@ -36,6 +41,11 @@ def _extract_transcription_text(transcription: Any) -> str:
 
     text = _get_field(transcription, "text", "")
     return text.strip() if isinstance(text, str) else ""
+
+
+def _token_contains_speech(token: str) -> bool:
+    """Return True when a token contains a spoken alphanumeric character."""
+    return any(char.isalnum() for char in token)
 
 
 def _should_suppress_silent_transcription(transcription: Any) -> bool:
@@ -82,13 +92,79 @@ def _should_suppress_silent_transcription(transcription: Any) -> bool:
         and all_segments_low_confidence
     )
 
+
+def _should_suppress_low_confidence_transcription(transcription: Any) -> bool:
+    """Suppress short low-confidence transcriptions that likely add words."""
+    text = _extract_transcription_text(transcription)
+    if not text:
+        return True
+
+    if len(text.split()) > _TRANSCRIPT_LOW_CONFIDENCE_WORD_LIMIT:
+        return False
+
+    logprobs = _get_field(transcription, "logprobs", []) or []
+    if not isinstance(logprobs, list) or not logprobs:
+        return False
+
+    spoken_token_logprobs: list[float] = []
+    low_confidence_tokens = 0
+
+    for item in logprobs:
+        token = _get_field(item, "token", "")
+        token_logprob = _get_field(item, "logprob")
+        if not isinstance(token, str) or not isinstance(token_logprob, (int, float)):
+            continue
+        if not _token_contains_speech(token):
+            continue
+
+        token_logprob = float(token_logprob)
+        spoken_token_logprobs.append(token_logprob)
+        if token_logprob <= _TRANSCRIPT_TOKEN_LOGPROB_THRESHOLD:
+            low_confidence_tokens += 1
+
+    if not spoken_token_logprobs:
+        return False
+
+    avg_token_logprob = sum(spoken_token_logprobs) / len(spoken_token_logprobs)
+    required_low_confidence_tokens = max(1, (len(spoken_token_logprobs) + 1) // 2)
+
+    return (
+        avg_token_logprob <= _TRANSCRIPT_AVG_LOGPROB_THRESHOLD
+        and low_confidence_tokens >= required_low_confidence_tokens
+    )
+
+
+def _build_batch_transcription_request(audio_file: Any) -> dict[str, Any]:
+    """Build the OpenAI transcription request for uploaded audio files."""
+    request: dict[str, Any] = {
+        "model": _BATCH_TRANSCRIPTION_MODEL,
+        "file": audio_file,
+        "temperature": 0,
+    }
+
+    if _BATCH_TRANSCRIPTION_LANGUAGE:
+        request["language"] = _BATCH_TRANSCRIPTION_LANGUAGE
+    if _BATCH_TRANSCRIPTION_PROMPT:
+        request["prompt"] = _BATCH_TRANSCRIPTION_PROMPT
+
+    if _BATCH_TRANSCRIPTION_MODEL == "whisper-1":
+        request["response_format"] = "verbose_json"
+        request["timestamp_granularities"] = ["segment"]
+    else:
+        request["response_format"] = "json"
+        request["include"] = ["logprobs"]
+        request["chunking_strategy"] = "auto"
+
+    return request
+
+
 # ---------------------------------------------------------------------------
-# 1. Batch transcription (existing endpoint — unchanged)
+# 1. Batch transcription (existing endpoint -- unchanged)
 # ---------------------------------------------------------------------------
 
 @router.post("/voice", summary="Transcribe audio to text")
 async def transcribe_audio(file: UploadFile = File(...)):
-    """Transcribes an uploaded audio file to text using OpenAI's Whisper model."""
+    """Transcribes uploaded audio to text using OpenAI speech-to-text."""
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file uploaded")
 
@@ -107,18 +183,21 @@ async def transcribe_audio(file: UploadFile = File(...)):
     try:
         with open(tmp_path, "rb") as audio_file:
             transcription = await ai_service._client.audio.transcriptions.create(
-                model=_BATCH_TRANSCRIPTION_MODEL,
-                file=audio_file,
-                response_format="verbose_json",
-                temperature=0,
-                timestamp_granularities=["segment"],
+                **_build_batch_transcription_request(audio_file)
             )
 
         text = _extract_transcription_text(transcription)
-        if _should_suppress_silent_transcription(transcription):
+        suppressed_for_silence = _should_suppress_silent_transcription(transcription)
+        suppressed_for_low_confidence = _should_suppress_low_confidence_transcription(
+            transcription
+        )
+        if suppressed_for_silence or suppressed_for_low_confidence:
             logger.info(
-                "Suppressed probable no-speech transcription for uploaded file '%s'.",
+                "Suppressed probable inaccurate transcription for uploaded file '%s' "
+                "(silence=%s, low_confidence=%s).",
                 file.filename,
+                suppressed_for_silence,
+                suppressed_for_low_confidence,
             )
             text = ""
 
