@@ -61,7 +61,7 @@ requests should not return `503` when the model provider is unavailable.
 
 ## AI Model Configuration
 
-- **Model:** Configured by `OPENAI_MODEL`
+- **Model:** Configured by `OPENAI_CHATBOT_MODEL` (default: `gpt-4`)
 - **Max Tokens:** 900 for chatbot responses
 - **Temperature:** 1
 - **System Prompt:** Built dynamically for the web app. Pure BTP questions use the base web copilot prompt only. Known UI questions such as finance, clients, Devis IA, documents, pricing libraries and planning are answered locally when possible; other model-backed UI questions inject only the matching Travaux IA web module guide plus compact global navigation context.

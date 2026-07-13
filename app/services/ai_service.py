@@ -346,6 +346,7 @@ class AIService:
         model: str | None = None,
     ) -> None:
         self._model: str = model or settings.OPENAI_MODEL
+        self._chatbot_model: str = settings.OPENAI_CHATBOT_MODEL
         self._mobile_model: str = settings.OPENAI_MOBILE_MODEL
         self._landing_model: str = settings.OPENAI_LANDING_MODEL
         self._client: AsyncOpenAI = AsyncOpenAI(
@@ -569,7 +570,7 @@ class AIService:
         # --- 3. Call the model ---
         try:
             response = await self._client.chat.completions.create(
-                model=self._model,
+                model=self._chatbot_model,
                 messages=messages,
                 **self._CHAT_COMPLETION_PARAMS,
             )

@@ -60,6 +60,10 @@ class Settings(BaseSettings):
         default="gpt-5",
         description="Default OpenAI model id used by the AI service.",
     )
+    OPENAI_CHATBOT_MODEL: str = Field(
+        default="gpt-4",
+        description="OpenAI model used by the main web chatbot API.",
+    )
     OPENAI_MOBILE_MODEL: str = Field(
         default="gpt-4o-mini",
         description="Faster OpenAI model used by the mobile chatbot for lower latency.",
