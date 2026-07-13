@@ -146,6 +146,9 @@ async def generate_devis_stream(
         event: result
         data: { ...DevisResponse JSON... }
 
+        event: title
+        data: {"title": "Travaux de ..."}
+
         event: done
         data: {}
 

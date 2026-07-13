@@ -264,6 +264,7 @@ class StreamEvent(TypedDict, total=False):
 
     * ``type="progress"``  -> ``step``, ``total``, ``label``
     * ``type="result"``    -> ``data`` (the parsed devis dict)
+    * ``type="title"``     -> ``title`` (short generated devis title)
     * ``type="error"``     -> ``status`` (HTTP-style hint), ``detail``
     """
 
@@ -272,6 +273,7 @@ class StreamEvent(TypedDict, total=False):
     total: int
     label: str
     data: dict[str, Any]
+    title: str
     status: int
     detail: str
 
@@ -326,6 +328,14 @@ class AIService:
     _CHAT_COMPLETION_PARAMS: Final[dict[str, Any]] = {
         "max_completion_tokens": 4096,
         "temperature": 1,
+        "top_p": 1,
+        "presence_penalty": 0,
+        "stream": False,
+    }
+    _DEVIS_TITLE_MODEL: Final[str] = "gpt-4"
+    _DEVIS_TITLE_PARAMS: Final[dict[str, Any]] = {
+        "max_tokens": 60,
+        "temperature": 0.2,
         "top_p": 1,
         "presence_penalty": 0,
         "stream": False,
@@ -674,6 +684,63 @@ class AIService:
             return build_mobile_chatbot_provider_fallback_response(user_text), _extract_usage(response)
         return content, _extract_usage(response)
 
+    def _normalise_devis_title(self, title: str | None) -> str:
+        """Force a short title beginning exactly with ``Travaux de``."""
+        cleaned = (title or "").strip().strip("\"'`“”‘’")
+        cleaned = " ".join(cleaned.split())
+        if not cleaned:
+            cleaned = "rénovation"
+
+        prefix = "Travaux de "
+        lowered = cleaned.lower()
+        if lowered.startswith(prefix.lower()):
+            body = cleaned[len(prefix) :].strip()
+        elif lowered.startswith("travaux d'"):
+            body = cleaned[len("travaux d'") :].strip()
+        elif lowered.startswith("travaux de"):
+            body = cleaned[len("travaux de") :].strip()
+        elif lowered.startswith("travaux "):
+            body = cleaned[len("travaux ") :].strip()
+        else:
+            body = cleaned
+
+        body = body.strip(" .,:;-/")
+        if not body:
+            body = "rénovation"
+        return f"{prefix}{body[:80]}".rstrip(" .,:;-/")
+
+    async def generate_devis_title(self, user_text: str) -> str:
+        """Generate a short French devis title in parallel with the devis."""
+        fallback = self._normalise_devis_title("rénovation")
+        try:
+            response = await self._client.chat.completions.create(
+                model=self._DEVIS_TITLE_MODEL,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "Tu génères uniquement un titre court en français "
+                            "pour un devis BTP. Le titre doit commencer "
+                            "exactement par \"Travaux de \". Retourne uniquement "
+                            "le titre, sans guillemets, sans explication, sans "
+                            "ponctuation finale."
+                        ),
+                    },
+                    {"role": "user", "content": user_text},
+                ],
+                **self._DEVIS_TITLE_PARAMS,
+            )
+        except Exception:
+            logger.exception("OpenAI title generation failed; using fallback title.")
+            return fallback
+
+        if not response.choices:
+            logger.warning("OpenAI returned no choices for devis title.")
+            return fallback
+
+        content = response.choices[0].message.content
+        return self._normalise_devis_title(content)
+
     async def generate_quote_stream(
         self,
         user_text: str,
@@ -691,6 +758,7 @@ class AIService:
         cancels the background pipeline task cleanly.
         """
         queue: asyncio.Queue[StreamEvent | None] = asyncio.Queue()
+        title_task = asyncio.create_task(self.generate_devis_title(user_text))
 
         async def _on_progress(step: int, label: str) -> None:
             await queue.put(
@@ -726,7 +794,11 @@ class AIService:
                 await queue.put(StreamEvent(type="error", status=500, detail=str(exc)))
             else:
                 await queue.put(StreamEvent(type="result", data=devis))
+                title = await title_task
+                await queue.put(StreamEvent(type="title", title=title))
             finally:
+                if not title_task.done():
+                    title_task.cancel()
                 await queue.put(None)  # sentinel
 
         runner_task = asyncio.create_task(_runner())
