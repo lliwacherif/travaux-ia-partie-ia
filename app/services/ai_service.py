@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 from collections.abc import AsyncIterator, Awaitable, Callable
 from typing import Any, Final, TypedDict
 
@@ -705,6 +706,14 @@ class AIService:
             body = cleaned
 
         body = body.strip(" .,:;-/")
+        body = re.sub(
+            r"\b\d+(?:[.,]\d+)?\s*(?:m2|m²|m3|m³|ml|cm|mm|m|kg|l|u|unités?|pieces?|pièces?)\b",
+            "",
+            body,
+            flags=re.IGNORECASE,
+        )
+        body = re.sub(r"\b\d+(?:[.,]\d+)?\b", "", body)
+        body = re.sub(r"\s+", " ", body).strip(" .,:;-/")
         if not body:
             body = "rénovation"
         return f"{prefix}{body[:80]}".rstrip(" .,:;-/")
@@ -723,7 +732,12 @@ class AIService:
                             "pour un devis BTP. Le titre doit commencer "
                             "exactement par \"Travaux de \". Retourne uniquement "
                             "le titre, sans guillemets, sans explication, sans "
-                            "ponctuation finale."
+                            "ponctuation finale. Fais un titre simple et générique: "
+                            "garde seulement le type de travaux et la pièce ou le "
+                            "métier principal. Supprime les surfaces, dimensions, "
+                            "quantités, nombres, matériaux trop précis, gammes et "
+                            "détails techniques. Exemple: \"Rénovation cuisine 20m2\" "
+                            "devient \"Travaux de rénovation cuisine\"."
                         ),
                     },
                     {"role": "user", "content": user_text},
