@@ -22,6 +22,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import re
+from time import perf_counter
 from collections.abc import AsyncIterator, Awaitable, Callable
 from typing import Any, Final, TypedDict
 
@@ -324,6 +325,9 @@ class AIService:
         "temperature": 1,
         "top_p": 1,
         "presence_penalty": 0,
+        "reasoning_effort": settings.OPENAI_REASONING_EFFORT,
+        "service_tier": settings.OPENAI_SERVICE_TIER,
+        "prompt_cache_key": settings.OPENAI_PROMPT_CACHE_KEY,
         "stream": False,
     }
     _CHAT_COMPLETION_PARAMS: Final[dict[str, Any]] = {
@@ -397,6 +401,7 @@ class AIService:
         params = dict(completion_params or self._COMPLETION_PARAMS)
         if response_format is not None:
             params["response_format"] = response_format
+        started_at = perf_counter()
         try:
             response = await self._client.chat.completions.create(
                 model=self._model,
@@ -407,8 +412,29 @@ class AIService:
                 **params,
             )
         except APIError as exc:
-            logger.exception("OpenAI API call failed.")
+            elapsed_ms = (perf_counter() - started_at) * 1000
+            logger.exception("OpenAI API call failed after %.0f ms.", elapsed_ms)
             raise AIServiceError(f"OpenAI API error: {exc}") from exc
+
+        elapsed_ms = (perf_counter() - started_at) * 1000
+        usage = getattr(response, "usage", None)
+        prompt_details = getattr(usage, "prompt_tokens_details", None)
+        completion_details = getattr(usage, "completion_tokens_details", None)
+        logger.info(
+            (
+                "OpenAI devis completion model=%s elapsed_ms=%.0f "
+                "service_tier=%s prompt_tokens=%s cached_tokens=%s "
+                "completion_tokens=%s reasoning_tokens=%s total_tokens=%s"
+            ),
+            self._model,
+            elapsed_ms,
+            getattr(response, "service_tier", None),
+            getattr(usage, "prompt_tokens", None),
+            getattr(prompt_details, "cached_tokens", None),
+            getattr(usage, "completion_tokens", None),
+            getattr(completion_details, "reasoning_tokens", None),
+            getattr(usage, "total_tokens", None),
+        )
 
         if not response.choices:
             raise AIServiceError("OpenAI returned no choices.")

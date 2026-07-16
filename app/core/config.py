@@ -60,6 +60,25 @@ class Settings(BaseSettings):
         default="gpt-5",
         description="Default OpenAI model id used by the AI service.",
     )
+    OPENAI_REASONING_EFFORT: Literal["minimal", "low", "medium", "high"] = Field(
+        default="minimal",
+        description=(
+            "Reasoning effort used for devis semantic mapping. The task is a "
+            "constrained structured extraction, so minimal avoids unnecessary "
+            "hidden reasoning tokens while preserving the same response schema."
+        ),
+    )
+    OPENAI_SERVICE_TIER: Literal["auto", "default", "priority"] = Field(
+        default="priority",
+        description=(
+            "OpenAI processing tier for user-facing devis generation. Priority "
+            "reduces provider queue latency but is billed at a premium."
+        ),
+    )
+    OPENAI_PROMPT_CACHE_KEY: str = Field(
+        default="travaux-ia-devis-v2",
+        description="Stable routing key for the shared devis prompt and catalog prefix.",
+    )
     OPENAI_CHATBOT_MODEL: str = Field(
         default="gpt-4",
         description="OpenAI model used by the main web chatbot API.",
