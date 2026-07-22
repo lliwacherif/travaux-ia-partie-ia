@@ -96,8 +96,20 @@ class Settings(BaseSettings):
         description="OpenAI model id used by the file-upload voice transcription endpoint.",
     )
     OPENAI_VOICE_TRANSCRIPTION_LANGUAGE: str = Field(
-        default="fr",
-        description="ISO-639-1 language hint used by the file-upload voice transcription endpoint.",
+        default="",
+        description=(
+            "Deprecated: leave empty to let Whisper auto-detect the language. "
+            "Use OPENAI_VOICE_TRANSCRIPTION_ALLOWED_LANGUAGES to restrict accepted languages."
+        ),
+    )
+    OPENAI_VOICE_TRANSCRIPTION_ALLOWED_LANGUAGES: str = Field(
+        default="fr,en",
+        description=(
+            "Comma-separated list of ISO-639-1 language codes that the batch "
+            "transcription endpoint accepts. Audio detected in any other language "
+            "(e.g. 'ar' for Arabic) is silently rejected and returns an empty string. "
+            "Leave empty to allow all languages."
+        ),
     )
     OPENAI_VOICE_TRANSCRIPTION_PROMPT: str = Field(
         default=(

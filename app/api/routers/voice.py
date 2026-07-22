@@ -16,8 +16,15 @@ router = APIRouter(tags=["voice"])
 logger = logging.getLogger(__name__)
 
 _BATCH_TRANSCRIPTION_MODEL = settings.OPENAI_VOICE_TRANSCRIPTION_MODEL.strip() or "gpt-4o-transcribe"
-_BATCH_TRANSCRIPTION_LANGUAGE = settings.OPENAI_VOICE_TRANSCRIPTION_LANGUAGE.strip()
 _BATCH_TRANSCRIPTION_PROMPT = settings.OPENAI_VOICE_TRANSCRIPTION_PROMPT.strip()
+
+# Allowlist of accepted ISO-639-1 language codes for the batch endpoint.
+# If the set is empty, all languages are accepted.
+_ALLOWED_LANGUAGES: frozenset[str] = frozenset(
+    code.strip().lower()
+    for code in settings.OPENAI_VOICE_TRANSCRIPTION_ALLOWED_LANGUAGES.split(",")
+    if code.strip()
+)
 _SILENCE_SHORT_TRANSCRIPT_WORD_LIMIT = 6
 _SILENCE_NO_SPEECH_PROB_THRESHOLD = 0.6
 _SILENCE_STRICT_NO_SPEECH_PROB_THRESHOLD = 0.75
@@ -32,6 +39,23 @@ def _get_field(value: Any, field: str, default: Any = None) -> Any:
     if isinstance(value, dict):
         return value.get(field, default)
     return getattr(value, field, default)
+
+
+def _is_language_allowed(transcription: Any) -> bool:
+    """Return False when the detected language is not in the allowlist.
+
+    If the allowlist is empty (all languages accepted) or if Whisper did not
+    return a ``language`` field, the transcription is never rejected here.
+    """
+    if not _ALLOWED_LANGUAGES:
+        return True  # no restriction configured
+
+    detected = _get_field(transcription, "language", None)
+    if detected is None:
+        return True  # cannot determine language — give benefit of the doubt
+
+    detected_code = str(detected).strip().lower()
+    return detected_code in _ALLOWED_LANGUAGES
 
 
 def _extract_transcription_text(transcription: Any) -> str:
@@ -135,15 +159,18 @@ def _should_suppress_low_confidence_transcription(transcription: Any) -> bool:
 
 
 def _build_batch_transcription_request(audio_file: Any) -> dict[str, Any]:
-    """Build the OpenAI transcription request for uploaded audio files."""
+    """Build the OpenAI transcription request for uploaded audio files.
+
+    Note: no ``language`` hint is sent so that Whisper auto-detects the spoken
+    language. Post-filtering with ``_is_language_allowed()`` then rejects any
+    language outside the configured allowlist (default: French and English).
+    """
     request: dict[str, Any] = {
         "model": _BATCH_TRANSCRIPTION_MODEL,
         "file": audio_file,
         "temperature": 0,
     }
 
-    if _BATCH_TRANSCRIPTION_LANGUAGE:
-        request["language"] = _BATCH_TRANSCRIPTION_LANGUAGE
     if _BATCH_TRANSCRIPTION_PROMPT:
         request["prompt"] = _BATCH_TRANSCRIPTION_PROMPT
 
@@ -191,13 +218,18 @@ async def transcribe_audio(file: UploadFile = File(...)):
         suppressed_for_low_confidence = _should_suppress_low_confidence_transcription(
             transcription
         )
-        if suppressed_for_silence or suppressed_for_low_confidence:
+        language_allowed = _is_language_allowed(transcription)
+
+        if suppressed_for_silence or suppressed_for_low_confidence or not language_allowed:
+            reason = (
+                "silence" if suppressed_for_silence
+                else "low_confidence" if suppressed_for_low_confidence
+                else f"rejected_language={_get_field(transcription, 'language', 'unknown')}"
+            )
             logger.info(
-                "Suppressed probable inaccurate transcription for uploaded file '%s' "
-                "(silence=%s, low_confidence=%s).",
+                "Suppressed transcription for uploaded file '%s' (reason=%s).",
                 file.filename,
-                suppressed_for_silence,
-                suppressed_for_low_confidence,
+                reason,
             )
             text = ""
 

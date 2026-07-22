@@ -29,6 +29,7 @@ from typing import Any
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.bpu_item import BpuItem
 from app.models.trade import Trade
 from app.models.trade_service import TradeService
 
@@ -177,6 +178,8 @@ _TRADE_LINE_STOPWORDS = frozenset(
     }
 )
 _TRADE_LINE_ALIASES: dict[str, tuple[str, ...]] = {
+    "calorifugeage": ("isolation", "isolant", "calorifuge", "tuyauterie", "plomberie"),
+    "calorifuge": ("isolation", "isolant", "calorifugeage", "tuyauterie", "plomberie"),
     "elec": (
         "electricite",
         "électricité",
@@ -266,10 +269,11 @@ _REFERENCE_TRADE_ITEMS: tuple[tuple[tuple[str, ...], tuple[dict[str, Any], ...]]
         ),
     ),
     (
-        ("isolation", "isolant", "thermique", "combles"),
+        ("isolation", "isolant", "thermique", "combles", "calorifugeage", "calorifuge"),
         (
             {"description": "Pose d'isolation en laine minérale sous rampant", "unit": "m2", "pu": 20, "tva": 5.5},
             {"description": "Isolation de combles perdus par soufflage", "unit": "m2", "pu": 28, "tva": 5.5},
+            {"description": "Calorifugeage de tuyauteries et canalisations", "unit": "ml", "pu": 35, "tva": 5.5},
             {"description": "Pose de doublage isolant intérieur avec parement", "unit": "m2", "pu": 45, "tva": 5.5},
             {"description": "Traitement de l'étanchéité à l'air avant finition", "unit": "m2", "pu": 12, "tva": 5.5},
             {"description": "Dépose partielle d'ancien isolant non conforme", "unit": "m2", "pu": 10, "tva": 5.5},
@@ -388,6 +392,7 @@ def _trade_line_item(
 
 
 def _trade_line_stmt(job_corp: str, limit: int):
+    """Legacy query on trades + trade_services (used by build_trade_line_context)."""
     patterns = [f"%{term}%" for term in _trade_line_search_terms(job_corp)]
     if not patterns:
         patterns = [f"%{job_corp.strip()}%"]
@@ -413,6 +418,76 @@ def _trade_line_stmt(job_corp: str, limit: int):
     )
 
 
+# ---------------------------------------------------------------------------
+# BpuItem-backed trade-line lookup (bibliothèque — 3 000+ items, 30+ trades)
+# ---------------------------------------------------------------------------
+_VALID_TVA_RATES: frozenset[float] = frozenset({5.5, 10.0, 20.0})
+
+
+def _bpu_tva(taux: float, *fallback_texts: str | None) -> float:
+    """Use the BPU's own TVA rate when valid, else infer from keywords."""
+    if taux in _VALID_TVA_RATES:
+        return taux
+    # Fall back to keyword-based inference.
+    return _trade_line_tva(*fallback_texts)
+
+
+def _bpu_trade_line_stmt(job_corp: str, limit: int):
+    """Build a fuzzy SELECT on ``bpu_items`` for the trade-line picker."""
+    patterns = [f"%{term}%" for term in _trade_line_search_terms(job_corp)]
+    if not patterns:
+        patterns = [f"%{job_corp.strip()}%"]
+    filters = []
+    for pattern in patterns:
+        filters.extend(
+            (
+                BpuItem.corps_metier.ilike(pattern),
+                BpuItem.designation.ilike(pattern),
+                BpuItem.description.ilike(pattern),
+                BpuItem.categorie.ilike(pattern),
+                BpuItem.sous_categorie.ilike(pattern),
+            )
+        )
+    return (
+        select(BpuItem)
+        .where(or_(*filters))
+        .where(BpuItem.prix_unitaire_ht > 0)
+        .order_by(BpuItem.corps_metier, BpuItem.designation)
+        .limit(limit)
+    )
+
+
+def _bpu_trade_line_item(item: BpuItem, job_corp: str) -> dict[str, Any]:
+    """Map a single :class:`BpuItem` row to a trade-line response dict."""
+    designation = item.designation.strip()
+    description = (item.description or "").strip()
+    if (
+        description
+        and description != _DEFAULT_DESCRIPTION
+        and description.lower() not in designation.lower()
+        and len(f"{designation} - {description}") <= 160
+    ):
+        desc_text = f"{designation} - {description}"
+    else:
+        desc_text = designation
+
+    pu = float(item.prix_unitaire_ht) if item.prix_unitaire_ht > 0 else 120.0
+    tva = _bpu_tva(
+        item.taux_tva_defaut,
+        item.designation,
+        item.description,
+        item.categorie,
+    )
+
+    return {
+        "job_corp": job_corp,
+        "description": desc_text,
+        "unit": item.unite or "forfait",
+        "pu": pu,
+        "tva": tva,
+    }
+
+
 def build_reference_trade_line_items(
     job_corp: str,
     *,
@@ -436,25 +511,28 @@ async def build_trade_line_items(
     job_corp: str,
     limit: int | None = None,
 ) -> list[dict[str, Any]]:
-    """Return response-ready trade-line items directly from the catalog.
+    """Return response-ready trade-line items from the **bpu_items** catalog.
 
     This is the fast path for ``/trade-line/generate``. The endpoint powers a
     picker UI, so catalog rows are already structured enough to return without
     waiting for a remote LLM to rewrite them.
+
+    Source: ``bibliotheque-travaux-ia-v1.json`` (3 000+ items, 30+ trades)
+    seeded into the ``bpu_items`` table.
     """
     effective_limit = limit if limit is not None and limit > 0 else _TRADE_LINE_LIMIT
-    rows: list[tuple[TradeService, str]] = (
-        await db.execute(_trade_line_stmt(job_corp, effective_limit))
-    ).all()
+    rows = (
+        await db.execute(_bpu_trade_line_stmt(job_corp, effective_limit))
+    ).scalars().all()
 
     items: list[dict[str, Any]] = []
     seen: set[str] = set()
-    for service, trade_name in rows:
-        description_key = service.designation.strip().casefold()
+    for bpu_item in rows:
+        description_key = bpu_item.designation.strip().casefold()
         if not description_key or description_key in seen:
             continue
         seen.add(description_key)
-        items.append(_trade_line_item(service, trade_name, job_corp))
+        items.append(_bpu_trade_line_item(bpu_item, job_corp))
         if len(items) >= effective_limit:
             break
 
