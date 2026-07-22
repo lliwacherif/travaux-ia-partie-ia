@@ -26,7 +26,7 @@ TRADE_LINE_DEFAULT_LIMIT: int = 12
 class TradeLineRequest(BaseModel):
     """Input body for ``POST /trade-line/generate``."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="ignore")
 
     job_corp: str = Field(
         ...,
@@ -40,7 +40,6 @@ class TradeLineRequest(BaseModel):
     limit: int | None = Field(
         default=None,
         ge=TRADE_LINE_MIN_ITEMS,
-        le=TRADE_LINE_MAX_ITEMS,
         description=(
             "Soft cap on the number of items returned. The AI is asked to "
             "produce up to this many representative prestations. Defaults "

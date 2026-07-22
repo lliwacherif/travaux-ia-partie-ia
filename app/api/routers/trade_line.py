@@ -28,6 +28,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db import get_db
 from app.schemas.trade_line import (
     TRADE_LINE_DEFAULT_LIMIT,
+    TRADE_LINE_MAX_ITEMS,
     TradeLineRequest,
     TradeLineResponse,
 )
@@ -67,6 +68,12 @@ async def generate_trade_line(
        ``TradeLineResponse``.
     """
     limit = request.limit if request.limit is not None else TRADE_LINE_DEFAULT_LIMIT
+
+    if limit > TRADE_LINE_MAX_ITEMS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Plus de résultats disponibles."
+        )
 
     try:
         raw = await ai_service.generate_trade_line(
