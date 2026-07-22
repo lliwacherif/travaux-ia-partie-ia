@@ -5,6 +5,7 @@ import json
 import asyncio
 import base64
 import logging
+import re
 from typing import Any
 
 import websockets
@@ -58,13 +59,26 @@ def _is_language_allowed(transcription: Any) -> bool:
     return detected_code in _ALLOWED_LANGUAGES
 
 
+def _clean_transcription(text: str) -> str:
+    """Removes newlines and drops the text if it contains Arabic characters."""
+    if not isinstance(text, str):
+        return ""
+    
+    # Check for Arabic characters (Unicode block \u0600-\u06FF)
+    if re.search(r'[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]', text):
+        return ""
+        
+    # Replace \n with a space to avoid words being glued together on the frontend
+    return text.replace("\n", " ").strip()
+
+
 def _extract_transcription_text(transcription: Any) -> str:
     """Normalise OpenAI transcription payloads into a plain string."""
     if isinstance(transcription, str):
-        return transcription.strip()
+        return _clean_transcription(transcription)
 
     text = _get_field(transcription, "text", "")
-    return text.strip() if isinstance(text, str) else ""
+    return _clean_transcription(text)
 
 
 def _token_contains_speech(token: str) -> bool:
@@ -404,18 +418,22 @@ async def voice_stream(ws: WebSocket):
                     elif event_type == "conversation.item.input_audio_transcription.delta":
                         delta = event.get("delta", "")
                         if delta:
-                            await ws.send_json({
-                                "type": "transcript_partial",
-                                "text": delta,
-                            })
+                            clean_delta = _clean_transcription(delta)
+                            if clean_delta:
+                                await ws.send_json({
+                                    "type": "transcript_partial",
+                                    "text": clean_delta,
+                                })
 
                     # Final transcript (completed sentence)
                     elif event_type == "conversation.item.input_audio_transcription.completed":
                         transcript = event.get("transcript", "")
-                        await ws.send_json({
-                            "type": "transcript_final",
-                            "text": transcript,
-                        })
+                        clean_final = _clean_transcription(transcript)
+                        if clean_final:
+                            await ws.send_json({
+                                "type": "transcript_final",
+                                "text": clean_final,
+                            })
 
                     # OpenAI-side errors
                     elif event_type == "error":
