@@ -317,8 +317,12 @@ def _trade_line_search_terms(job_corp: str) -> list[str]:
         # Otherwise, keep the minimum length of 3 to avoid noise.
         if len(token) < 3 and token not in _TRADE_LINE_ALIASES:
             continue
-        terms.append(raw_token)
-        terms.append(token)
+        
+        # Only append the original token if it's 3+ chars long, to avoid noise like "pv" matching "pvc"
+        if len(token) >= 3:
+            terms.append(raw_token)
+            terms.append(token)
+            
         terms.extend(_TRADE_LINE_ALIASES.get(token, ()))
 
     if not terms and normalised.strip():
