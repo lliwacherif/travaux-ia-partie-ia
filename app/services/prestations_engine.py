@@ -12,6 +12,60 @@ from app.models.bpu_item import BpuItem
 from app.models.pack_travaux import PackTravaux
 import math
 import re
+import difflib
+
+_OFFICIAL_TRADE_LABELS = [
+    "Maçonnerie – Gros œuvre",
+    "Maçonnerie – Second œuvre / Chapes / Enduits ciment",
+    "Démolition – Curage – Dépose",
+    "Terrassement – VRD – Assainissement",
+    "Plâtrerie – Cloisons – Doublages – Faux plafonds",
+    "Peinture – Finitions – Enduits décoratifs",
+    "Plomberie – Sanitaire",
+    "Chauffage – Chaudières – Radiateurs – Réseaux",
+    "Chauffage ENR – PAC – Solaire thermique",
+    "Climatisation – Ventilation – VMC",
+    "Électricité – Courants forts",
+    "Électricité – Courants faibles – Domotique – Réseaux",
+    "Menuiserie intérieure",
+    "Menuiserie extérieure",
+    "Serrurerie – Métallerie",
+    "Revêtements de sols",
+    "Carrelage – Sols & Murs",
+    "Isolation intérieure",
+    "Isolation thermique extérieure (ITE)",
+    "Calorifugeage",
+    "Couverture – Toiture – Zinguerie",
+    "Étanchéité – Toiture terrasse",
+    "Façade – Ravalement – Enduits extérieurs",
+    "Charpente bois – Ossature",
+    "Charpente métallique",
+    "Panneaux photovoltaïques",
+    "Salle de bain – Aménagement complet",
+    "Cuisine – Agencement sur mesure",
+    "Installation de chantier – Logistique & Sécurité",
+    "Dépannage & Interventions rapides"
+]
+
+def _normalize_trade_title(raw_metier: str) -> str:
+    """Fuzzy match the raw AI metier to the closest official label."""
+    # Try exact/case-insensitive match first
+    raw_lower = raw_metier.lower().strip()
+    for label in _OFFICIAL_TRADE_LABELS:
+        if raw_lower in label.lower():
+            return label
+    
+    # Fallback to fuzzy match
+    matches = difflib.get_close_matches(raw_lower, [lbl.lower() for lbl in _OFFICIAL_TRADE_LABELS], n=1, cutoff=0.3)
+    if matches:
+        best_match_lower = matches[0]
+        # Find original casing
+        for label in _OFFICIAL_TRADE_LABELS:
+            if label.lower() == best_match_lower:
+                return label
+    
+    # If all fails, return a capitalized version of what AI said
+    return f"{raw_metier.capitalize()}"
 
 logger = logging.getLogger(__name__)
 
@@ -873,7 +927,7 @@ def process_ai_lots(
         )
         
         intervention_blocks.append({
-            "title": f"Intervention: {metier}",
+            "title": _normalize_trade_title(metier),
             "lines": lot_intervention_lines
         })
         
@@ -915,7 +969,7 @@ def process_ai_lots(
     
     # 1. Mise en place
     final_blocks.append({
-        "title": "Mise en place et préparation",
+        "title": "Mise en place du chantier",
         "lots": [{"title": "Préparation", "lignes": _map_lines(global_mise_en_place_lines)}]
     })
     
@@ -928,7 +982,7 @@ def process_ai_lots(
         
     # K+1. Finition
     final_blocks.append({
-        "title": "Finition et nettoyage",
+        "title": "Finitions et nettoyage",
         "lots": [{"title": "Nettoyage", "lignes": _map_lines(global_finition_lines)}]
     })
     
