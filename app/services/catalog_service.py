@@ -216,6 +216,9 @@ _TRADE_LINE_ALIASES: dict[str, tuple[str, ...]] = {
     "sanitaire": ("plomberie", "sanitaires"),
     "toit": ("couverture", "toiture", "tuile"),
     "toiture": ("couverture", "toiture", "tuile"),
+    "photovoltaique": ("photovoltaïque", "panneaux photovoltaïques", "solaire"),
+    "photovoltaïque": ("photovoltaïque", "panneaux photovoltaïques", "solaire"),
+    "ppv": ("photovoltaïque", "panneaux photovoltaïques", "solaire"),
 }
 _REFERENCE_TRADE_ITEMS: tuple[tuple[tuple[str, ...], tuple[dict[str, Any], ...]], ...] = (
     (
@@ -433,13 +436,31 @@ def _bpu_tva(taux: float, *fallback_texts: str | None) -> float:
 
 
 def _bpu_trade_line_stmt(job_corp: str, limit: int):
-    """Build a fuzzy SELECT on ``bpu_items`` for the trade-line picker."""
-    patterns = [f"%{term}%" for term in _trade_line_search_terms(job_corp)]
-    if not patterns:
-        patterns = [f"%{job_corp.strip()}%"]
-    filters = []
+    """Build a SELECT on ``bpu_items`` for the trade-line picker.
+
+    Strategy: try an exact match on ``corps_metier`` first (fast, precise).
+    Only fall back to broad fuzzy search across all columns if no exact
+    corps_metier match is possible.
+    """
+    search_terms = _trade_line_search_terms(job_corp)
+    patterns = [f"%{term}%" for term in search_terms] if search_terms else [f"%{job_corp.strip()}%"]
+
+    # --- Priority 1: match on corps_metier only (precise) ---
+    corps_filters = []
     for pattern in patterns:
-        filters.extend(
+        corps_filters.append(BpuItem.corps_metier.ilike(pattern))
+    precise_stmt = (
+        select(BpuItem)
+        .where(or_(*corps_filters))
+        .where(BpuItem.prix_unitaire_ht > 0)
+        .order_by(BpuItem.corps_metier, BpuItem.designation)
+        .limit(limit)
+    )
+
+    # --- Priority 2: broad fuzzy across all columns (fallback) ---
+    broad_filters = []
+    for pattern in patterns:
+        broad_filters.extend(
             (
                 BpuItem.corps_metier.ilike(pattern),
                 BpuItem.designation.ilike(pattern),
@@ -448,13 +469,15 @@ def _bpu_trade_line_stmt(job_corp: str, limit: int):
                 BpuItem.sous_categorie.ilike(pattern),
             )
         )
-    return (
+    broad_stmt = (
         select(BpuItem)
-        .where(or_(*filters))
+        .where(or_(*broad_filters))
         .where(BpuItem.prix_unitaire_ht > 0)
         .order_by(BpuItem.corps_metier, BpuItem.designation)
         .limit(limit)
     )
+
+    return precise_stmt, broad_stmt
 
 
 def _bpu_trade_line_item(item: BpuItem, job_corp: str) -> dict[str, Any]:
@@ -521,9 +544,14 @@ async def build_trade_line_items(
     seeded into the ``bpu_items`` table.
     """
     effective_limit = limit if limit is not None and limit > 0 else _TRADE_LINE_LIMIT
-    rows = (
-        await db.execute(_bpu_trade_line_stmt(job_corp, effective_limit))
-    ).scalars().all()
+    precise_stmt, broad_stmt = _bpu_trade_line_stmt(job_corp, effective_limit)
+
+    # Try precise corps_metier match first
+    rows = (await db.execute(precise_stmt)).scalars().all()
+
+    # Fall back to broad fuzzy search if precise returned nothing
+    if not rows:
+        rows = (await db.execute(broad_stmt)).scalars().all()
 
     items: list[dict[str, Any]] = []
     seen: set[str] = set()
