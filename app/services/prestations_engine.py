@@ -947,10 +947,12 @@ def process_ai_lots(
         global_tva
     )
 
+    force_tva_55 = "isolation" in user_text.lower()
+
     def _map_lines(lines_in: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         out = []
         for i, l in enumerate(lines_in, 1):
-            tva = l.get("tva", 10.0)
+            tva = 5.5 if force_tva_55 else l.get("tva", 10.0)
             ht = l.get("total_ht", 0.0)
             out.append({
                 "num": i,
