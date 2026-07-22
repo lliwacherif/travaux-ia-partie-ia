@@ -219,6 +219,7 @@ _TRADE_LINE_ALIASES: dict[str, tuple[str, ...]] = {
     "photovoltaique": ("photovoltaïque", "panneaux photovoltaïques", "solaire"),
     "photovoltaïque": ("photovoltaïque", "panneaux photovoltaïques", "solaire"),
     "ppv": ("photovoltaïque", "panneaux photovoltaïques", "solaire"),
+    "pv": ("photovoltaïque", "panneaux photovoltaïques", "solaire"),
 }
 _REFERENCE_TRADE_ITEMS: tuple[tuple[tuple[str, ...], tuple[dict[str, Any], ...]], ...] = (
     (
@@ -310,7 +311,11 @@ def _trade_line_search_terms(job_corp: str) -> list[str]:
     normalised_tokens = re.findall(r"[a-z0-9]+", normalised)
     terms: list[str] = []
     for raw_token, token in zip(raw_tokens, normalised_tokens, strict=False):
-        if len(token) < 3 or token in _TRADE_LINE_STOPWORDS:
+        if token in _TRADE_LINE_STOPWORDS:
+            continue
+        # We allow 2-letter tokens if they are known aliases (e.g., "pv", "ppv").
+        # Otherwise, keep the minimum length of 3 to avoid noise.
+        if len(token) < 3 and token not in _TRADE_LINE_ALIASES:
             continue
         terms.append(raw_token)
         terms.append(token)
