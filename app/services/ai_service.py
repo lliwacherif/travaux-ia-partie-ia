@@ -214,6 +214,144 @@ def _normalise_trade_line_payload(
     return {"job_corp": job_corp, "count": len(cleaned), "items": cleaned}
 
 
+# ---------------------------------------------------------------------------
+# Depannage-only catalog scoping (Option A)
+#
+# These helpers ONLY affect requests detected as "dépannage". For every other
+# kind of travaux the pipeline keeps building the exact same full catalog as
+# before, so standard devis generation is byte-for-byte unchanged.
+# ---------------------------------------------------------------------------
+_DEPANNAGE_METIER_LABEL: Final[str] = "Dépannage & Interventions rapides"
+
+# Keywords that flag the request as a quick repair / breakdown intervention.
+_DEPANNAGE_TRIGGER_KEYWORDS: Final[tuple[str, ...]] = (
+    "depannage", "depanage", "urgence", "urgent", "panne", "en panne",
+    "fuite", "qui fuit", "debouchage", "bouche", "bouchee", "engorge",
+    "reparer", "reparation", "casse", "cassee", "bloque", "bloquee",
+    "ne fonctionne", "ne marche", "hs", "en rade", "coince", "coincee",
+)
+
+# Maps the exact ``sous_metier_depannage`` DB values to trigger keywords.
+_DEPANNAGE_SOUS_METIER_KEYWORDS: Final[dict[str, tuple[str, ...]]] = {
+    "Plomberie": (
+        "robinet", "mitigeur", "fuite", "wc", "toilette", "chasse", "evier",
+        "lavabo", "douche", "baignoire", "siphon", "sanitaire", "chauffe-eau",
+        "chauffe eau", "cumulus", "ballon", "flexible", "joint", "eau chaude",
+        "plomberie", "vasque", "abattant", "flotteur",
+    ),
+    "Canalisation / Débouchage": (
+        "debouchage", "bouche", "bouchee", "canalisation", "evacuation",
+        "egout", "odeur", "engorge", "colonne", "receveur",
+    ),
+    "Électricité": (
+        "electricite", "electrique", "disjoncteur", "prise", "tableau",
+        "court-circuit", "court circuit", "courant", "interrupteur", "lumiere",
+        "differentiel", "fusible", "compteur", "coupure electrique",
+    ),
+    "Serrurerie": (
+        "serrure", "porte", "cle", "clef", "verrou", "cylindre", "ouverture",
+        "claquee", "gache", "barillet", "cadenas",
+    ),
+    "Vitrerie": (
+        "vitre", "carreau", "fenetre", "vitrage", "verre", "double vitrage",
+    ),
+    "Toiture (urgence / bâchage)": (
+        "toiture", "tuile", "gouttiere", "bachage", "infiltration", "toit",
+        "faitage", "cheneau", "aretier", "zinguerie",
+    ),
+    "Chauffage / Chaudière / PAC": (
+        "chaudiere", "chauffage", "radiateur", "pac", "pompe a chaleur",
+        "thermostat", "circulateur", "vase expansion", "chauffe-eau",
+    ),
+    "Climatisation – VMC": (
+        "clim", "climatisation", "climatiseur", "vmc", "ventilation", "split",
+    ),
+    "Domotique – Réseaux": (
+        "domotique", "box", "wifi", "reseau", "camera", "alarme", "portail",
+        "volet roulant", "interphone", "visiophone", "nas", "routeur",
+    ),
+}
+
+
+def _normalise_for_match(text: str) -> str:
+    """Lowercase + strip accents so keyword matching is accent-insensitive."""
+    import unicodedata
+
+    nfkd = unicodedata.normalize("NFKD", text.lower())
+    return "".join(c for c in nfkd if not unicodedata.combining(c))
+
+
+def _is_depannage_request(user_text: str) -> bool:
+    """Return True when the free-form text looks like a repair / breakdown.
+
+    Conservative on purpose: only requests containing an explicit repair
+    signal are routed to the depannage-scoped catalog. Anything else takes
+    the untouched standard path.
+    """
+    norm = _normalise_for_match(user_text)
+    return any(kw in norm for kw in _DEPANNAGE_TRIGGER_KEYWORDS)
+
+
+def _detect_depannage_sous_metiers(user_text: str) -> list[str]:
+    """Return the ``sous_metier_depannage`` categories relevant to the text."""
+    norm = _normalise_for_match(user_text)
+    matched = [
+        sous_metier
+        for sous_metier, keywords in _DEPANNAGE_SOUS_METIER_KEYWORDS.items()
+        if any(kw in norm for kw in keywords)
+    ]
+    return matched
+
+
+def _build_depannage_catalog(
+    pack_list: list[dict[str, Any]], user_text: str
+) -> str:
+    """Build a SMALL, focused catalog string containing only depannage packs.
+
+    Scopes the candidate packs to the relevant ``sous_metier_depannage``
+    when detectable, otherwise falls back to every depannage pack. This is
+    what makes the AI pick the correct DEP-* code instead of drowning in
+    the full 900-pack catalog.
+    """
+    depannage_packs = [
+        p
+        for p in pack_list
+        if p.get("corps_metier") == _DEPANNAGE_METIER_LABEL
+        or str(p.get("code_pack", "")).startswith("DEP-")
+    ]
+
+    target_sous_metiers = _detect_depannage_sous_metiers(user_text)
+    if target_sous_metiers:
+        scoped = [
+            p
+            for p in depannage_packs
+            if p.get("sous_metier_depannage") in target_sous_metiers
+        ]
+        # If the keyword scope somehow matched nothing, keep all depannage
+        # packs rather than sending an empty catalog.
+        if scoped:
+            depannage_packs = scoped
+
+    # Group by sous_metier for readability.
+    by_sous_metier: dict[str, list[str]] = {}
+    for p in depannage_packs:
+        key = p.get("sous_metier_depannage") or "Autres interventions"
+        by_sous_metier.setdefault(key, []).append(
+            f"[{p['code_pack']}] {p['nom_pack']}"
+        )
+
+    lines: list[str] = [
+        "CONTEXTE : demande de DÉPANNAGE / intervention rapide.",
+        "Choisis IMPÉRATIVEMENT le pack le PLUS proche de la demande dans la",
+        "liste ci-dessous. N'invente AUCUN pack hors de cette liste.",
+        "",
+    ]
+    for sous_metier, packs in by_sous_metier.items():
+        lines.append(f"- Sous-métier: {sous_metier}")
+        lines.extend(f"  {p}" for p in packs)
+    return "\n".join(lines)
+
+
 def _format_interventions_block(
     interventions: list[str], user_text: str
 ) -> str:
@@ -884,20 +1022,26 @@ class AIService:
         if on_progress is not None:
             await on_progress(2, PROGRESS_STEPS[1])
             
-        catalog_by_metier = {}
-        for p in pack_list:
-            cm = p["corps_metier"]
-            if cm not in catalog_by_metier:
-                catalog_by_metier[cm] = []
-            catalog_by_metier[cm].append(f"[{p['code_pack']}] {p['nom_pack']}")
-            
-        catalog_lines = []
-        for cm, packs in catalog_by_metier.items():
-            catalog_lines.append(f"- Métier: {cm}")
-            for p in packs:
-                catalog_lines.append(f"  {p}")
-        catalog_str = "\n".join(catalog_lines)
-        
+        # DEPANNAGE-ONLY: scope the catalog to the relevant repair packs so the
+        # AI can pick the correct DEP-* code. Every other request falls through
+        # to the original full-catalog builder below — unchanged.
+        if _is_depannage_request(user_text):
+            catalog_str = _build_depannage_catalog(pack_list, user_text)
+        else:
+            catalog_by_metier = {}
+            for p in pack_list:
+                cm = p["corps_metier"]
+                if cm not in catalog_by_metier:
+                    catalog_by_metier[cm] = []
+                catalog_by_metier[cm].append(f"[{p['code_pack']}] {p['nom_pack']}")
+
+            catalog_lines = []
+            for cm, packs in catalog_by_metier.items():
+                catalog_lines.append(f"- Métier: {cm}")
+                for p in packs:
+                    catalog_lines.append(f"  {p}")
+            catalog_str = "\n".join(catalog_lines)
+
         prompt = SYSTEM_PROMPT_GENERATOR.replace("{catalog}", catalog_str)
             
         raw = await self._chat(

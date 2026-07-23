@@ -346,6 +346,10 @@ async def load_packs_map(db: AsyncSession) -> tuple[Dict[str, dict], List[dict]]
             "nom_pack": p.nom_pack,
             "pack_json": p.pack_json,
             "corps_metier": p.corps_metier,
+            # Additive field — only consumed by the depannage-scoped catalog
+            # builder in ai_service. Non-depannage paths never read it, so
+            # this does not affect standard devis generation.
+            "sous_metier_depannage": p.sous_metier_depannage,
         }
         exact_map[p.code_pack] = pack_data
         pack_list.append(pack_data)
