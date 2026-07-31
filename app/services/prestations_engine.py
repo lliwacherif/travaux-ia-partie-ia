@@ -435,8 +435,8 @@ def decide_tva_finale(designation: str, lot_label: str, client_type: str, projec
         return 20.0
     if client_type == "particulier":
         return 10.0
-    # Unknown client_type → safe default to standard rate
-    return 20.0
+    # Unknown client_type → default to 10% (renovation particulier is the most common case)
+    return 10.0
 
 UNIT_MAP = {
     "m2": "m²", "m²": "m²",

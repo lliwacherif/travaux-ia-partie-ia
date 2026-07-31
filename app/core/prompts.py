@@ -46,12 +46,6 @@ RÈGLE ANTI-DIVERS (OBLIGATOIRE) :
 - Chaque pack doit correspondre à une prestation technique IDENTIFIABLE et SPÉCIFIQUE.
 - Si tu ne trouves pas de pack précis dans le catalogue, utilise un id SNAKE_CASE décrivant la prestation réelle.
 
-RÈGLE UNITÉS (OBLIGATOIRE) :
-- NE CONVERTIS JAMAIS une surface (m²) en longueur (ml) ni l'inverse.
-- Si l'utilisateur donne une surface en m² et que le pack attend des ml, mets quantite = 1.
-- Si l'utilisateur donne une longueur en ml et que le pack attend des m², mets quantite = 1.
-- Le moteur déterministe se charge de toutes les conversions d'unités.
-
 RÈGLE SOURCE (OBLIGATOIRE) :
 - source_qte : cite le passage EXACT du texte utilisateur dont tu extrais la quantité.
 - Si aucune dimension n'est explicite dans le texte → source_qte = "non spécifié" et quantite = 1.
