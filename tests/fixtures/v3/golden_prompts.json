@@ -1,0 +1,45 @@
+[
+  {
+    "id": "GOLDEN-STRUCTURE-METALLIQUE-001",
+    "description": "135 m² de structure métallique complète : poteaux, poutres principales, pannes, contreventements et platines d’ancrage. Prévoir étude d’exécution, fabrication en atelier, protection anticorrosion, transport, levage, boulonnage et réglage. Les fondations et le bardage sont réalisés par d’autres lots.",
+    "expected_flow": "TRAVAUX",
+    "expected_trade_code": "CHARPENTE_METALLIQUE",
+    "expected_pack_code": "V3-MET-STRUCTURE-COMPLETE",
+    "required_terms": [
+      "étude",
+      "fabrication",
+      "anticorrosion",
+      "transport",
+      "levage",
+      "poteaux",
+      "poutres",
+      "pannes",
+      "contreventements",
+      "platines",
+      "boulonn"
+    ],
+    "forbidden_terms": ["fondation", "bardage"],
+    "explicit_quantity": 135,
+    "explicit_unit": "M2"
+  },
+  {
+    "id": "GOLDEN-CHARPENTE-BOIS-001",
+    "description": "Pour une extension de 42 m², charpente traditionnelle en bois avec deux fermes, pannes, chevrons et contreventements, prévue pour recevoir une couverture en tuiles. Bois traité, assemblages, levage, fixation sur les murs porteurs et traitement de toutes les pièces de charpente.",
+    "expected_flow": "TRAVAUX",
+    "expected_trade_code": "CHARPENTE_BOIS",
+    "expected_pack_code": "V3-CHARPENTE-BOIS-EXTENSION",
+    "required_terms": [
+      "ferme",
+      "pannes",
+      "chevrons",
+      "contreventement",
+      "traitement",
+      "assemblage",
+      "levage",
+      "fixation"
+    ],
+    "forbidden_terms": ["dépose", "démontage"],
+    "explicit_quantity": 42,
+    "explicit_unit": "M2"
+  }
+]

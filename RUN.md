@@ -250,3 +250,56 @@ Display-only issue. The bytes are correct UTF-8. Use Swagger UI or save the resp
 ```powershell
 (Invoke-RestMethod ... ) | ConvertTo-Json -Depth 10 | Out-File -Encoding utf8 devis.json
 ```
+
+---
+
+## 8. Run the isolated V3 engine in parallel
+
+V3 does not modify the V2 database or `/api/v1` routes. It requires Docker
+Desktop with the WSL 2 backend because its separate PostgreSQL instance uses
+pgvector.
+
+```powershell
+# One-time Windows prerequisite (administrator terminal, then restart Windows)
+wsl --install
+
+# Start only the isolated V3 database
+docker compose up -d postgres_v3
+
+# Create the V3 schema
+alembic -c alembic_v3.ini upgrade head
+
+# Import and publish the two reviewed official packs.
+# Use the UUID of the human reviewer who approved the snapshot.
+python scripts\import_v3_library.py `
+  --publish-curated `
+  --approved-by "<UUID_DU_RELECTEUR>" `
+  --regression-passed
+```
+
+Check readiness:
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8000/api/v3/devis/system/readiness |
+  ConvertTo-Json
+```
+
+Generate a V3 quote:
+
+```powershell
+$body = @{
+  text = "Pour une extension de 42 m², charpente traditionnelle en bois avec deux fermes, pannes, chevrons et contreventements."
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+  -Uri "http://127.0.0.1:8000/api/v3/devis/generate" `
+  -Method POST `
+  -Body $body `
+  -ContentType "application/json; charset=utf-8" `
+  -TimeoutSec 240 |
+  ConvertTo-Json -Depth 20
+```
+
+The response contains both the strict V3 `quote` (catalog IDs, versions,
+coverage, assumptions and complete execution trace) and the compatible
+`devis` presentation used by existing clients.

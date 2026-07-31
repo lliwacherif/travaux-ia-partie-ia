@@ -419,7 +419,7 @@ ISOLATION_TVA_KEYWORDS = [
     "polyurethane", "rockwool", "isover",
 ]
 
-def decide_tva_finale(designation: str, lot_label: str, client_type: str) -> float:
+def decide_tva_finale(designation: str, lot_label: str, client_type: str, project_nature: str = "renovation") -> float:
     text = (designation or "").lower()
     lot = (lot_label or "").lower()
 
@@ -430,7 +430,13 @@ def decide_tva_finale(designation: str, lot_label: str, client_type: str) -> flo
         return 5.5
     if client_type == "professionnel" or client_type == "pro":
         return 20.0
-    return 10.0
+    # V2 Enhancement: construction neuve → TVA standard 20%
+    if project_nature == "neuf":
+        return 20.0
+    if client_type == "particulier":
+        return 10.0
+    # Unknown client_type → safe default to standard rate
+    return 20.0
 
 UNIT_MAP = {
     "m2": "m²", "m²": "m²",
@@ -804,7 +810,7 @@ def process_ai_lots(
         metier = lot.get("metier", "Métier inconnu")
         lot_key = lot.get("lot_key", "LOT_01")
         packs = lot.get("packs", [])
-        tva = decide_tva_finale("", metier, client_type)
+        tva = decide_tva_finale("", metier, client_type, project_nature)
         
         matched_rules = next((rules for code, rules in ALL_METIER_RULES.items() if rules["metier"].lower() in metier.lower()), None)
         
@@ -821,6 +827,10 @@ def process_ai_lots(
         for pack in packs:
             pack_id = pack.get("id", "INCONNU")
             quantite_brute = pack.get("quantite", 1)
+            # V2 Enhancement: clamp invalid quantities to 1
+            if not isinstance(quantite_brute, (int, float)) or quantite_brute <= 0:
+                logger.warning("Pack %r has invalid quantite=%r — defaulting to 1", pack_id, quantite_brute)
+                quantite_brute = 1
             
             # Try packs_travaux first
             matched_pack = None
@@ -843,7 +853,7 @@ def process_ai_lots(
                     
                     pu_ht = line.get("prix_unitaire_ht", 0.0)
                     total_ht = round(qte_calc * pu_ht, 2)
-                    tva = decide_tva_finale(line.get("designation", ""), metier, client_type)
+                    tva = decide_tva_finale(line.get("designation", ""), metier, client_type, project_nature)
                     
                     line_data = {
                         "designation": line.get("designation", ""),
@@ -873,7 +883,7 @@ def process_ai_lots(
                     desc = rule.get("description", "")
                     clean_key = line_key.replace("_m2", "").replace("_ml", "").replace("_u", "").replace("_kg", "").replace("_l", "").replace("_m3", "").capitalize()
                     designation = f"{clean_key} ({desc})" if desc else clean_key
-                    tva = decide_tva_finale(designation, metier, client_type)
+                    tva = decide_tva_finale(designation, metier, client_type, project_nature)
                     
                     qte_calc = safe_eval_formula(rule["formula"], {"surface": quantite_brute, "longueur": quantite_brute, "hauteur": 2.5})
                     pu_ht = _resolve_price(line_key, rule["unit"], price_map, concept_map=concept_map)
@@ -897,9 +907,14 @@ def process_ai_lots(
                     else:
                         lot_intervention_lines.append(line_data)
             else:
+                # V2 Enhancement: log unknown pack IDs for tracing
+                logger.warning(
+                    "Pack ID %r not found in catalog — using fallback line for metier=%r",
+                    pack_id, metier,
+                )
                 clean_pack_id = str(pack_id).replace("_", " ").capitalize()
                 fallback_designation = f"Fourniture et pose : {clean_pack_id}"
-                tva = decide_tva_finale(fallback_designation, metier, client_type)
+                tva = decide_tva_finale(fallback_designation, metier, client_type, project_nature)
                 # Determine the correct unit based on quantity
                 # If qty > 1, it's most likely m² (surface-based packs)
                 if quantite_brute == 1:
@@ -921,7 +936,7 @@ def process_ai_lots(
                 })
         
         # Enforce exact line count for THIS intervention block
-        base_tva = decide_tva_finale("", metier, client_type)
+        base_tva = decide_tva_finale("", metier, client_type, project_nature)
         lot_intervention_lines = _pad_or_truncate_lines(
             lot_intervention_lines, 
             target_intervention, 
@@ -936,7 +951,7 @@ def process_ai_lots(
         })
         
     # Enforce exact line counts for global blocks
-    global_tva = decide_tva_finale("", "", client_type)
+    global_tva = decide_tva_finale("", "", client_type, project_nature)
     global_mise_en_place_lines = _pad_or_truncate_lines(
         global_mise_en_place_lines,
         target_mise_en_place,

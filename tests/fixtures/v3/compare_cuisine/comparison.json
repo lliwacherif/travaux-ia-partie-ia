@@ -1,0 +1,159 @@
+{
+  "prompt": "Renovation cuisine 8m2",
+  "v2": {
+    "status_code": 200,
+    "duration_ms": 2937,
+    "montant_ttc": 15661.8,
+    "n_lines": 20,
+    "geometry": [
+      {
+        "bloc": "Mise en place du chantier",
+        "n": 3
+      },
+      {
+        "bloc": "Cuisine – Agencement sur mesure",
+        "n": 14
+      },
+      {
+        "bloc": "Finitions et nettoyage",
+        "n": 3
+      }
+    ],
+    "sample_lines": [
+      {
+        "bloc": "Mise en place du chantier",
+        "description": "Balisage et sécurisation de la zone de travail",
+        "qte": 1.0,
+        "unit": "forfait",
+        "pu": 95.0,
+        "ht": 95.0,
+        "ttc": 104.5
+      },
+      {
+        "bloc": "Mise en place du chantier",
+        "description": "Mise en place des protections au sol et murales",
+        "qte": 1.0,
+        "unit": "forfait",
+        "pu": 95.0,
+        "ht": 95.0,
+        "ttc": 104.5
+      },
+      {
+        "bloc": "Mise en place du chantier",
+        "description": "Acheminement de l'outillage et préparation du poste",
+        "qte": 1.0,
+        "unit": "forfait",
+        "pu": 95.0,
+        "ht": 95.0,
+        "ttc": 104.5
+      },
+      {
+        "bloc": "Cuisine – Agencement sur mesure",
+        "description": "Fourniture et pose : Cuisine renovation",
+        "qte": 8.0,
+        "unit": "u",
+        "pu": 780.0,
+        "ht": 6240.0,
+        "ttc": 6864.0
+      },
+      {
+        "bloc": "Cuisine – Agencement sur mesure",
+        "description": "Mise en sécurité spécifique des éléments de l'ouvrage",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 72.0,
+        "ht": 576.0,
+        "ttc": 633.6
+      }
+    ],
+    "error": null
+  },
+  "v3": {
+    "status_code": 200,
+    "duration_ms": 5510,
+    "montant_ttc": 1170.0,
+    "n_lines": 20,
+    "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+    "trade_code": "CUISINE",
+    "totals_cents": {
+      "ht_cents": 97500,
+      "vat_cents": 19500,
+      "ttc_cents": 117000
+    },
+    "sample_lines": [
+      {
+        "bloc": "Mise en place du chantier",
+        "description": "Protection des sols et des accès avant travaux",
+        "qte": 8.0,
+        "unit": "M2",
+        "pu": 4.5,
+        "ht": 36.0,
+        "ttc": 43.2
+      },
+      {
+        "bloc": "Mise en place du chantier",
+        "description": "Mise en place de l’aire de stockage des éléments de cuisine",
+        "qte": 1.0,
+        "unit": "FORFAIT",
+        "pu": 35.0,
+        "ht": 35.0,
+        "ttc": 42.0
+      },
+      {
+        "bloc": "Mise en place du chantier",
+        "description": "Repérage et traçage de l’implantation de la cuisine linéaire",
+        "qte": 1.0,
+        "unit": "ML",
+        "pu": 8.0,
+        "ht": 8.0,
+        "ttc": 9.6
+      },
+      {
+        "bloc": "Cuisine",
+        "description": "Dépose des anciens meubles bas de cuisine",
+        "qte": 1.0,
+        "unit": "ML",
+        "pu": 18.0,
+        "ht": 18.0,
+        "ttc": 21.6
+      },
+      {
+        "bloc": "Cuisine",
+        "description": "Dépose des anciens meubles hauts de cuisine",
+        "qte": 1.0,
+        "unit": "ML",
+        "pu": 15.0,
+        "ht": 15.0,
+        "ttc": 18.0
+      },
+      {
+        "bloc": "Cuisine",
+        "description": "Dépose de l’ancien plan de travail",
+        "qte": 1.0,
+        "unit": "ML",
+        "pu": 12.0,
+        "ht": 12.0,
+        "ttc": 14.4
+      },
+      {
+        "bloc": "Cuisine",
+        "description": "Dépose des plinthes existantes",
+        "qte": 1.0,
+        "unit": "ML",
+        "pu": 5.0,
+        "ht": 5.0,
+        "ttc": 6.0
+      },
+      {
+        "bloc": "Cuisine",
+        "description": "Evacuation des éléments déposés en déchetterie",
+        "qte": 1.0,
+        "unit": "FORFAIT",
+        "pu": 60.0,
+        "ht": 60.0,
+        "ttc": 72.0
+      }
+    ],
+    "error": null
+  }
+}

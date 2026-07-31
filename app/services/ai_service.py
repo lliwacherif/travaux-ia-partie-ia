@@ -97,8 +97,9 @@ _DEVIS_RESPONSE_FORMAT: dict[str, Any] = {
                                             ],
                                         },
                                         "quantite": {"type": "number"},
+                                        "source_qte": {"type": "string"},
                                     },
-                                    "required": ["id", "type", "quantite"],
+                                    "required": ["id", "type", "quantite", "source_qte"],
                                     "additionalProperties": False,
                                 },
                             },
@@ -463,7 +464,6 @@ class AIService:
         "temperature": 1,
         "top_p": 1,
         "presence_penalty": 0,
-        "reasoning_effort": settings.OPENAI_REASONING_EFFORT,
         "service_tier": settings.OPENAI_SERVICE_TIER,
         "prompt_cache_key": settings.OPENAI_PROMPT_CACHE_KEY,
         "stream": False,
@@ -1063,6 +1063,17 @@ class AIService:
         project_nature = parsed.get("project_nature", "renovation")
         
         surface_m2 = extract_surface_m2(user_text)
+
+        # V2 Enhancement: if AI returned zero lots, inject a minimal fallback
+        # so we always emit a devis instead of returning empty.
+        if not lots:
+            logger.warning("AI returned 0 lots — injecting minimal fallback lot.")
+            lots = [{
+                "lot_key": "LOT_01",
+                "metier": "Travaux généraux",
+                "zone": "interieur",
+                "packs": [{"id": "TRAVAUX_GENERAUX", "type": "PRESTATION", "quantite": surface_m2, "source_qte": "fallback"}],
+            }]
         
         four_blocks = process_ai_lots(
             lots, 

@@ -1,0 +1,49 @@
+{
+  "structure_metallique_135m2": {
+    "elapsed_ms": 3025,
+    "montant_ttc": 3351.0,
+    "geometry": [3, 14, 3],
+    "trade": "Charpente métallique",
+    "real_catalog_core_lines": 1,
+    "synthetic_core_lines": 13,
+    "required_topics_missing": [
+      "étude d'exécution",
+      "fabrication en atelier",
+      "poteaux",
+      "poutres principales",
+      "pannes",
+      "contreventements",
+      "platines d'ancrage",
+      "protection anticorrosion",
+      "transport",
+      "levage",
+      "boulonnage"
+    ],
+    "excluded_topics_billed": [],
+    "traceable_line_ids": 0,
+    "traceable_price_ids": 0,
+    "traceable_vat_rule_ids": 0
+  },
+  "charpente_bois_42m2": {
+    "elapsed_ms": 1491,
+    "montant_ttc": 1588.4,
+    "geometry": [3, 14, 3],
+    "trade": "Charpente bois – Ossature",
+    "real_catalog_core_lines": 1,
+    "synthetic_core_lines": 13,
+    "required_topics_missing": [
+      "deux fermes",
+      "pannes",
+      "chevrons",
+      "contreventements",
+      "bois traité",
+      "assemblages",
+      "levage",
+      "fixation sur les murs porteurs",
+      "support de couverture en tuiles"
+    ],
+    "traceable_line_ids": 0,
+    "traceable_price_ids": 0,
+    "traceable_vat_rule_ids": 0
+  }
+}

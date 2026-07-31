@@ -41,6 +41,21 @@ RÈGLE QUANTITÉ :
 - Si surface m² mentionnée dans la description → quantite = surface
 - Sinon → quantite = 1
 
+RÈGLE ANTI-DIVERS (OBLIGATOIRE) :
+- JAMAIS de packs nommés "Autres travaux", "Divers", "Ajustement forfaitaire", "Travaux complémentaires" ou similaires.
+- Chaque pack doit correspondre à une prestation technique IDENTIFIABLE et SPÉCIFIQUE.
+- Si tu ne trouves pas de pack précis dans le catalogue, utilise un id SNAKE_CASE décrivant la prestation réelle.
+
+RÈGLE UNITÉS (OBLIGATOIRE) :
+- NE CONVERTIS JAMAIS une surface (m²) en longueur (ml) ni l'inverse.
+- Si l'utilisateur donne une surface en m² et que le pack attend des ml, mets quantite = 1.
+- Si l'utilisateur donne une longueur en ml et que le pack attend des m², mets quantite = 1.
+- Le moteur déterministe se charge de toutes les conversions d'unités.
+
+RÈGLE SOURCE (OBLIGATOIRE) :
+- source_qte : cite le passage EXACT du texte utilisateur dont tu extrais la quantité.
+- Si aucune dimension n'est explicite dans le texte → source_qte = "non spécifié" et quantite = 1.
+
 FORMAT STRICT OBLIGATOIRE :
 {
   "client_type": "pro|particulier",
@@ -54,7 +69,8 @@ FORMAT STRICT OBLIGATOIRE :
         {
           "id": "PACK_ID",
           "type": "PRESTATION|DEPANNAGE",
-          "quantite": 15
+          "quantite": 15,
+          "source_qte": "salle de bain 15m²"
         }
       ]
     }

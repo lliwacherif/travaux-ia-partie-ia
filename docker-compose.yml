@@ -17,6 +17,26 @@ services:
       timeout: 5s
       retries: 10
 
+  postgres_v3:
+    image: pgvector/pgvector:pg16
+    container_name: devis_postgres_v3
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${V3_POSTGRES_USER:-travaux_v3}
+      POSTGRES_PASSWORD: ${V3_POSTGRES_PASSWORD:-travaux_v3_local}
+      POSTGRES_DB: ${V3_POSTGRES_DB:-travaux_v3}
+    ports:
+      - "${V3_POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres_v3_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${V3_POSTGRES_USER:-travaux_v3} -d ${V3_POSTGRES_DB:-travaux_v3}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
 volumes:
   postgres_data:
     name: devis_postgres_data
+  postgres_v3_data:
+    name: devis_postgres_v3_data

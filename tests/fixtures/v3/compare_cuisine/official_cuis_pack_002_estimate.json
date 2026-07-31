@@ -1,0 +1,478 @@
+{
+  "prompt": "Renovation cuisine 8m2",
+  "v2": {
+    "engine": "v2",
+    "status_code": 200,
+    "duration_ms": 2309,
+    "montant_ht": null,
+    "montant_tva": null,
+    "montant_ttc": 15661.8,
+    "n_lines": 20,
+    "geometry": [
+      {
+        "bloc": "Mise en place du chantier",
+        "n_lines": 3
+      },
+      {
+        "bloc": "Cuisine – Agencement sur mesure",
+        "n_lines": 14
+      },
+      {
+        "bloc": "Finitions et nettoyage",
+        "n_lines": 3
+      }
+    ],
+    "realish_lines": [
+      {
+        "description": "Fourniture et pose : Cuisine renovation",
+        "qte": 8.0,
+        "unit": "u",
+        "pu": 780.0,
+        "ht": 6240.0
+      }
+    ],
+    "padded_count": 19,
+    "all_lines": [
+      {
+        "bloc": "Mise en place du chantier",
+        "description": "Balisage et sécurisation de la zone de travail",
+        "qte": 1.0,
+        "unit": "forfait",
+        "pu": 95.0,
+        "ht": 95.0
+      },
+      {
+        "bloc": "Mise en place du chantier",
+        "description": "Mise en place des protections au sol et murales",
+        "qte": 1.0,
+        "unit": "forfait",
+        "pu": 95.0,
+        "ht": 95.0
+      },
+      {
+        "bloc": "Mise en place du chantier",
+        "description": "Acheminement de l'outillage et préparation du poste",
+        "qte": 1.0,
+        "unit": "forfait",
+        "pu": 95.0,
+        "ht": 95.0
+      },
+      {
+        "bloc": "Cuisine – Agencement sur mesure",
+        "description": "Fourniture et pose : Cuisine renovation",
+        "qte": 8.0,
+        "unit": "u",
+        "pu": 780.0,
+        "ht": 6240.0
+      },
+      {
+        "bloc": "Cuisine – Agencement sur mesure",
+        "description": "Mise en sécurité spécifique des éléments de l'ouvrage",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 72.0,
+        "ht": 576.0
+      },
+      {
+        "bloc": "Cuisine – Agencement sur mesure",
+        "description": "Repérage, traçage et implantation des ouvrages",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 72.0,
+        "ht": 576.0
+      },
+      {
+        "bloc": "Cuisine – Agencement sur mesure",
+        "description": "Préparation technique de la zone de travail",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 72.0,
+        "ht": 576.0
+      },
+      {
+        "bloc": "Cuisine – Agencement sur mesure",
+        "description": "Manutention et répartition des matériaux à pied d'œuvre",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 72.0,
+        "ht": 576.0
+      },
+      {
+        "bloc": "Cuisine – Agencement sur mesure",
+        "description": "Ajustement et calibrage des éléments d'assemblage",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 72.0,
+        "ht": 576.0
+      },
+      {
+        "bloc": "Cuisine – Agencement sur mesure",
+        "description": "Fourniture et pose des petits consommables techniques",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 72.0,
+        "ht": 576.0
+      },
+      {
+        "bloc": "Cuisine – Agencement sur mesure",
+        "description": "Vérification des alignements, niveaux et aplombs",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 72.0,
+        "ht": 576.0
+      },
+      {
+        "bloc": "Cuisine – Agencement sur mesure",
+        "description": "Protection ponctuelle des ouvrages adjacents",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 72.0,
+        "ht": 576.0
+      },
+      {
+        "bloc": "Cuisine – Agencement sur mesure",
+        "description": "Contrôle technique des assemblages et raccordements",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 72.0,
+        "ht": 576.0
+      },
+      {
+        "bloc": "Cuisine – Agencement sur mesure",
+        "description": "Tests de résistance et de bon fonctionnement",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 72.0,
+        "ht": 576.0
+      },
+      {
+        "bloc": "Cuisine – Agencement sur mesure",
+        "description": "Acheminement et tri des déchets d'intervention",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 72.0,
+        "ht": 576.0
+      },
+      {
+        "bloc": "Cuisine – Agencement sur mesure",
+        "description": "Vérification de la conformité aux DTU en vigueur",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 72.0,
+        "ht": 576.0
+      },
+      {
+        "bloc": "Cuisine – Agencement sur mesure",
+        "description": "Réglages finaux et paramétrages techniques",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 72.0,
+        "ht": 576.0
+      },
+      {
+        "bloc": "Finitions et nettoyage",
+        "description": "Évacuation des gravats et déchets résiduels",
+        "qte": 1.0,
+        "unit": "forfait",
+        "pu": 75.0,
+        "ht": 75.0
+      },
+      {
+        "bloc": "Finitions et nettoyage",
+        "description": "Nettoyage approfondi de la zone d'intervention",
+        "qte": 1.0,
+        "unit": "forfait",
+        "pu": 75.0,
+        "ht": 75.0
+      },
+      {
+        "bloc": "Finitions et nettoyage",
+        "description": "Retrait des protections et remise en ordre",
+        "qte": 1.0,
+        "unit": "forfait",
+        "pu": 75.0,
+        "ht": 75.0
+      }
+    ]
+  },
+  "v3_live": {
+    "status_code": 503,
+    "error": "postgres_v3 unreachable on :5433 (Docker Desktop unable to start / WSL)",
+    "curated_cuisine_pack": false,
+    "curated_packs_today": [
+      "V3-MET-STRUCTURE-COMPLETE",
+      "V3-CHARPENTE-BOIS-EXTENSION"
+    ]
+  },
+  "v3_expected_if_cuis_pack_002_curated": {
+    "note": "Offline estimate from official V2 pack CUIS-PACK-002 (3-14-3). Not a live /api/v3 response — postgres_v3/Docker unavailable and no curated cuisine pack is published in V3 yet.",
+    "pack_code": "CUIS-PACK-002",
+    "description": "Installation d'une cuisine droite avec meubles bas, hauts et plan de travail.",
+    "geometry": {
+      "setup": 3,
+      "core": 14,
+      "finish": 3,
+      "total": 20
+    },
+    "assumptions": {
+      "area_m2": 8.0,
+      "linear_ml": 5.66,
+      "linear_rule": "2 * sqrt(area) because prompt gives only 8m2"
+    },
+    "montant_ht": 3640.52,
+    "montant_tva": 653.81,
+    "montant_ttc": 4294.33,
+    "lines": [
+      {
+        "role": "SETUP",
+        "code": "CUS-001",
+        "designation": "Protection des sols et des accès avant travaux",
+        "unit": "m²",
+        "pu": 4.5,
+        "qte": 8.0,
+        "qty_source": "PROJECT_AREA_M2",
+        "tva_rate": 10.0,
+        "ht": 36.0,
+        "ttc": 39.6
+      },
+      {
+        "role": "SETUP",
+        "code": "CUS-002",
+        "designation": "Mise en place de l’aire de stockage des éléments de cuisine",
+        "unit": "forfait",
+        "pu": 35.0,
+        "qte": 1.0,
+        "qty_source": "PACK_DEFAULT_OR_UNIT",
+        "tva_rate": 10.0,
+        "ht": 35.0,
+        "ttc": 38.5
+      },
+      {
+        "role": "SETUP",
+        "code": "CUS-003",
+        "designation": "Repérage et traçage de l’implantation de la cuisine linéaire",
+        "unit": "ml",
+        "pu": 8.0,
+        "qte": 5.66,
+        "qty_source": "ASSUMED_LINEAR_2_SQRT_AREA",
+        "tva_rate": 10.0,
+        "ht": 45.28,
+        "ttc": 49.81
+      },
+      {
+        "role": "CORE",
+        "code": "CUS-004",
+        "designation": "Dépose des anciens meubles bas de cuisine",
+        "unit": "ml",
+        "pu": 18.0,
+        "qte": 5.66,
+        "qty_source": "ASSUMED_LINEAR_2_SQRT_AREA",
+        "tva_rate": 10.0,
+        "ht": 101.88,
+        "ttc": 112.07
+      },
+      {
+        "role": "CORE",
+        "code": "CUS-005",
+        "designation": "Dépose des anciens meubles hauts de cuisine",
+        "unit": "ml",
+        "pu": 15.0,
+        "qte": 5.66,
+        "qty_source": "ASSUMED_LINEAR_2_SQRT_AREA",
+        "tva_rate": 10.0,
+        "ht": 84.9,
+        "ttc": 93.39
+      },
+      {
+        "role": "CORE",
+        "code": "CUS-006",
+        "designation": "Dépose de l’ancien plan de travail",
+        "unit": "ml",
+        "pu": 12.0,
+        "qte": 5.66,
+        "qty_source": "ASSUMED_LINEAR_2_SQRT_AREA",
+        "tva_rate": 10.0,
+        "ht": 67.92,
+        "ttc": 74.71
+      },
+      {
+        "role": "CORE",
+        "code": "CUS-007",
+        "designation": "Dépose des plinthes existantes",
+        "unit": "ml",
+        "pu": 5.0,
+        "qte": 5.66,
+        "qty_source": "ASSUMED_LINEAR_2_SQRT_AREA",
+        "tva_rate": 10.0,
+        "ht": 28.3,
+        "ttc": 31.13
+      },
+      {
+        "role": "CORE",
+        "code": "CUS-008",
+        "designation": "Evacuation des éléments déposés en déchetterie",
+        "unit": "forfait",
+        "pu": 60.0,
+        "qte": 1.0,
+        "qty_source": "PACK_DEFAULT_OR_UNIT",
+        "tva_rate": 10.0,
+        "ht": 60.0,
+        "ttc": 66.0
+      },
+      {
+        "role": "CORE",
+        "code": "CUS-009",
+        "designation": "Préparation des murs et sols (rebouchage, ponçage léger)",
+        "unit": "m²",
+        "pu": 8.0,
+        "qte": 8.0,
+        "qty_source": "PROJECT_AREA_M2",
+        "tva_rate": 10.0,
+        "ht": 64.0,
+        "ttc": 70.4
+      },
+      {
+        "role": "CORE",
+        "code": "CUS-010",
+        "designation": "Vérification et ajustement des arrivées d’eau et prises électriques",
+        "unit": "forfait",
+        "pu": 45.0,
+        "qte": 1.0,
+        "qty_source": "PACK_DEFAULT_OR_UNIT",
+        "tva_rate": 10.0,
+        "ht": 45.0,
+        "ttc": 49.5
+      },
+      {
+        "role": "CORE",
+        "code": "CUS-011",
+        "designation": "Fourniture et pose de meubles bas de cuisine linéaire",
+        "unit": "ml",
+        "pu": 210.0,
+        "qte": 5.66,
+        "qty_source": "ASSUMED_LINEAR_2_SQRT_AREA",
+        "tva_rate": 20.0,
+        "ht": 1188.6,
+        "ttc": 1426.32
+      },
+      {
+        "role": "CORE",
+        "code": "CUS-012",
+        "designation": "Fourniture et pose de meubles hauts de cuisine linéaire",
+        "unit": "ml",
+        "pu": 180.0,
+        "qte": 5.66,
+        "qty_source": "ASSUMED_LINEAR_2_SQRT_AREA",
+        "tva_rate": 20.0,
+        "ht": 1018.8,
+        "ttc": 1222.56
+      },
+      {
+        "role": "CORE",
+        "code": "CUS-013",
+        "designation": "Fourniture et pose d’un plan de travail stratifié",
+        "unit": "ml",
+        "pu": 95.0,
+        "qte": 5.66,
+        "qty_source": "ASSUMED_LINEAR_2_SQRT_AREA",
+        "tva_rate": 20.0,
+        "ht": 537.7,
+        "ttc": 645.24
+      },
+      {
+        "role": "CORE",
+        "code": "CUS-014",
+        "designation": "Découpe et ajustement du plan de travail (évier, plaque)",
+        "unit": "u",
+        "pu": 35.0,
+        "qte": 1.0,
+        "qty_source": "PACK_DEFAULT_OR_UNIT",
+        "tva_rate": 10.0,
+        "ht": 35.0,
+        "ttc": 38.5
+      },
+      {
+        "role": "CORE",
+        "code": "CUS-015",
+        "designation": "Fourniture et pose de plinthes assorties",
+        "unit": "ml",
+        "pu": 22.0,
+        "qte": 5.66,
+        "qty_source": "ASSUMED_LINEAR_2_SQRT_AREA",
+        "tva_rate": 20.0,
+        "ht": 124.52,
+        "ttc": 149.42
+      },
+      {
+        "role": "CORE",
+        "code": "CUS-016",
+        "designation": "Fourniture et pose de fileurs et joues de finition",
+        "unit": "u",
+        "pu": 28.0,
+        "qte": 1.0,
+        "qty_source": "PACK_DEFAULT_OR_UNIT",
+        "tva_rate": 20.0,
+        "ht": 28.0,
+        "ttc": 33.6
+      },
+      {
+        "role": "CORE",
+        "code": "CUS-017",
+        "designation": "Réglage et alignement des portes et tiroirs",
+        "unit": "forfait",
+        "pu": 40.0,
+        "qte": 1.0,
+        "qty_source": "PACK_DEFAULT_OR_UNIT",
+        "tva_rate": 10.0,
+        "ht": 40.0,
+        "ttc": 44.0
+      },
+      {
+        "role": "FINISH",
+        "code": "CUS-018",
+        "designation": "Pose de silicone d’étanchéité sur le pourtour du plan de travail",
+        "unit": "ml",
+        "pu": 7.0,
+        "qte": 5.66,
+        "qty_source": "ASSUMED_LINEAR_2_SQRT_AREA",
+        "tva_rate": 10.0,
+        "ht": 39.62,
+        "ttc": 43.58
+      },
+      {
+        "role": "FINISH",
+        "code": "CUS-019",
+        "designation": "Contrôle final de l’ensemble de la cuisine posée",
+        "unit": "forfait",
+        "pu": 25.0,
+        "qte": 1.0,
+        "qty_source": "PACK_DEFAULT_OR_UNIT",
+        "tva_rate": 10.0,
+        "ht": 25.0,
+        "ttc": 27.5
+      },
+      {
+        "role": "FINISH",
+        "code": "CUS-020",
+        "designation": "Nettoyage complet de la zone de chantier après intervention",
+        "unit": "forfait",
+        "pu": 35.0,
+        "qte": 1.0,
+        "qty_source": "PACK_DEFAULT_OR_UNIT",
+        "tva_rate": 10.0,
+        "ht": 35.0,
+        "ttc": 38.5
+      }
+    ]
+  },
+  "comparison": {
+    "v2_ttc": 15661.8,
+    "official_pack_ttc_estimate": 4294.33,
+    "official_pack_ht_estimate": 3640.52,
+    "v2_n_lines": 20,
+    "official_n_lines": 20,
+    "v2_padded_heuristic_count": 19,
+    "v2_realish_count": 1,
+    "delta_ttc_v2_minus_official": 11367.47
+  }
+}

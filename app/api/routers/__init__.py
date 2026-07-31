@@ -7,6 +7,7 @@ from app.api.routers.landing_chat import router as landing_chat_router
 from app.api.routers.mobile_chat import router as mobile_chat_router
 from app.api.routers.trade_line import router as trade_line_router
 from app.api.routers.voice import router as voice_router
+from app.api.routers.v3_quotes import router as v3_quotes_router
 
 __all__ = [
     "chat_router",
@@ -16,4 +17,5 @@ __all__ = [
     "mobile_chat_router",
     "trade_line_router",
     "voice_router",
+    "v3_quotes_router",
 ]

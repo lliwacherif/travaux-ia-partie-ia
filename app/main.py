@@ -20,6 +20,7 @@ from app.api.routers import (
     landing_chat_router,
     mobile_chat_router,
     trade_line_router,
+    v3_quotes_router,
     voice_router,
 )
 from app.core.config import settings
@@ -82,6 +83,7 @@ app.include_router(landing_chat_router, prefix=settings.API_V1_PREFIX)
 app.include_router(mobile_chat_router, prefix=settings.API_V1_PREFIX)
 app.include_router(voice_router, prefix=settings.API_V1_PREFIX)
 app.include_router(chat_supervisor_router, prefix=settings.API_V1_PREFIX)
+app.include_router(v3_quotes_router, prefix=settings.API_V3_PREFIX)
 
 
 @app.get("/health", tags=["system"], summary="Liveness probe")

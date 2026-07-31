@@ -1,0 +1,248 @@
+{
+  "prompt_name": "charpente_bois_42m2",
+  "prompt": "Pour une extension de 42 m?, charpente traditionnelle en bois avec deux fermes, pannes, chevrons et contreventements, pr?vue pour recevoir une couverture en tuiles. Bois trait?, assemblages, levage, fixation sur les murs porteurs et traitement de toutes les pi?ces de charpente.",
+  "status_code": 200,
+  "duration_ms": 1488,
+  "response": {
+    "date": "2026-07-31T09:50:19.920845Z",
+    "montant_ttc": 1588.4,
+    "validite": "2026-08-30T09:50:19.920845Z",
+    "duree": 30,
+    "blocs": [
+      {
+        "title": "Mise en place du chantier",
+        "lots": [
+          {
+            "title": "Préparation",
+            "ligne_ids": null,
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Balisage et sécurisation de la zone de travail",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 95.0,
+                "tva": 10.0,
+                "ht": 95.0,
+                "ttc": 104.5
+              },
+              {
+                "num": 2,
+                "description": "Mise en place des protections au sol et murales",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 95.0,
+                "tva": 10.0,
+                "ht": 95.0,
+                "ttc": 104.5
+              },
+              {
+                "num": 3,
+                "description": "Acheminement de l'outillage et préparation du poste",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 95.0,
+                "tva": 10.0,
+                "ht": 95.0,
+                "ttc": 104.5
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Charpente bois – Ossature",
+        "lots": [
+          {
+            "title": "Travaux principaux",
+            "ligne_ids": null,
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Fourniture et pose : Charpente traditionnelle bois extension",
+                "qte": 42.0,
+                "unit": "m²",
+                "pu": 14.5,
+                "tva": 10.0,
+                "ht": 609.0,
+                "ttc": 669.9
+              },
+              {
+                "num": 2,
+                "description": "Mise en sécurité spécifique des éléments de l'ouvrage",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 25.0,
+                "tva": 10.0,
+                "ht": 25.0,
+                "ttc": 27.5
+              },
+              {
+                "num": 3,
+                "description": "Repérage, traçage et implantation des ouvrages",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 25.0,
+                "tva": 10.0,
+                "ht": 25.0,
+                "ttc": 27.5
+              },
+              {
+                "num": 4,
+                "description": "Préparation technique de la zone de travail",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 25.0,
+                "tva": 10.0,
+                "ht": 25.0,
+                "ttc": 27.5
+              },
+              {
+                "num": 5,
+                "description": "Manutention et répartition des matériaux à pied d'œuvre",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 25.0,
+                "tva": 10.0,
+                "ht": 25.0,
+                "ttc": 27.5
+              },
+              {
+                "num": 6,
+                "description": "Ajustement et calibrage des éléments d'assemblage",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 25.0,
+                "tva": 10.0,
+                "ht": 25.0,
+                "ttc": 27.5
+              },
+              {
+                "num": 7,
+                "description": "Fourniture et pose des petits consommables techniques",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 25.0,
+                "tva": 10.0,
+                "ht": 25.0,
+                "ttc": 27.5
+              },
+              {
+                "num": 8,
+                "description": "Vérification des alignements, niveaux et aplombs",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 25.0,
+                "tva": 10.0,
+                "ht": 25.0,
+                "ttc": 27.5
+              },
+              {
+                "num": 9,
+                "description": "Protection ponctuelle des ouvrages adjacents",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 25.0,
+                "tva": 10.0,
+                "ht": 25.0,
+                "ttc": 27.5
+              },
+              {
+                "num": 10,
+                "description": "Contrôle technique des assemblages et raccordements",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 25.0,
+                "tva": 10.0,
+                "ht": 25.0,
+                "ttc": 27.5
+              },
+              {
+                "num": 11,
+                "description": "Tests de résistance et de bon fonctionnement",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 25.0,
+                "tva": 10.0,
+                "ht": 25.0,
+                "ttc": 27.5
+              },
+              {
+                "num": 12,
+                "description": "Acheminement et tri des déchets d'intervention",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 25.0,
+                "tva": 10.0,
+                "ht": 25.0,
+                "ttc": 27.5
+              },
+              {
+                "num": 13,
+                "description": "Vérification de la conformité aux DTU en vigueur",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 25.0,
+                "tva": 10.0,
+                "ht": 25.0,
+                "ttc": 27.5
+              },
+              {
+                "num": 14,
+                "description": "Réglages finaux et paramétrages techniques",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 25.0,
+                "tva": 10.0,
+                "ht": 25.0,
+                "ttc": 27.5
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Finitions et nettoyage",
+        "lots": [
+          {
+            "title": "Nettoyage",
+            "ligne_ids": null,
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Évacuation des gravats et déchets résiduels",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 75.0,
+                "tva": 10.0,
+                "ht": 75.0,
+                "ttc": 82.5
+              },
+              {
+                "num": 2,
+                "description": "Nettoyage approfondi de la zone d'intervention",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 75.0,
+                "tva": 10.0,
+                "ht": 75.0,
+                "ttc": 82.5
+              },
+              {
+                "num": 3,
+                "description": "Retrait des protections et remise en ordre",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 75.0,
+                "tva": 10.0,
+                "ht": 75.0,
+                "ttc": 82.5
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "error": null
+}

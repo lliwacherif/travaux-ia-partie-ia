@@ -1,0 +1,248 @@
+{
+  "prompt_name": "structure_metallique_135m2",
+  "prompt": "135 m? de structure m?tallique compl?te : poteaux, poutres principales, pannes, contreventements et platines d?ancrage. Pr?voir ?tude d?ex?cution, fabrication en atelier, protection anticorrosion, transport, levage, boulonnage et r?glage. Les fondations et le bardage sont r?alis?s par d?autres lots.",
+  "status_code": 200,
+  "duration_ms": 1715,
+  "response": {
+    "date": "2026-07-31T09:50:18.414206Z",
+    "montant_ttc": 8995.56,
+    "validite": "2026-08-30T09:50:18.414206Z",
+    "duree": 30,
+    "blocs": [
+      {
+        "title": "Mise en place du chantier",
+        "lots": [
+          {
+            "title": "Préparation",
+            "ligne_ids": null,
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Balisage et sécurisation de la zone de travail",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 95.0,
+                "tva": 20.0,
+                "ht": 95.0,
+                "ttc": 114.0
+              },
+              {
+                "num": 2,
+                "description": "Mise en place des protections au sol et murales",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 95.0,
+                "tva": 20.0,
+                "ht": 95.0,
+                "ttc": 114.0
+              },
+              {
+                "num": 3,
+                "description": "Acheminement de l'outillage et préparation du poste",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 95.0,
+                "tva": 20.0,
+                "ht": 95.0,
+                "ttc": 114.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Charpente métallique",
+        "lots": [
+          {
+            "title": "Travaux principaux",
+            "ligne_ids": null,
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Fourniture et pose : Structure metallique complete",
+                "qte": 135.0,
+                "unit": "m²",
+                "pu": 45.0,
+                "tva": 20.0,
+                "ht": 6075.0,
+                "ttc": 7290.0
+              },
+              {
+                "num": 2,
+                "description": "Mise en sécurité spécifique des éléments de l'ouvrage",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 70.1,
+                "tva": 20.0,
+                "ht": 70.1,
+                "ttc": 84.12
+              },
+              {
+                "num": 3,
+                "description": "Repérage, traçage et implantation des ouvrages",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 70.1,
+                "tva": 20.0,
+                "ht": 70.1,
+                "ttc": 84.12
+              },
+              {
+                "num": 4,
+                "description": "Préparation technique de la zone de travail",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 70.1,
+                "tva": 20.0,
+                "ht": 70.1,
+                "ttc": 84.12
+              },
+              {
+                "num": 5,
+                "description": "Manutention et répartition des matériaux à pied d'œuvre",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 70.1,
+                "tva": 20.0,
+                "ht": 70.1,
+                "ttc": 84.12
+              },
+              {
+                "num": 6,
+                "description": "Ajustement et calibrage des éléments d'assemblage",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 70.1,
+                "tva": 20.0,
+                "ht": 70.1,
+                "ttc": 84.12
+              },
+              {
+                "num": 7,
+                "description": "Fourniture et pose des petits consommables techniques",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 70.1,
+                "tva": 20.0,
+                "ht": 70.1,
+                "ttc": 84.12
+              },
+              {
+                "num": 8,
+                "description": "Vérification des alignements, niveaux et aplombs",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 70.1,
+                "tva": 20.0,
+                "ht": 70.1,
+                "ttc": 84.12
+              },
+              {
+                "num": 9,
+                "description": "Protection ponctuelle des ouvrages adjacents",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 70.1,
+                "tva": 20.0,
+                "ht": 70.1,
+                "ttc": 84.12
+              },
+              {
+                "num": 10,
+                "description": "Contrôle technique des assemblages et raccordements",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 70.1,
+                "tva": 20.0,
+                "ht": 70.1,
+                "ttc": 84.12
+              },
+              {
+                "num": 11,
+                "description": "Tests de résistance et de bon fonctionnement",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 70.1,
+                "tva": 20.0,
+                "ht": 70.1,
+                "ttc": 84.12
+              },
+              {
+                "num": 12,
+                "description": "Acheminement et tri des déchets d'intervention",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 70.1,
+                "tva": 20.0,
+                "ht": 70.1,
+                "ttc": 84.12
+              },
+              {
+                "num": 13,
+                "description": "Vérification de la conformité aux DTU en vigueur",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 70.1,
+                "tva": 20.0,
+                "ht": 70.1,
+                "ttc": 84.12
+              },
+              {
+                "num": 14,
+                "description": "Réglages finaux et paramétrages techniques",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 70.1,
+                "tva": 20.0,
+                "ht": 70.1,
+                "ttc": 84.12
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Finitions et nettoyage",
+        "lots": [
+          {
+            "title": "Nettoyage",
+            "ligne_ids": null,
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Évacuation des gravats et déchets résiduels",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 75.0,
+                "tva": 20.0,
+                "ht": 75.0,
+                "ttc": 90.0
+              },
+              {
+                "num": 2,
+                "description": "Nettoyage approfondi de la zone d'intervention",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 75.0,
+                "tva": 20.0,
+                "ht": 75.0,
+                "ttc": 90.0
+              },
+              {
+                "num": 3,
+                "description": "Retrait des protections et remise en ordre",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 75.0,
+                "tva": 20.0,
+                "ht": 75.0,
+                "ttc": 90.0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "error": null
+}

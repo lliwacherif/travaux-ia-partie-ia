@@ -73,7 +73,7 @@ class TradeLineItem(BaseModel):
         ge=0,
         description="Reference unit price, HT (excl. tax), in euros.",
     )
-    tva: Literal[5.5, 10, 20] = Field(
+    tva: Literal[5.5, 10, 20] = Field(  # type: ignore
         ...,
         description="French VAT rate: 5.5 (énergétique), 10 (réno), 20 (neuf/B2B).",
     )

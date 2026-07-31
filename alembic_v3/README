@@ -1,0 +1,8 @@
+Dedicated migration tree for the isolated TRAVAUX IA V3 pgvector database.
+
+Run from the repository root:
+
+    alembic -c alembic_v3.ini upgrade head
+
+The URL is always read from V3_SYNC_DATABASE_URL. This environment must never
+be pointed at the V2 database.

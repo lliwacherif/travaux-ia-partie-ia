@@ -1,0 +1,248 @@
+{
+  "engine": "v2",
+  "prompt": "Renovation cuisine 8m2",
+  "status_code": 200,
+  "duration_ms": 2937,
+  "response": {
+    "date": "2026-07-31T12:23:38.850100Z",
+    "montant_ttc": 15661.8,
+    "validite": "2026-08-30T12:23:38.850100Z",
+    "duree": 30,
+    "blocs": [
+      {
+        "title": "Mise en place du chantier",
+        "lots": [
+          {
+            "title": "Préparation",
+            "ligne_ids": null,
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Balisage et sécurisation de la zone de travail",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 95.0,
+                "tva": 10.0,
+                "ht": 95.0,
+                "ttc": 104.5
+              },
+              {
+                "num": 2,
+                "description": "Mise en place des protections au sol et murales",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 95.0,
+                "tva": 10.0,
+                "ht": 95.0,
+                "ttc": 104.5
+              },
+              {
+                "num": 3,
+                "description": "Acheminement de l'outillage et préparation du poste",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 95.0,
+                "tva": 10.0,
+                "ht": 95.0,
+                "ttc": 104.5
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Cuisine – Agencement sur mesure",
+        "lots": [
+          {
+            "title": "Travaux principaux",
+            "ligne_ids": null,
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Fourniture et pose : Cuisine renovation",
+                "qte": 8.0,
+                "unit": "u",
+                "pu": 780.0,
+                "tva": 10.0,
+                "ht": 6240.0,
+                "ttc": 6864.0
+              },
+              {
+                "num": 2,
+                "description": "Mise en sécurité spécifique des éléments de l'ouvrage",
+                "qte": 8.0,
+                "unit": "forfait",
+                "pu": 72.0,
+                "tva": 10.0,
+                "ht": 576.0,
+                "ttc": 633.6
+              },
+              {
+                "num": 3,
+                "description": "Repérage, traçage et implantation des ouvrages",
+                "qte": 8.0,
+                "unit": "forfait",
+                "pu": 72.0,
+                "tva": 10.0,
+                "ht": 576.0,
+                "ttc": 633.6
+              },
+              {
+                "num": 4,
+                "description": "Préparation technique de la zone de travail",
+                "qte": 8.0,
+                "unit": "forfait",
+                "pu": 72.0,
+                "tva": 10.0,
+                "ht": 576.0,
+                "ttc": 633.6
+              },
+              {
+                "num": 5,
+                "description": "Manutention et répartition des matériaux à pied d'œuvre",
+                "qte": 8.0,
+                "unit": "forfait",
+                "pu": 72.0,
+                "tva": 10.0,
+                "ht": 576.0,
+                "ttc": 633.6
+              },
+              {
+                "num": 6,
+                "description": "Ajustement et calibrage des éléments d'assemblage",
+                "qte": 8.0,
+                "unit": "forfait",
+                "pu": 72.0,
+                "tva": 10.0,
+                "ht": 576.0,
+                "ttc": 633.6
+              },
+              {
+                "num": 7,
+                "description": "Fourniture et pose des petits consommables techniques",
+                "qte": 8.0,
+                "unit": "forfait",
+                "pu": 72.0,
+                "tva": 10.0,
+                "ht": 576.0,
+                "ttc": 633.6
+              },
+              {
+                "num": 8,
+                "description": "Vérification des alignements, niveaux et aplombs",
+                "qte": 8.0,
+                "unit": "forfait",
+                "pu": 72.0,
+                "tva": 10.0,
+                "ht": 576.0,
+                "ttc": 633.6
+              },
+              {
+                "num": 9,
+                "description": "Protection ponctuelle des ouvrages adjacents",
+                "qte": 8.0,
+                "unit": "forfait",
+                "pu": 72.0,
+                "tva": 10.0,
+                "ht": 576.0,
+                "ttc": 633.6
+              },
+              {
+                "num": 10,
+                "description": "Contrôle technique des assemblages et raccordements",
+                "qte": 8.0,
+                "unit": "forfait",
+                "pu": 72.0,
+                "tva": 10.0,
+                "ht": 576.0,
+                "ttc": 633.6
+              },
+              {
+                "num": 11,
+                "description": "Tests de résistance et de bon fonctionnement",
+                "qte": 8.0,
+                "unit": "forfait",
+                "pu": 72.0,
+                "tva": 10.0,
+                "ht": 576.0,
+                "ttc": 633.6
+              },
+              {
+                "num": 12,
+                "description": "Acheminement et tri des déchets d'intervention",
+                "qte": 8.0,
+                "unit": "forfait",
+                "pu": 72.0,
+                "tva": 10.0,
+                "ht": 576.0,
+                "ttc": 633.6
+              },
+              {
+                "num": 13,
+                "description": "Vérification de la conformité aux DTU en vigueur",
+                "qte": 8.0,
+                "unit": "forfait",
+                "pu": 72.0,
+                "tva": 10.0,
+                "ht": 576.0,
+                "ttc": 633.6
+              },
+              {
+                "num": 14,
+                "description": "Réglages finaux et paramétrages techniques",
+                "qte": 8.0,
+                "unit": "forfait",
+                "pu": 72.0,
+                "tva": 10.0,
+                "ht": 576.0,
+                "ttc": 633.6
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Finitions et nettoyage",
+        "lots": [
+          {
+            "title": "Nettoyage",
+            "ligne_ids": null,
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Évacuation des gravats et déchets résiduels",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 75.0,
+                "tva": 10.0,
+                "ht": 75.0,
+                "ttc": 82.5
+              },
+              {
+                "num": 2,
+                "description": "Nettoyage approfondi de la zone d'intervention",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 75.0,
+                "tva": 10.0,
+                "ht": 75.0,
+                "ttc": 82.5
+              },
+              {
+                "num": 3,
+                "description": "Retrait des protections et remise en ordre",
+                "qte": 1.0,
+                "unit": "forfait",
+                "pu": 75.0,
+                "tva": 10.0,
+                "ht": 75.0,
+                "ttc": 82.5
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "error": null
+}

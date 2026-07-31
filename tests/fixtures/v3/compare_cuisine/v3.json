@@ -1,0 +1,1741 @@
+{
+  "engine": "v3",
+  "prompt": "Renovation cuisine 8m2",
+  "status_code": 200,
+  "duration_ms": 5510,
+  "response": {
+    "quote": {
+      "quote_id": "6a609a6b-d062-41ba-984e-32818eb746ae",
+      "flow": "TRAVAUX",
+      "generation_mode": "EXACT_PACK",
+      "review_required": true,
+      "setup_lines": [
+        {
+          "line_id": "0a281e05-84bd-54ed-89e2-6cf10fbd6135",
+          "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+          "phase": "SETUP",
+          "slot_index": 0,
+          "designation": "Protection des sols et des accès avant travaux",
+          "quantity": 8.0,
+          "unit": "M2",
+          "price_id": "11dd25a0-977d-5f1a-b2ab-e1ce3917e499",
+          "price_version": 1,
+          "unit_price_cents": 450,
+          "vat_rule_id": "FR_STANDARD_20",
+          "vat_rule_version": 1,
+          "vat_rate": 20,
+          "total_ht_cents": 3600,
+          "covered_request_item_ids": [
+            "ITEM-001"
+          ],
+          "technical_dependency_ids": [
+            "DEP:V3-CUIS-RENOVATION-DROITE:SETUP:00"
+          ],
+          "quantity_source": "PROJECT_CONTEXT",
+          "linear_measurement": null
+        },
+        {
+          "line_id": "ca161ba6-c243-5ecd-89f6-592d39b5be05",
+          "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+          "phase": "SETUP",
+          "slot_index": 1,
+          "designation": "Mise en place de l’aire de stockage des éléments de cuisine",
+          "quantity": 1.0,
+          "unit": "FORFAIT",
+          "price_id": "e03b664d-270b-5bb3-a231-d4f6536b60ab",
+          "price_version": 1,
+          "unit_price_cents": 3500,
+          "vat_rule_id": "FR_STANDARD_20",
+          "vat_rule_version": 1,
+          "vat_rate": 20,
+          "total_ht_cents": 3500,
+          "covered_request_item_ids": [],
+          "technical_dependency_ids": [
+            "DEP:V3-CUIS-RENOVATION-DROITE:SETUP:01"
+          ],
+          "quantity_source": "PACK_DEFAULT",
+          "linear_measurement": null
+        },
+        {
+          "line_id": "b6365a8a-7c88-5042-9818-89d99c14fa52",
+          "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+          "phase": "SETUP",
+          "slot_index": 2,
+          "designation": "Repérage et traçage de l’implantation de la cuisine linéaire",
+          "quantity": 1.0,
+          "unit": "ML",
+          "price_id": "d7b6f465-b750-5ac1-bb39-ac543a5b9c71",
+          "price_version": 1,
+          "unit_price_cents": 800,
+          "vat_rule_id": "FR_STANDARD_20",
+          "vat_rule_version": 1,
+          "vat_rate": 20,
+          "total_ht_cents": 800,
+          "covered_request_item_ids": [],
+          "technical_dependency_ids": [
+            "DEP:V3-CUIS-RENOVATION-DROITE:SETUP:02"
+          ],
+          "quantity_source": "PACK_DEFAULT",
+          "linear_measurement": {
+            "line_id": "b6365a8a-7c88-5042-9818-89d99c14fa52",
+            "request_item_ids": [],
+            "mode": "EXPLICIT",
+            "formula_id": "V2_EXPLICIT_LENGTH_V1",
+            "input_dimension_ids": [],
+            "value_ml": 1.0,
+            "source": "PACK_DEFAULT",
+            "assumption_code": "ML_PACK_DEFAULT:b6365a8a-7c88-5042-9818-89d99c14fa52|ML_FORMULA_NOT_REGISTERED:b6365a8a-7c88-5042-9818-89d99c14fa52"
+          }
+        }
+      ],
+      "trade_blocks": [
+        {
+          "intervention_id": "INTERVENTION-001",
+          "trade_code": "CUISINE",
+          "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+          "lines": [
+            {
+              "line_id": "27bbefd6-9421-5102-a30c-d1a3e10eb07c",
+              "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+              "phase": "CORE",
+              "slot_index": 0,
+              "designation": "Dépose des anciens meubles bas de cuisine",
+              "quantity": 1.0,
+              "unit": "ML",
+              "price_id": "3a1cf23e-f1fa-5b0f-b13a-477b0908593c",
+              "price_version": 1,
+              "unit_price_cents": 1800,
+              "vat_rule_id": "FR_STANDARD_20",
+              "vat_rule_version": 1,
+              "vat_rate": 20,
+              "total_ht_cents": 1800,
+              "covered_request_item_ids": [],
+              "technical_dependency_ids": [
+                "DEP:V3-CUIS-RENOVATION-DROITE:CORE:00"
+              ],
+              "quantity_source": "PACK_DEFAULT",
+              "linear_measurement": {
+                "line_id": "27bbefd6-9421-5102-a30c-d1a3e10eb07c",
+                "request_item_ids": [],
+                "mode": "EXPLICIT",
+                "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                "input_dimension_ids": [],
+                "value_ml": 1.0,
+                "source": "PACK_DEFAULT",
+                "assumption_code": "ML_PACK_DEFAULT:27bbefd6-9421-5102-a30c-d1a3e10eb07c|ML_FORMULA_NOT_REGISTERED:27bbefd6-9421-5102-a30c-d1a3e10eb07c"
+              }
+            },
+            {
+              "line_id": "fe13171e-10f1-537d-b0b8-aa9eb4e7c93d",
+              "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+              "phase": "CORE",
+              "slot_index": 1,
+              "designation": "Dépose des anciens meubles hauts de cuisine",
+              "quantity": 1.0,
+              "unit": "ML",
+              "price_id": "ae355f2f-bbec-5df0-baca-93230a3a7872",
+              "price_version": 1,
+              "unit_price_cents": 1500,
+              "vat_rule_id": "FR_STANDARD_20",
+              "vat_rule_version": 1,
+              "vat_rate": 20,
+              "total_ht_cents": 1500,
+              "covered_request_item_ids": [],
+              "technical_dependency_ids": [
+                "DEP:V3-CUIS-RENOVATION-DROITE:CORE:01"
+              ],
+              "quantity_source": "PACK_DEFAULT",
+              "linear_measurement": {
+                "line_id": "fe13171e-10f1-537d-b0b8-aa9eb4e7c93d",
+                "request_item_ids": [],
+                "mode": "EXPLICIT",
+                "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                "input_dimension_ids": [],
+                "value_ml": 1.0,
+                "source": "PACK_DEFAULT",
+                "assumption_code": "ML_PACK_DEFAULT:fe13171e-10f1-537d-b0b8-aa9eb4e7c93d|ML_FORMULA_NOT_REGISTERED:fe13171e-10f1-537d-b0b8-aa9eb4e7c93d"
+              }
+            },
+            {
+              "line_id": "d2acce5d-4d80-549c-a080-c4a8f632180e",
+              "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+              "phase": "CORE",
+              "slot_index": 2,
+              "designation": "Dépose de l’ancien plan de travail",
+              "quantity": 1.0,
+              "unit": "ML",
+              "price_id": "f0b70eb9-a50c-5381-ada2-6935a65ea5c3",
+              "price_version": 1,
+              "unit_price_cents": 1200,
+              "vat_rule_id": "FR_STANDARD_20",
+              "vat_rule_version": 1,
+              "vat_rate": 20,
+              "total_ht_cents": 1200,
+              "covered_request_item_ids": [],
+              "technical_dependency_ids": [
+                "DEP:V3-CUIS-RENOVATION-DROITE:CORE:02"
+              ],
+              "quantity_source": "PACK_DEFAULT",
+              "linear_measurement": {
+                "line_id": "d2acce5d-4d80-549c-a080-c4a8f632180e",
+                "request_item_ids": [],
+                "mode": "EXPLICIT",
+                "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                "input_dimension_ids": [],
+                "value_ml": 1.0,
+                "source": "PACK_DEFAULT",
+                "assumption_code": "ML_PACK_DEFAULT:d2acce5d-4d80-549c-a080-c4a8f632180e|ML_FORMULA_NOT_REGISTERED:d2acce5d-4d80-549c-a080-c4a8f632180e"
+              }
+            },
+            {
+              "line_id": "fbe61277-736b-5d62-a865-e1e339465827",
+              "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+              "phase": "CORE",
+              "slot_index": 3,
+              "designation": "Dépose des plinthes existantes",
+              "quantity": 1.0,
+              "unit": "ML",
+              "price_id": "79e6bfea-f6cd-55f6-8fd8-471379a17be2",
+              "price_version": 1,
+              "unit_price_cents": 500,
+              "vat_rule_id": "FR_STANDARD_20",
+              "vat_rule_version": 1,
+              "vat_rate": 20,
+              "total_ht_cents": 500,
+              "covered_request_item_ids": [],
+              "technical_dependency_ids": [
+                "DEP:V3-CUIS-RENOVATION-DROITE:CORE:03"
+              ],
+              "quantity_source": "PACK_DEFAULT",
+              "linear_measurement": {
+                "line_id": "fbe61277-736b-5d62-a865-e1e339465827",
+                "request_item_ids": [],
+                "mode": "EXPLICIT",
+                "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                "input_dimension_ids": [],
+                "value_ml": 1.0,
+                "source": "PACK_DEFAULT",
+                "assumption_code": "ML_PACK_DEFAULT:fbe61277-736b-5d62-a865-e1e339465827|ML_FORMULA_NOT_REGISTERED:fbe61277-736b-5d62-a865-e1e339465827"
+              }
+            },
+            {
+              "line_id": "0705ebf1-dc53-54fd-915b-b4c85a74a0e0",
+              "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+              "phase": "CORE",
+              "slot_index": 4,
+              "designation": "Evacuation des éléments déposés en déchetterie",
+              "quantity": 1.0,
+              "unit": "FORFAIT",
+              "price_id": "be5ee1a6-7c22-5dd9-abb1-cd344c5843bd",
+              "price_version": 1,
+              "unit_price_cents": 6000,
+              "vat_rule_id": "FR_STANDARD_20",
+              "vat_rule_version": 1,
+              "vat_rate": 20,
+              "total_ht_cents": 6000,
+              "covered_request_item_ids": [
+                "ITEM-002",
+                "ITEM-008"
+              ],
+              "technical_dependency_ids": [
+                "DEP:V3-CUIS-RENOVATION-DROITE:CORE:04"
+              ],
+              "quantity_source": "PACK_DEFAULT",
+              "linear_measurement": null
+            },
+            {
+              "line_id": "179766eb-c5af-513b-8498-fc001dd651e2",
+              "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+              "phase": "CORE",
+              "slot_index": 5,
+              "designation": "Préparation des murs et sols (rebouchage, ponçage léger)",
+              "quantity": 8.0,
+              "unit": "M2",
+              "price_id": "9b66ff7a-a527-5fcb-bfa5-19386919dc58",
+              "price_version": 1,
+              "unit_price_cents": 800,
+              "vat_rule_id": "FR_STANDARD_20",
+              "vat_rule_version": 1,
+              "vat_rate": 20,
+              "total_ht_cents": 6400,
+              "covered_request_item_ids": [],
+              "technical_dependency_ids": [
+                "DEP:V3-CUIS-RENOVATION-DROITE:CORE:05"
+              ],
+              "quantity_source": "PROJECT_CONTEXT",
+              "linear_measurement": null
+            },
+            {
+              "line_id": "fbaf1dea-3154-54b4-a94a-387ecab41dc0",
+              "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+              "phase": "CORE",
+              "slot_index": 6,
+              "designation": "Vérification et ajustement des arrivées d’eau et prises électriques",
+              "quantity": 1.0,
+              "unit": "FORFAIT",
+              "price_id": "1efef78c-6be6-5188-8013-77ba4121515a",
+              "price_version": 1,
+              "unit_price_cents": 4500,
+              "vat_rule_id": "FR_STANDARD_20",
+              "vat_rule_version": 1,
+              "vat_rate": 20,
+              "total_ht_cents": 4500,
+              "covered_request_item_ids": [],
+              "technical_dependency_ids": [
+                "DEP:V3-CUIS-RENOVATION-DROITE:CORE:06"
+              ],
+              "quantity_source": "PACK_DEFAULT",
+              "linear_measurement": null
+            },
+            {
+              "line_id": "1169198c-2ab6-5e44-86af-f7f81b455f80",
+              "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+              "phase": "CORE",
+              "slot_index": 7,
+              "designation": "Fourniture et pose de meubles bas de cuisine linéaire",
+              "quantity": 1.0,
+              "unit": "ML",
+              "price_id": "1d3da494-56b0-5659-a03f-2921eecc27e7",
+              "price_version": 1,
+              "unit_price_cents": 21000,
+              "vat_rule_id": "FR_STANDARD_20",
+              "vat_rule_version": 1,
+              "vat_rate": 20,
+              "total_ht_cents": 21000,
+              "covered_request_item_ids": [
+                "ITEM-003"
+              ],
+              "technical_dependency_ids": [
+                "DEP:V3-CUIS-RENOVATION-DROITE:CORE:07"
+              ],
+              "quantity_source": "PACK_DEFAULT",
+              "linear_measurement": {
+                "line_id": "1169198c-2ab6-5e44-86af-f7f81b455f80",
+                "request_item_ids": [
+                  "ITEM-003"
+                ],
+                "mode": "EXPLICIT",
+                "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                "input_dimension_ids": [],
+                "value_ml": 1.0,
+                "source": "PACK_DEFAULT",
+                "assumption_code": "ML_PACK_DEFAULT:1169198c-2ab6-5e44-86af-f7f81b455f80|ML_FORMULA_NOT_REGISTERED:1169198c-2ab6-5e44-86af-f7f81b455f80"
+              }
+            },
+            {
+              "line_id": "98503bc1-6861-58e8-82bf-d90ec928fb5c",
+              "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+              "phase": "CORE",
+              "slot_index": 8,
+              "designation": "Fourniture et pose de meubles hauts de cuisine linéaire",
+              "quantity": 1.0,
+              "unit": "ML",
+              "price_id": "290509f6-5241-55f6-83dd-bf847c51a4f5",
+              "price_version": 1,
+              "unit_price_cents": 18000,
+              "vat_rule_id": "FR_STANDARD_20",
+              "vat_rule_version": 1,
+              "vat_rate": 20,
+              "total_ht_cents": 18000,
+              "covered_request_item_ids": [
+                "ITEM-004"
+              ],
+              "technical_dependency_ids": [
+                "DEP:V3-CUIS-RENOVATION-DROITE:CORE:08"
+              ],
+              "quantity_source": "PACK_DEFAULT",
+              "linear_measurement": {
+                "line_id": "98503bc1-6861-58e8-82bf-d90ec928fb5c",
+                "request_item_ids": [
+                  "ITEM-004"
+                ],
+                "mode": "EXPLICIT",
+                "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                "input_dimension_ids": [],
+                "value_ml": 1.0,
+                "source": "PACK_DEFAULT",
+                "assumption_code": "ML_PACK_DEFAULT:98503bc1-6861-58e8-82bf-d90ec928fb5c|ML_FORMULA_NOT_REGISTERED:98503bc1-6861-58e8-82bf-d90ec928fb5c"
+              }
+            },
+            {
+              "line_id": "7c2de308-7aa9-569b-a31d-1529b689d160",
+              "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+              "phase": "CORE",
+              "slot_index": 9,
+              "designation": "Fourniture et pose d’un plan de travail stratifié",
+              "quantity": 1.0,
+              "unit": "ML",
+              "price_id": "4f2159c7-335b-5442-8200-382a9166e553",
+              "price_version": 1,
+              "unit_price_cents": 9500,
+              "vat_rule_id": "FR_STANDARD_20",
+              "vat_rule_version": 1,
+              "vat_rate": 20,
+              "total_ht_cents": 9500,
+              "covered_request_item_ids": [
+                "ITEM-005"
+              ],
+              "technical_dependency_ids": [
+                "DEP:V3-CUIS-RENOVATION-DROITE:CORE:09"
+              ],
+              "quantity_source": "PACK_DEFAULT",
+              "linear_measurement": {
+                "line_id": "7c2de308-7aa9-569b-a31d-1529b689d160",
+                "request_item_ids": [
+                  "ITEM-005"
+                ],
+                "mode": "EXPLICIT",
+                "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                "input_dimension_ids": [],
+                "value_ml": 1.0,
+                "source": "PACK_DEFAULT",
+                "assumption_code": "ML_PACK_DEFAULT:7c2de308-7aa9-569b-a31d-1529b689d160|ML_FORMULA_NOT_REGISTERED:7c2de308-7aa9-569b-a31d-1529b689d160"
+              }
+            },
+            {
+              "line_id": "9dd16b8a-f56b-544b-8f27-c3ecb4d556fa",
+              "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+              "phase": "CORE",
+              "slot_index": 10,
+              "designation": "Découpe et ajustement du plan de travail (évier, plaque)",
+              "quantity": 1.0,
+              "unit": "UNIT",
+              "price_id": "84138913-dde6-59e7-993c-32af8090b94a",
+              "price_version": 1,
+              "unit_price_cents": 3500,
+              "vat_rule_id": "FR_STANDARD_20",
+              "vat_rule_version": 1,
+              "vat_rate": 20,
+              "total_ht_cents": 3500,
+              "covered_request_item_ids": [],
+              "technical_dependency_ids": [
+                "DEP:V3-CUIS-RENOVATION-DROITE:CORE:10"
+              ],
+              "quantity_source": "PACK_DEFAULT",
+              "linear_measurement": null
+            },
+            {
+              "line_id": "7f5246e7-6e48-51df-b364-cd5a0f92ea03",
+              "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+              "phase": "CORE",
+              "slot_index": 11,
+              "designation": "Fourniture et pose de plinthes assorties",
+              "quantity": 1.0,
+              "unit": "ML",
+              "price_id": "0a22ded0-8b66-53ef-bdfd-8bdcf639b4c8",
+              "price_version": 1,
+              "unit_price_cents": 2200,
+              "vat_rule_id": "FR_STANDARD_20",
+              "vat_rule_version": 1,
+              "vat_rate": 20,
+              "total_ht_cents": 2200,
+              "covered_request_item_ids": [
+                "ITEM-006"
+              ],
+              "technical_dependency_ids": [
+                "DEP:V3-CUIS-RENOVATION-DROITE:CORE:11"
+              ],
+              "quantity_source": "PACK_DEFAULT",
+              "linear_measurement": {
+                "line_id": "7f5246e7-6e48-51df-b364-cd5a0f92ea03",
+                "request_item_ids": [
+                  "ITEM-006"
+                ],
+                "mode": "EXPLICIT",
+                "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                "input_dimension_ids": [],
+                "value_ml": 1.0,
+                "source": "PACK_DEFAULT",
+                "assumption_code": "ML_PACK_DEFAULT:7f5246e7-6e48-51df-b364-cd5a0f92ea03|ML_FORMULA_NOT_REGISTERED:7f5246e7-6e48-51df-b364-cd5a0f92ea03"
+              }
+            },
+            {
+              "line_id": "f5061be2-73b3-5df2-a3d7-6cfff6761533",
+              "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+              "phase": "CORE",
+              "slot_index": 12,
+              "designation": "Fourniture et pose de fileurs et joues de finition",
+              "quantity": 1.0,
+              "unit": "UNIT",
+              "price_id": "c9779c1a-371d-5625-8b07-e41d5757f427",
+              "price_version": 1,
+              "unit_price_cents": 2800,
+              "vat_rule_id": "FR_STANDARD_20",
+              "vat_rule_version": 1,
+              "vat_rate": 20,
+              "total_ht_cents": 2800,
+              "covered_request_item_ids": [],
+              "technical_dependency_ids": [
+                "DEP:V3-CUIS-RENOVATION-DROITE:CORE:12"
+              ],
+              "quantity_source": "PACK_DEFAULT",
+              "linear_measurement": null
+            },
+            {
+              "line_id": "d4fc7ebd-1f84-55bc-9deb-50bc864ab6e6",
+              "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+              "phase": "CORE",
+              "slot_index": 13,
+              "designation": "Réglage et alignement des portes et tiroirs",
+              "quantity": 1.0,
+              "unit": "FORFAIT",
+              "price_id": "95fd2fc2-5dd7-56da-aba0-8588b11f7b5d",
+              "price_version": 1,
+              "unit_price_cents": 4000,
+              "vat_rule_id": "FR_STANDARD_20",
+              "vat_rule_version": 1,
+              "vat_rate": 20,
+              "total_ht_cents": 4000,
+              "covered_request_item_ids": [],
+              "technical_dependency_ids": [
+                "DEP:V3-CUIS-RENOVATION-DROITE:CORE:13"
+              ],
+              "quantity_source": "PACK_DEFAULT",
+              "linear_measurement": null
+            }
+          ],
+          "pack_version": 1
+        }
+      ],
+      "finish_lines": [
+        {
+          "line_id": "f02394d4-654f-500d-8949-8557d98ea92f",
+          "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+          "phase": "FINISH",
+          "slot_index": 0,
+          "designation": "Pose de silicone d’étanchéité sur le pourtour du plan de travail",
+          "quantity": 1.0,
+          "unit": "ML",
+          "price_id": "da8fcec3-d5a2-5e5b-8d1b-ca0269c5e899",
+          "price_version": 1,
+          "unit_price_cents": 700,
+          "vat_rule_id": "FR_STANDARD_20",
+          "vat_rule_version": 1,
+          "vat_rate": 20,
+          "total_ht_cents": 700,
+          "covered_request_item_ids": [
+            "ITEM-007"
+          ],
+          "technical_dependency_ids": [
+            "DEP:V3-CUIS-RENOVATION-DROITE:FINISH:00"
+          ],
+          "quantity_source": "PACK_DEFAULT",
+          "linear_measurement": {
+            "line_id": "f02394d4-654f-500d-8949-8557d98ea92f",
+            "request_item_ids": [
+              "ITEM-007"
+            ],
+            "mode": "EXPLICIT",
+            "formula_id": "V2_EXPLICIT_LENGTH_V1",
+            "input_dimension_ids": [],
+            "value_ml": 1.0,
+            "source": "PACK_DEFAULT",
+            "assumption_code": "ML_PACK_DEFAULT:f02394d4-654f-500d-8949-8557d98ea92f|ML_FORMULA_NOT_REGISTERED:f02394d4-654f-500d-8949-8557d98ea92f"
+          }
+        },
+        {
+          "line_id": "96b2fb4c-7cbd-58e1-8c6d-3bef6118941b",
+          "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+          "phase": "FINISH",
+          "slot_index": 1,
+          "designation": "Contrôle final de l’ensemble de la cuisine posée",
+          "quantity": 1.0,
+          "unit": "FORFAIT",
+          "price_id": "52afc7c8-1ea3-524b-8cbc-4da8745bd503",
+          "price_version": 1,
+          "unit_price_cents": 2500,
+          "vat_rule_id": "FR_STANDARD_20",
+          "vat_rule_version": 1,
+          "vat_rate": 20,
+          "total_ht_cents": 2500,
+          "covered_request_item_ids": [],
+          "technical_dependency_ids": [
+            "DEP:V3-CUIS-RENOVATION-DROITE:FINISH:01"
+          ],
+          "quantity_source": "PACK_DEFAULT",
+          "linear_measurement": null
+        },
+        {
+          "line_id": "c4d900d4-2104-5953-ad07-b72c8ef94bef",
+          "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+          "phase": "FINISH",
+          "slot_index": 2,
+          "designation": "Nettoyage complet de la zone de chantier après intervention",
+          "quantity": 1.0,
+          "unit": "FORFAIT",
+          "price_id": "f2a62f5a-c86b-5749-bc1a-fea09efe50eb",
+          "price_version": 1,
+          "unit_price_cents": 3500,
+          "vat_rule_id": "FR_STANDARD_20",
+          "vat_rule_version": 1,
+          "vat_rate": 20,
+          "total_ht_cents": 3500,
+          "covered_request_item_ids": [],
+          "technical_dependency_ids": [
+            "DEP:V3-CUIS-RENOVATION-DROITE:FINISH:02"
+          ],
+          "quantity_source": "PACK_DEFAULT",
+          "linear_measurement": null
+        }
+      ],
+      "totals": {
+        "ht_cents": 97500,
+        "vat_cents": 19500,
+        "ttc_cents": 117000
+      },
+      "trace": {
+        "ssot_version": "2026-07-30.3",
+        "library_version": "LIB-V3.1-2026-07-31.1",
+        "prompt_hash": "sha256:eb5a6040bc7f0628d0490a7843c94793f76c9ae563a335ce5f6c3c2f47c093a0",
+        "config_hash": "sha256:1b3cfc95e9579da226d6107348ad7e413fbf7029696c92893bb7d0c94768cae0",
+        "arbitrage_applied": true,
+        "pipeline_status": "COMPLETE_DEGRADED_AUTHORIZED",
+        "display_gate_passed": true,
+        "pipeline_version": "V3.1",
+        "semantic_model": "gpt-4o-2024-11-20",
+        "embedding_model": "text-embedding-3-small",
+        "reranker_model": "rerank-v4.0-pro",
+        "cache_hit": false,
+        "stage_completion_rate": 1.0,
+        "stage_executions": [
+          {
+            "stage": "0_CONTEXT",
+            "status": "PRIMARY",
+            "duration_ms": 0,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:fc0eb7888f9c6a77cc997245e912a0f614854644b2649d68fd6067a11e9f7c8a",
+            "output_hash": "sha256:3fa913bf5f2e32fee185f9a040599b56022437ca9ab8ceae1f691cf91c05dfcb",
+            "evidence": {
+              "contract": "NormalizedPipelineContext"
+            }
+          },
+          {
+            "stage": "1_PLAN",
+            "status": "PRIMARY",
+            "duration_ms": 940,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:fc0eb7888f9c6a77cc997245e912a0f614854644b2649d68fd6067a11e9f7c8a",
+            "output_hash": "sha256:323c80df4c4e3908bd50d5370867b47811d54570cac766e2a4450821d4f438bd",
+            "evidence": {
+              "contract": "SemanticPlan"
+            }
+          },
+          {
+            "stage": "2_ANALYSIS",
+            "status": "PRIMARY",
+            "duration_ms": 3,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:82d4796a945840f86c7517230b6f2a777f1213b8d6dd23cd01e1e0cb24463170",
+            "output_hash": "sha256:2e294dd86d70d62e4f6da24b3128320018b661243af8bbc85b78f27a4e774766",
+            "evidence": {
+              "analyzer": "DETERMINISTIC"
+            }
+          },
+          {
+            "stage": "2BIS_ARBITRATION",
+            "status": "PRIMARY",
+            "duration_ms": 1,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:0c90bd8b649ff183310204bf95e6e5ea95604a01359bcbf83db9e598e001417d",
+            "output_hash": "sha256:2f0732c2c76b91b71bd65b183510d720495342c09613ac5faaa6b17dfe27ff5f",
+            "evidence": {
+              "catalog_size": 3
+            }
+          },
+          {
+            "stage": "3_EXTRACTION",
+            "status": "PRIMARY",
+            "duration_ms": 1400,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:7d3b92a30f65b4d9258ef06973ff0a98fccea8dfd4321b7d46b4b0a39c7289ac",
+            "output_hash": "sha256:010c6339b7b9645897644c12b280dbc4237ac8dcfd9f7f39b3a65b86308e613f",
+            "evidence": {
+              "contract": "DemandMatrix"
+            }
+          },
+          {
+            "stage": "3BIS_NORMALIZATION",
+            "status": "PRIMARY",
+            "duration_ms": 2,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:b75a68b3ce38121c6a722210f0546960457d1e4bf68e65a1adb359e48a00e34f",
+            "output_hash": "sha256:218e5a98af7271a37e2ed8fc48bb6cadfe2156a8a2f84ed31044e9e045d80f01",
+            "evidence": {
+              "scope": "ITEM_SCOPED_NO_GLOBAL_PROPAGATION"
+            }
+          },
+          {
+            "stage": "4A_LINE_SEARCH",
+            "status": "PRIMARY",
+            "duration_ms": 2190,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 160,
+            "input_hash": "sha256:beb0777cd023d51a8f47f40b0d8464b19349417b3acb745b9463c4219cc7153e",
+            "output_hash": "sha256:e0ed7f5c4b8f7772c368addeb384fcd7cc3ae223fef11e219d52186dbf1bb0bb",
+            "evidence": {
+              "strategy": "LEXICAL_DENSE_RRF"
+            }
+          },
+          {
+            "stage": "4B_PARENT_AGGREGATION",
+            "status": "PRIMARY",
+            "duration_ms": 0,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:e0ed7f5c4b8f7772c368addeb384fcd7cc3ae223fef11e219d52186dbf1bb0bb",
+            "output_hash": "sha256:ba2da4a570bf1bafc0d01f6bfdb29886da33d6e036216f5f40b931a190055351",
+            "evidence": {
+              "strategy": "LINE_TO_PARENT"
+            }
+          },
+          {
+            "stage": "4C_DIRECT_PACK_SEARCH",
+            "status": "PRIMARY",
+            "duration_ms": 201,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:5aff1347c0a81162ea1f012a2cdd243d3d4347b4b5dca5e911eed83a0a7982c5",
+            "output_hash": "sha256:49d750cc5dd4b32ef99f47b77f3e6f7cc3b8b985fb5b28f6414af6786f4f0834",
+            "evidence": {
+              "strategy": "COMPLETE_PACK_SEARCH"
+            }
+          },
+          {
+            "stage": "4D_CANDIDATE_UNION",
+            "status": "PRIMARY",
+            "duration_ms": 0,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:2bed673d4082c81c52770a61db357ac53dee2244e8d3d123a109058c4f07051e",
+            "output_hash": "sha256:095398183a5682790096054e7c220d25c236bcc5801199af091f5956f7a4756d",
+            "evidence": {
+              "strategy": "STABLE_UNION"
+            }
+          },
+          {
+            "stage": "4BIS_RERANK",
+            "status": "DEGRADED_AUTHORIZED",
+            "duration_ms": 0,
+            "fallback_reason": "COHERE_API_KEY_MISSING",
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:095398183a5682790096054e7c220d25c236bcc5801199af091f5956f7a4756d",
+            "output_hash": "sha256:095398183a5682790096054e7c220d25c236bcc5801199af091f5956f7a4756d",
+            "evidence": {
+              "model": "rerank-v4.0-pro"
+            }
+          },
+          {
+            "stage": "5_SELECTION",
+            "status": "PRIMARY",
+            "duration_ms": 101,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:4ed984b71371876330c5bcf0a16d90d641e8be11e45b8e0dae744b619e31dcae",
+            "output_hash": "sha256:7f8cb58754f112a90fa9dfb8426af45adad0d444f0428039c879dfad811a47eb",
+            "evidence": {
+              "selector": "ONE_PACK_PER_INTERVENTION"
+            }
+          },
+          {
+            "stage": "6_CALCULATIONS",
+            "status": "PRIMARY",
+            "duration_ms": 2,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 20,
+            "input_hash": "sha256:7f8cb58754f112a90fa9dfb8426af45adad0d444f0428039c879dfad811a47eb",
+            "output_hash": "sha256:8e2446ce20455781d9f57417db972e72fce02dd35941455c4f54526843a525b3",
+            "evidence": {
+              "arithmetic": "INTEGER_CENTS"
+            }
+          },
+          {
+            "stage": "7_ASSEMBLY",
+            "status": "PRIMARY",
+            "duration_ms": 2,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:8e2446ce20455781d9f57417db972e72fce02dd35941455c4f54526843a525b3",
+            "output_hash": "sha256:c508b2dcee9a96f7a7f7c7be3a3d105f2eb80b7953d0e3fa4d509b6e8fb1b446",
+            "evidence": {
+              "geometry": "SSOT_EXACT_NO_PADDING"
+            }
+          },
+          {
+            "stage": "8_VALIDATION",
+            "status": "PRIMARY",
+            "duration_ms": 9,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:c508b2dcee9a96f7a7f7c7be3a3d105f2eb80b7953d0e3fa4d509b6e8fb1b446",
+            "output_hash": "sha256:7aa742b3bc8bdc1c45484f33a9f7bdf8ef1fcbde1d0affd224ebcfa6313b3d46",
+            "evidence": {
+              "validator": "INDEPENDENT_SOURCE_TO_QUOTE"
+            }
+          },
+          {
+            "stage": "9_OBSERVABILITY",
+            "status": "PRIMARY",
+            "duration_ms": 0,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:b661d57841c6068fcd86390a3c97ea7bd908e4875b93c30b2285a4cc8d93def6",
+            "output_hash": "sha256:5c8115ecc0b7e631f283823ad7642cae5509361bda7617e554999bcf641127b2",
+            "evidence": {
+              "persistence": "PREPARED"
+            }
+          }
+        ],
+        "line_search_hits_count": 160,
+        "parent_pack_candidates_count": 1,
+        "reranked_pack_count": 1,
+        "selected_pack_ids": [
+          "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33"
+        ],
+        "replaced_line_ids": [],
+        "assumption_codes": [
+          "ML_PACK_DEFAULT:1169198c-2ab6-5e44-86af-f7f81b455f80|ML_FORMULA_NOT_REGISTERED:1169198c-2ab6-5e44-86af-f7f81b455f80",
+          "ML_PACK_DEFAULT:27bbefd6-9421-5102-a30c-d1a3e10eb07c|ML_FORMULA_NOT_REGISTERED:27bbefd6-9421-5102-a30c-d1a3e10eb07c",
+          "ML_PACK_DEFAULT:7c2de308-7aa9-569b-a31d-1529b689d160|ML_FORMULA_NOT_REGISTERED:7c2de308-7aa9-569b-a31d-1529b689d160",
+          "ML_PACK_DEFAULT:7f5246e7-6e48-51df-b364-cd5a0f92ea03|ML_FORMULA_NOT_REGISTERED:7f5246e7-6e48-51df-b364-cd5a0f92ea03",
+          "ML_PACK_DEFAULT:98503bc1-6861-58e8-82bf-d90ec928fb5c|ML_FORMULA_NOT_REGISTERED:98503bc1-6861-58e8-82bf-d90ec928fb5c",
+          "ML_PACK_DEFAULT:b6365a8a-7c88-5042-9818-89d99c14fa52|ML_FORMULA_NOT_REGISTERED:b6365a8a-7c88-5042-9818-89d99c14fa52",
+          "ML_PACK_DEFAULT:d2acce5d-4d80-549c-a080-c4a8f632180e|ML_FORMULA_NOT_REGISTERED:d2acce5d-4d80-549c-a080-c4a8f632180e",
+          "ML_PACK_DEFAULT:f02394d4-654f-500d-8949-8557d98ea92f|ML_FORMULA_NOT_REGISTERED:f02394d4-654f-500d-8949-8557d98ea92f",
+          "ML_PACK_DEFAULT:fbe61277-736b-5d62-a865-e1e339465827|ML_FORMULA_NOT_REGISTERED:fbe61277-736b-5d62-a865-e1e339465827",
+          "ML_PACK_DEFAULT:fe13171e-10f1-537d-b0b8-aa9eb4e7c93d|ML_FORMULA_NOT_REGISTERED:fe13171e-10f1-537d-b0b8-aa9eb4e7c93d",
+          "PACK_DEFAULT:0705ebf1-dc53-54fd-915b-b4c85a74a0e0",
+          "PACK_DEFAULT:96b2fb4c-7cbd-58e1-8c6d-3bef6118941b",
+          "PACK_DEFAULT:9dd16b8a-f56b-544b-8f27-c3ecb4d556fa",
+          "PACK_DEFAULT:c4d900d4-2104-5953-ad07-b72c8ef94bef",
+          "PACK_DEFAULT:ca161ba6-c243-5ecd-89f6-592d39b5be05",
+          "PACK_DEFAULT:d4fc7ebd-1f84-55bc-9deb-50bc864ab6e6",
+          "PACK_DEFAULT:f5061be2-73b3-5df2-a3d7-6cfff6761533",
+          "PACK_DEFAULT:fbaf1dea-3154-54b4-a94a-387ecab41dc0",
+          "QTY_PROJECT_CONTEXT:0a281e05-84bd-54ed-89e2-6cf10fbd6135",
+          "QTY_PROJECT_CONTEXT:179766eb-c5af-513b-8498-fc001dd651e2",
+          "VAT_CONTEXT_INCOMPLETE:FR_STANDARD_20"
+        ],
+        "linear_measurements_count": 10,
+        "linear_formula_ids": [
+          "V2_EXPLICIT_LENGTH_V1"
+        ],
+        "confidence": "MEDIUM",
+        "document_emitted": true,
+        "duration_ms": 5049
+      }
+    },
+    "devis": {
+      "date": "2026-07-31T12:23:44.358166+00:00",
+      "montant_ttc": 1170.0,
+      "validite": "2026-08-30T12:23:44.358166+00:00",
+      "duree": 30,
+      "blocs": [
+        {
+          "title": "Mise en place du chantier",
+          "lots": [
+            {
+              "title": "Préparation",
+              "ligne_ids": [
+                "0a281e05-84bd-54ed-89e2-6cf10fbd6135",
+                "ca161ba6-c243-5ecd-89f6-592d39b5be05",
+                "b6365a8a-7c88-5042-9818-89d99c14fa52"
+              ],
+              "lignes": [
+                {
+                  "num": 1,
+                  "description": "Protection des sols et des accès avant travaux",
+                  "qte": 8.0,
+                  "unit": "M2",
+                  "pu": 4.5,
+                  "tva": 20,
+                  "ht": 36.0,
+                  "ttc": 43.2,
+                  "line_id": "0a281e05-84bd-54ed-89e2-6cf10fbd6135",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "11dd25a0-977d-5f1a-b2ab-e1ce3917e499",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [
+                    "ITEM-001"
+                  ],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:SETUP:00"
+                  ],
+                  "quantity_source": "PROJECT_CONTEXT",
+                  "linear_measurement": null
+                },
+                {
+                  "num": 2,
+                  "description": "Mise en place de l’aire de stockage des éléments de cuisine",
+                  "qte": 1.0,
+                  "unit": "FORFAIT",
+                  "pu": 35.0,
+                  "tva": 20,
+                  "ht": 35.0,
+                  "ttc": 42.0,
+                  "line_id": "ca161ba6-c243-5ecd-89f6-592d39b5be05",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "e03b664d-270b-5bb3-a231-d4f6536b60ab",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:SETUP:01"
+                  ],
+                  "quantity_source": "PACK_DEFAULT",
+                  "linear_measurement": null
+                },
+                {
+                  "num": 3,
+                  "description": "Repérage et traçage de l’implantation de la cuisine linéaire",
+                  "qte": 1.0,
+                  "unit": "ML",
+                  "pu": 8.0,
+                  "tva": 20,
+                  "ht": 8.0,
+                  "ttc": 9.6,
+                  "line_id": "b6365a8a-7c88-5042-9818-89d99c14fa52",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "d7b6f465-b750-5ac1-bb39-ac543a5b9c71",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:SETUP:02"
+                  ],
+                  "quantity_source": "PACK_DEFAULT",
+                  "linear_measurement": {
+                    "line_id": "b6365a8a-7c88-5042-9818-89d99c14fa52",
+                    "request_item_ids": [],
+                    "mode": "EXPLICIT",
+                    "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                    "input_dimension_ids": [],
+                    "value_ml": 1.0,
+                    "source": "PACK_DEFAULT",
+                    "assumption_code": "ML_PACK_DEFAULT:b6365a8a-7c88-5042-9818-89d99c14fa52|ML_FORMULA_NOT_REGISTERED:b6365a8a-7c88-5042-9818-89d99c14fa52"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Cuisine",
+          "lots": [
+            {
+              "title": "Travaux principaux",
+              "ligne_ids": [
+                "27bbefd6-9421-5102-a30c-d1a3e10eb07c",
+                "fe13171e-10f1-537d-b0b8-aa9eb4e7c93d",
+                "d2acce5d-4d80-549c-a080-c4a8f632180e",
+                "fbe61277-736b-5d62-a865-e1e339465827",
+                "0705ebf1-dc53-54fd-915b-b4c85a74a0e0",
+                "179766eb-c5af-513b-8498-fc001dd651e2",
+                "fbaf1dea-3154-54b4-a94a-387ecab41dc0",
+                "1169198c-2ab6-5e44-86af-f7f81b455f80",
+                "98503bc1-6861-58e8-82bf-d90ec928fb5c",
+                "7c2de308-7aa9-569b-a31d-1529b689d160",
+                "9dd16b8a-f56b-544b-8f27-c3ecb4d556fa",
+                "7f5246e7-6e48-51df-b364-cd5a0f92ea03",
+                "f5061be2-73b3-5df2-a3d7-6cfff6761533",
+                "d4fc7ebd-1f84-55bc-9deb-50bc864ab6e6"
+              ],
+              "lignes": [
+                {
+                  "num": 1,
+                  "description": "Dépose des anciens meubles bas de cuisine",
+                  "qte": 1.0,
+                  "unit": "ML",
+                  "pu": 18.0,
+                  "tva": 20,
+                  "ht": 18.0,
+                  "ttc": 21.6,
+                  "line_id": "27bbefd6-9421-5102-a30c-d1a3e10eb07c",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "3a1cf23e-f1fa-5b0f-b13a-477b0908593c",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:CORE:00"
+                  ],
+                  "quantity_source": "PACK_DEFAULT",
+                  "linear_measurement": {
+                    "line_id": "27bbefd6-9421-5102-a30c-d1a3e10eb07c",
+                    "request_item_ids": [],
+                    "mode": "EXPLICIT",
+                    "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                    "input_dimension_ids": [],
+                    "value_ml": 1.0,
+                    "source": "PACK_DEFAULT",
+                    "assumption_code": "ML_PACK_DEFAULT:27bbefd6-9421-5102-a30c-d1a3e10eb07c|ML_FORMULA_NOT_REGISTERED:27bbefd6-9421-5102-a30c-d1a3e10eb07c"
+                  }
+                },
+                {
+                  "num": 2,
+                  "description": "Dépose des anciens meubles hauts de cuisine",
+                  "qte": 1.0,
+                  "unit": "ML",
+                  "pu": 15.0,
+                  "tva": 20,
+                  "ht": 15.0,
+                  "ttc": 18.0,
+                  "line_id": "fe13171e-10f1-537d-b0b8-aa9eb4e7c93d",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "ae355f2f-bbec-5df0-baca-93230a3a7872",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:CORE:01"
+                  ],
+                  "quantity_source": "PACK_DEFAULT",
+                  "linear_measurement": {
+                    "line_id": "fe13171e-10f1-537d-b0b8-aa9eb4e7c93d",
+                    "request_item_ids": [],
+                    "mode": "EXPLICIT",
+                    "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                    "input_dimension_ids": [],
+                    "value_ml": 1.0,
+                    "source": "PACK_DEFAULT",
+                    "assumption_code": "ML_PACK_DEFAULT:fe13171e-10f1-537d-b0b8-aa9eb4e7c93d|ML_FORMULA_NOT_REGISTERED:fe13171e-10f1-537d-b0b8-aa9eb4e7c93d"
+                  }
+                },
+                {
+                  "num": 3,
+                  "description": "Dépose de l’ancien plan de travail",
+                  "qte": 1.0,
+                  "unit": "ML",
+                  "pu": 12.0,
+                  "tva": 20,
+                  "ht": 12.0,
+                  "ttc": 14.4,
+                  "line_id": "d2acce5d-4d80-549c-a080-c4a8f632180e",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "f0b70eb9-a50c-5381-ada2-6935a65ea5c3",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:CORE:02"
+                  ],
+                  "quantity_source": "PACK_DEFAULT",
+                  "linear_measurement": {
+                    "line_id": "d2acce5d-4d80-549c-a080-c4a8f632180e",
+                    "request_item_ids": [],
+                    "mode": "EXPLICIT",
+                    "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                    "input_dimension_ids": [],
+                    "value_ml": 1.0,
+                    "source": "PACK_DEFAULT",
+                    "assumption_code": "ML_PACK_DEFAULT:d2acce5d-4d80-549c-a080-c4a8f632180e|ML_FORMULA_NOT_REGISTERED:d2acce5d-4d80-549c-a080-c4a8f632180e"
+                  }
+                },
+                {
+                  "num": 4,
+                  "description": "Dépose des plinthes existantes",
+                  "qte": 1.0,
+                  "unit": "ML",
+                  "pu": 5.0,
+                  "tva": 20,
+                  "ht": 5.0,
+                  "ttc": 6.0,
+                  "line_id": "fbe61277-736b-5d62-a865-e1e339465827",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "79e6bfea-f6cd-55f6-8fd8-471379a17be2",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:CORE:03"
+                  ],
+                  "quantity_source": "PACK_DEFAULT",
+                  "linear_measurement": {
+                    "line_id": "fbe61277-736b-5d62-a865-e1e339465827",
+                    "request_item_ids": [],
+                    "mode": "EXPLICIT",
+                    "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                    "input_dimension_ids": [],
+                    "value_ml": 1.0,
+                    "source": "PACK_DEFAULT",
+                    "assumption_code": "ML_PACK_DEFAULT:fbe61277-736b-5d62-a865-e1e339465827|ML_FORMULA_NOT_REGISTERED:fbe61277-736b-5d62-a865-e1e339465827"
+                  }
+                },
+                {
+                  "num": 5,
+                  "description": "Evacuation des éléments déposés en déchetterie",
+                  "qte": 1.0,
+                  "unit": "FORFAIT",
+                  "pu": 60.0,
+                  "tva": 20,
+                  "ht": 60.0,
+                  "ttc": 72.0,
+                  "line_id": "0705ebf1-dc53-54fd-915b-b4c85a74a0e0",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "be5ee1a6-7c22-5dd9-abb1-cd344c5843bd",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [
+                    "ITEM-002",
+                    "ITEM-008"
+                  ],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:CORE:04"
+                  ],
+                  "quantity_source": "PACK_DEFAULT",
+                  "linear_measurement": null
+                },
+                {
+                  "num": 6,
+                  "description": "Préparation des murs et sols (rebouchage, ponçage léger)",
+                  "qte": 8.0,
+                  "unit": "M2",
+                  "pu": 8.0,
+                  "tva": 20,
+                  "ht": 64.0,
+                  "ttc": 76.8,
+                  "line_id": "179766eb-c5af-513b-8498-fc001dd651e2",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "9b66ff7a-a527-5fcb-bfa5-19386919dc58",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:CORE:05"
+                  ],
+                  "quantity_source": "PROJECT_CONTEXT",
+                  "linear_measurement": null
+                },
+                {
+                  "num": 7,
+                  "description": "Vérification et ajustement des arrivées d’eau et prises électriques",
+                  "qte": 1.0,
+                  "unit": "FORFAIT",
+                  "pu": 45.0,
+                  "tva": 20,
+                  "ht": 45.0,
+                  "ttc": 54.0,
+                  "line_id": "fbaf1dea-3154-54b4-a94a-387ecab41dc0",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "1efef78c-6be6-5188-8013-77ba4121515a",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:CORE:06"
+                  ],
+                  "quantity_source": "PACK_DEFAULT",
+                  "linear_measurement": null
+                },
+                {
+                  "num": 8,
+                  "description": "Fourniture et pose de meubles bas de cuisine linéaire",
+                  "qte": 1.0,
+                  "unit": "ML",
+                  "pu": 210.0,
+                  "tva": 20,
+                  "ht": 210.0,
+                  "ttc": 252.0,
+                  "line_id": "1169198c-2ab6-5e44-86af-f7f81b455f80",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "1d3da494-56b0-5659-a03f-2921eecc27e7",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [
+                    "ITEM-003"
+                  ],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:CORE:07"
+                  ],
+                  "quantity_source": "PACK_DEFAULT",
+                  "linear_measurement": {
+                    "line_id": "1169198c-2ab6-5e44-86af-f7f81b455f80",
+                    "request_item_ids": [
+                      "ITEM-003"
+                    ],
+                    "mode": "EXPLICIT",
+                    "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                    "input_dimension_ids": [],
+                    "value_ml": 1.0,
+                    "source": "PACK_DEFAULT",
+                    "assumption_code": "ML_PACK_DEFAULT:1169198c-2ab6-5e44-86af-f7f81b455f80|ML_FORMULA_NOT_REGISTERED:1169198c-2ab6-5e44-86af-f7f81b455f80"
+                  }
+                },
+                {
+                  "num": 9,
+                  "description": "Fourniture et pose de meubles hauts de cuisine linéaire",
+                  "qte": 1.0,
+                  "unit": "ML",
+                  "pu": 180.0,
+                  "tva": 20,
+                  "ht": 180.0,
+                  "ttc": 216.0,
+                  "line_id": "98503bc1-6861-58e8-82bf-d90ec928fb5c",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "290509f6-5241-55f6-83dd-bf847c51a4f5",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [
+                    "ITEM-004"
+                  ],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:CORE:08"
+                  ],
+                  "quantity_source": "PACK_DEFAULT",
+                  "linear_measurement": {
+                    "line_id": "98503bc1-6861-58e8-82bf-d90ec928fb5c",
+                    "request_item_ids": [
+                      "ITEM-004"
+                    ],
+                    "mode": "EXPLICIT",
+                    "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                    "input_dimension_ids": [],
+                    "value_ml": 1.0,
+                    "source": "PACK_DEFAULT",
+                    "assumption_code": "ML_PACK_DEFAULT:98503bc1-6861-58e8-82bf-d90ec928fb5c|ML_FORMULA_NOT_REGISTERED:98503bc1-6861-58e8-82bf-d90ec928fb5c"
+                  }
+                },
+                {
+                  "num": 10,
+                  "description": "Fourniture et pose d’un plan de travail stratifié",
+                  "qte": 1.0,
+                  "unit": "ML",
+                  "pu": 95.0,
+                  "tva": 20,
+                  "ht": 95.0,
+                  "ttc": 114.0,
+                  "line_id": "7c2de308-7aa9-569b-a31d-1529b689d160",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "4f2159c7-335b-5442-8200-382a9166e553",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [
+                    "ITEM-005"
+                  ],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:CORE:09"
+                  ],
+                  "quantity_source": "PACK_DEFAULT",
+                  "linear_measurement": {
+                    "line_id": "7c2de308-7aa9-569b-a31d-1529b689d160",
+                    "request_item_ids": [
+                      "ITEM-005"
+                    ],
+                    "mode": "EXPLICIT",
+                    "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                    "input_dimension_ids": [],
+                    "value_ml": 1.0,
+                    "source": "PACK_DEFAULT",
+                    "assumption_code": "ML_PACK_DEFAULT:7c2de308-7aa9-569b-a31d-1529b689d160|ML_FORMULA_NOT_REGISTERED:7c2de308-7aa9-569b-a31d-1529b689d160"
+                  }
+                },
+                {
+                  "num": 11,
+                  "description": "Découpe et ajustement du plan de travail (évier, plaque)",
+                  "qte": 1.0,
+                  "unit": "UNIT",
+                  "pu": 35.0,
+                  "tva": 20,
+                  "ht": 35.0,
+                  "ttc": 42.0,
+                  "line_id": "9dd16b8a-f56b-544b-8f27-c3ecb4d556fa",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "84138913-dde6-59e7-993c-32af8090b94a",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:CORE:10"
+                  ],
+                  "quantity_source": "PACK_DEFAULT",
+                  "linear_measurement": null
+                },
+                {
+                  "num": 12,
+                  "description": "Fourniture et pose de plinthes assorties",
+                  "qte": 1.0,
+                  "unit": "ML",
+                  "pu": 22.0,
+                  "tva": 20,
+                  "ht": 22.0,
+                  "ttc": 26.4,
+                  "line_id": "7f5246e7-6e48-51df-b364-cd5a0f92ea03",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "0a22ded0-8b66-53ef-bdfd-8bdcf639b4c8",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [
+                    "ITEM-006"
+                  ],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:CORE:11"
+                  ],
+                  "quantity_source": "PACK_DEFAULT",
+                  "linear_measurement": {
+                    "line_id": "7f5246e7-6e48-51df-b364-cd5a0f92ea03",
+                    "request_item_ids": [
+                      "ITEM-006"
+                    ],
+                    "mode": "EXPLICIT",
+                    "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                    "input_dimension_ids": [],
+                    "value_ml": 1.0,
+                    "source": "PACK_DEFAULT",
+                    "assumption_code": "ML_PACK_DEFAULT:7f5246e7-6e48-51df-b364-cd5a0f92ea03|ML_FORMULA_NOT_REGISTERED:7f5246e7-6e48-51df-b364-cd5a0f92ea03"
+                  }
+                },
+                {
+                  "num": 13,
+                  "description": "Fourniture et pose de fileurs et joues de finition",
+                  "qte": 1.0,
+                  "unit": "UNIT",
+                  "pu": 28.0,
+                  "tva": 20,
+                  "ht": 28.0,
+                  "ttc": 33.6,
+                  "line_id": "f5061be2-73b3-5df2-a3d7-6cfff6761533",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "c9779c1a-371d-5625-8b07-e41d5757f427",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:CORE:12"
+                  ],
+                  "quantity_source": "PACK_DEFAULT",
+                  "linear_measurement": null
+                },
+                {
+                  "num": 14,
+                  "description": "Réglage et alignement des portes et tiroirs",
+                  "qte": 1.0,
+                  "unit": "FORFAIT",
+                  "pu": 40.0,
+                  "tva": 20,
+                  "ht": 40.0,
+                  "ttc": 48.0,
+                  "line_id": "d4fc7ebd-1f84-55bc-9deb-50bc864ab6e6",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "95fd2fc2-5dd7-56da-aba0-8588b11f7b5d",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:CORE:13"
+                  ],
+                  "quantity_source": "PACK_DEFAULT",
+                  "linear_measurement": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Finitions et nettoyage",
+          "lots": [
+            {
+              "title": "Nettoyage",
+              "ligne_ids": [
+                "f02394d4-654f-500d-8949-8557d98ea92f",
+                "96b2fb4c-7cbd-58e1-8c6d-3bef6118941b",
+                "c4d900d4-2104-5953-ad07-b72c8ef94bef"
+              ],
+              "lignes": [
+                {
+                  "num": 1,
+                  "description": "Pose de silicone d’étanchéité sur le pourtour du plan de travail",
+                  "qte": 1.0,
+                  "unit": "ML",
+                  "pu": 7.0,
+                  "tva": 20,
+                  "ht": 7.0,
+                  "ttc": 8.4,
+                  "line_id": "f02394d4-654f-500d-8949-8557d98ea92f",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "da8fcec3-d5a2-5e5b-8d1b-ca0269c5e899",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [
+                    "ITEM-007"
+                  ],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:FINISH:00"
+                  ],
+                  "quantity_source": "PACK_DEFAULT",
+                  "linear_measurement": {
+                    "line_id": "f02394d4-654f-500d-8949-8557d98ea92f",
+                    "request_item_ids": [
+                      "ITEM-007"
+                    ],
+                    "mode": "EXPLICIT",
+                    "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                    "input_dimension_ids": [],
+                    "value_ml": 1.0,
+                    "source": "PACK_DEFAULT",
+                    "assumption_code": "ML_PACK_DEFAULT:f02394d4-654f-500d-8949-8557d98ea92f|ML_FORMULA_NOT_REGISTERED:f02394d4-654f-500d-8949-8557d98ea92f"
+                  }
+                },
+                {
+                  "num": 2,
+                  "description": "Contrôle final de l’ensemble de la cuisine posée",
+                  "qte": 1.0,
+                  "unit": "FORFAIT",
+                  "pu": 25.0,
+                  "tva": 20,
+                  "ht": 25.0,
+                  "ttc": 30.0,
+                  "line_id": "96b2fb4c-7cbd-58e1-8c6d-3bef6118941b",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "52afc7c8-1ea3-524b-8cbc-4da8745bd503",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:FINISH:01"
+                  ],
+                  "quantity_source": "PACK_DEFAULT",
+                  "linear_measurement": null
+                },
+                {
+                  "num": 3,
+                  "description": "Nettoyage complet de la zone de chantier après intervention",
+                  "qte": 1.0,
+                  "unit": "FORFAIT",
+                  "pu": 35.0,
+                  "tva": 20,
+                  "ht": 35.0,
+                  "ttc": 42.0,
+                  "line_id": "c4d900d4-2104-5953-ad07-b72c8ef94bef",
+                  "pack_id": "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33",
+                  "price_id": "f2a62f5a-c86b-5749-bc1a-fea09efe50eb",
+                  "price_version": 1,
+                  "vat_rule_id": "FR_STANDARD_20",
+                  "vat_rule_version": 1,
+                  "covered_request_item_ids": [],
+                  "technical_dependency_ids": [
+                    "DEP:V3-CUIS-RENOVATION-DROITE:FINISH:02"
+                  ],
+                  "quantity_source": "PACK_DEFAULT",
+                  "linear_measurement": null
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "quote_id": "6a609a6b-d062-41ba-984e-32818eb746ae",
+      "flow": "TRAVAUX",
+      "generation_mode": "EXACT_PACK",
+      "review_required": true,
+      "totals": {
+        "ht_cents": 97500,
+        "vat_cents": 19500,
+        "ttc_cents": 117000
+      },
+      "trace": {
+        "ssot_version": "2026-07-30.3",
+        "library_version": "LIB-V3.1-2026-07-31.1",
+        "prompt_hash": "sha256:eb5a6040bc7f0628d0490a7843c94793f76c9ae563a335ce5f6c3c2f47c093a0",
+        "config_hash": "sha256:1b3cfc95e9579da226d6107348ad7e413fbf7029696c92893bb7d0c94768cae0",
+        "arbitrage_applied": true,
+        "pipeline_status": "COMPLETE_DEGRADED_AUTHORIZED",
+        "display_gate_passed": true,
+        "pipeline_version": "V3.1",
+        "semantic_model": "gpt-4o-2024-11-20",
+        "embedding_model": "text-embedding-3-small",
+        "reranker_model": "rerank-v4.0-pro",
+        "cache_hit": false,
+        "stage_completion_rate": 1.0,
+        "stage_executions": [
+          {
+            "stage": "0_CONTEXT",
+            "status": "PRIMARY",
+            "duration_ms": 0,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:fc0eb7888f9c6a77cc997245e912a0f614854644b2649d68fd6067a11e9f7c8a",
+            "output_hash": "sha256:3fa913bf5f2e32fee185f9a040599b56022437ca9ab8ceae1f691cf91c05dfcb",
+            "evidence": {
+              "contract": "NormalizedPipelineContext"
+            }
+          },
+          {
+            "stage": "1_PLAN",
+            "status": "PRIMARY",
+            "duration_ms": 940,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:fc0eb7888f9c6a77cc997245e912a0f614854644b2649d68fd6067a11e9f7c8a",
+            "output_hash": "sha256:323c80df4c4e3908bd50d5370867b47811d54570cac766e2a4450821d4f438bd",
+            "evidence": {
+              "contract": "SemanticPlan"
+            }
+          },
+          {
+            "stage": "2_ANALYSIS",
+            "status": "PRIMARY",
+            "duration_ms": 3,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:82d4796a945840f86c7517230b6f2a777f1213b8d6dd23cd01e1e0cb24463170",
+            "output_hash": "sha256:2e294dd86d70d62e4f6da24b3128320018b661243af8bbc85b78f27a4e774766",
+            "evidence": {
+              "analyzer": "DETERMINISTIC"
+            }
+          },
+          {
+            "stage": "2BIS_ARBITRATION",
+            "status": "PRIMARY",
+            "duration_ms": 1,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:0c90bd8b649ff183310204bf95e6e5ea95604a01359bcbf83db9e598e001417d",
+            "output_hash": "sha256:2f0732c2c76b91b71bd65b183510d720495342c09613ac5faaa6b17dfe27ff5f",
+            "evidence": {
+              "catalog_size": 3
+            }
+          },
+          {
+            "stage": "3_EXTRACTION",
+            "status": "PRIMARY",
+            "duration_ms": 1400,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:7d3b92a30f65b4d9258ef06973ff0a98fccea8dfd4321b7d46b4b0a39c7289ac",
+            "output_hash": "sha256:010c6339b7b9645897644c12b280dbc4237ac8dcfd9f7f39b3a65b86308e613f",
+            "evidence": {
+              "contract": "DemandMatrix"
+            }
+          },
+          {
+            "stage": "3BIS_NORMALIZATION",
+            "status": "PRIMARY",
+            "duration_ms": 2,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:b75a68b3ce38121c6a722210f0546960457d1e4bf68e65a1adb359e48a00e34f",
+            "output_hash": "sha256:218e5a98af7271a37e2ed8fc48bb6cadfe2156a8a2f84ed31044e9e045d80f01",
+            "evidence": {
+              "scope": "ITEM_SCOPED_NO_GLOBAL_PROPAGATION"
+            }
+          },
+          {
+            "stage": "4A_LINE_SEARCH",
+            "status": "PRIMARY",
+            "duration_ms": 2190,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 160,
+            "input_hash": "sha256:beb0777cd023d51a8f47f40b0d8464b19349417b3acb745b9463c4219cc7153e",
+            "output_hash": "sha256:e0ed7f5c4b8f7772c368addeb384fcd7cc3ae223fef11e219d52186dbf1bb0bb",
+            "evidence": {
+              "strategy": "LEXICAL_DENSE_RRF"
+            }
+          },
+          {
+            "stage": "4B_PARENT_AGGREGATION",
+            "status": "PRIMARY",
+            "duration_ms": 0,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:e0ed7f5c4b8f7772c368addeb384fcd7cc3ae223fef11e219d52186dbf1bb0bb",
+            "output_hash": "sha256:ba2da4a570bf1bafc0d01f6bfdb29886da33d6e036216f5f40b931a190055351",
+            "evidence": {
+              "strategy": "LINE_TO_PARENT"
+            }
+          },
+          {
+            "stage": "4C_DIRECT_PACK_SEARCH",
+            "status": "PRIMARY",
+            "duration_ms": 201,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:5aff1347c0a81162ea1f012a2cdd243d3d4347b4b5dca5e911eed83a0a7982c5",
+            "output_hash": "sha256:49d750cc5dd4b32ef99f47b77f3e6f7cc3b8b985fb5b28f6414af6786f4f0834",
+            "evidence": {
+              "strategy": "COMPLETE_PACK_SEARCH"
+            }
+          },
+          {
+            "stage": "4D_CANDIDATE_UNION",
+            "status": "PRIMARY",
+            "duration_ms": 0,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:2bed673d4082c81c52770a61db357ac53dee2244e8d3d123a109058c4f07051e",
+            "output_hash": "sha256:095398183a5682790096054e7c220d25c236bcc5801199af091f5956f7a4756d",
+            "evidence": {
+              "strategy": "STABLE_UNION"
+            }
+          },
+          {
+            "stage": "4BIS_RERANK",
+            "status": "DEGRADED_AUTHORIZED",
+            "duration_ms": 0,
+            "fallback_reason": "COHERE_API_KEY_MISSING",
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:095398183a5682790096054e7c220d25c236bcc5801199af091f5956f7a4756d",
+            "output_hash": "sha256:095398183a5682790096054e7c220d25c236bcc5801199af091f5956f7a4756d",
+            "evidence": {
+              "model": "rerank-v4.0-pro"
+            }
+          },
+          {
+            "stage": "5_SELECTION",
+            "status": "PRIMARY",
+            "duration_ms": 101,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:4ed984b71371876330c5bcf0a16d90d641e8be11e45b8e0dae744b619e31dcae",
+            "output_hash": "sha256:7f8cb58754f112a90fa9dfb8426af45adad0d444f0428039c879dfad811a47eb",
+            "evidence": {
+              "selector": "ONE_PACK_PER_INTERVENTION"
+            }
+          },
+          {
+            "stage": "6_CALCULATIONS",
+            "status": "PRIMARY",
+            "duration_ms": 2,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 20,
+            "input_hash": "sha256:7f8cb58754f112a90fa9dfb8426af45adad0d444f0428039c879dfad811a47eb",
+            "output_hash": "sha256:8e2446ce20455781d9f57417db972e72fce02dd35941455c4f54526843a525b3",
+            "evidence": {
+              "arithmetic": "INTEGER_CENTS"
+            }
+          },
+          {
+            "stage": "7_ASSEMBLY",
+            "status": "PRIMARY",
+            "duration_ms": 2,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:8e2446ce20455781d9f57417db972e72fce02dd35941455c4f54526843a525b3",
+            "output_hash": "sha256:c508b2dcee9a96f7a7f7c7be3a3d105f2eb80b7953d0e3fa4d509b6e8fb1b446",
+            "evidence": {
+              "geometry": "SSOT_EXACT_NO_PADDING"
+            }
+          },
+          {
+            "stage": "8_VALIDATION",
+            "status": "PRIMARY",
+            "duration_ms": 9,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:c508b2dcee9a96f7a7f7c7be3a3d105f2eb80b7953d0e3fa4d509b6e8fb1b446",
+            "output_hash": "sha256:7aa742b3bc8bdc1c45484f33a9f7bdf8ef1fcbde1d0affd224ebcfa6313b3d46",
+            "evidence": {
+              "validator": "INDEPENDENT_SOURCE_TO_QUOTE"
+            }
+          },
+          {
+            "stage": "9_OBSERVABILITY",
+            "status": "PRIMARY",
+            "duration_ms": 0,
+            "fallback_reason": null,
+            "input_count": 0,
+            "output_count": 1,
+            "input_hash": "sha256:b661d57841c6068fcd86390a3c97ea7bd908e4875b93c30b2285a4cc8d93def6",
+            "output_hash": "sha256:5c8115ecc0b7e631f283823ad7642cae5509361bda7617e554999bcf641127b2",
+            "evidence": {
+              "persistence": "PREPARED"
+            }
+          }
+        ],
+        "line_search_hits_count": 160,
+        "parent_pack_candidates_count": 1,
+        "reranked_pack_count": 1,
+        "selected_pack_ids": [
+          "2342fcbb-ffbd-5e7d-9ec9-4f390c777d33"
+        ],
+        "replaced_line_ids": [],
+        "assumption_codes": [
+          "ML_PACK_DEFAULT:1169198c-2ab6-5e44-86af-f7f81b455f80|ML_FORMULA_NOT_REGISTERED:1169198c-2ab6-5e44-86af-f7f81b455f80",
+          "ML_PACK_DEFAULT:27bbefd6-9421-5102-a30c-d1a3e10eb07c|ML_FORMULA_NOT_REGISTERED:27bbefd6-9421-5102-a30c-d1a3e10eb07c",
+          "ML_PACK_DEFAULT:7c2de308-7aa9-569b-a31d-1529b689d160|ML_FORMULA_NOT_REGISTERED:7c2de308-7aa9-569b-a31d-1529b689d160",
+          "ML_PACK_DEFAULT:7f5246e7-6e48-51df-b364-cd5a0f92ea03|ML_FORMULA_NOT_REGISTERED:7f5246e7-6e48-51df-b364-cd5a0f92ea03",
+          "ML_PACK_DEFAULT:98503bc1-6861-58e8-82bf-d90ec928fb5c|ML_FORMULA_NOT_REGISTERED:98503bc1-6861-58e8-82bf-d90ec928fb5c",
+          "ML_PACK_DEFAULT:b6365a8a-7c88-5042-9818-89d99c14fa52|ML_FORMULA_NOT_REGISTERED:b6365a8a-7c88-5042-9818-89d99c14fa52",
+          "ML_PACK_DEFAULT:d2acce5d-4d80-549c-a080-c4a8f632180e|ML_FORMULA_NOT_REGISTERED:d2acce5d-4d80-549c-a080-c4a8f632180e",
+          "ML_PACK_DEFAULT:f02394d4-654f-500d-8949-8557d98ea92f|ML_FORMULA_NOT_REGISTERED:f02394d4-654f-500d-8949-8557d98ea92f",
+          "ML_PACK_DEFAULT:fbe61277-736b-5d62-a865-e1e339465827|ML_FORMULA_NOT_REGISTERED:fbe61277-736b-5d62-a865-e1e339465827",
+          "ML_PACK_DEFAULT:fe13171e-10f1-537d-b0b8-aa9eb4e7c93d|ML_FORMULA_NOT_REGISTERED:fe13171e-10f1-537d-b0b8-aa9eb4e7c93d",
+          "PACK_DEFAULT:0705ebf1-dc53-54fd-915b-b4c85a74a0e0",
+          "PACK_DEFAULT:96b2fb4c-7cbd-58e1-8c6d-3bef6118941b",
+          "PACK_DEFAULT:9dd16b8a-f56b-544b-8f27-c3ecb4d556fa",
+          "PACK_DEFAULT:c4d900d4-2104-5953-ad07-b72c8ef94bef",
+          "PACK_DEFAULT:ca161ba6-c243-5ecd-89f6-592d39b5be05",
+          "PACK_DEFAULT:d4fc7ebd-1f84-55bc-9deb-50bc864ab6e6",
+          "PACK_DEFAULT:f5061be2-73b3-5df2-a3d7-6cfff6761533",
+          "PACK_DEFAULT:fbaf1dea-3154-54b4-a94a-387ecab41dc0",
+          "QTY_PROJECT_CONTEXT:0a281e05-84bd-54ed-89e2-6cf10fbd6135",
+          "QTY_PROJECT_CONTEXT:179766eb-c5af-513b-8498-fc001dd651e2",
+          "VAT_CONTEXT_INCOMPLETE:FR_STANDARD_20"
+        ],
+        "linear_measurements_count": 10,
+        "linear_formula_ids": [
+          "V2_EXPLICIT_LENGTH_V1"
+        ],
+        "confidence": "MEDIUM",
+        "document_emitted": true,
+        "duration_ms": 5049
+      }
+    }
+  },
+  "error": null
+}

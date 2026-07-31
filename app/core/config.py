@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     # ---------------------------- Application ------------------------------
     PROJECT_NAME: str = "Devis Generation API"
     API_V1_PREFIX: str = "/api/v1"
+    API_V3_PREFIX: str = "/api/v3"
     ENVIRONMENT: Literal["development", "staging", "production"] = "development"
     DEBUG: bool = True
 
@@ -49,6 +50,30 @@ class Settings(BaseSettings):
     DB_ECHO: bool = False
     DB_POOL_SIZE: int = 10
     DB_MAX_OVERFLOW: int = 20
+
+    # ---------------------------- V3 isolation -----------------------------
+    # V3 intentionally uses a separate PostgreSQL/pgvector database so no V2
+    # table, migration, or runtime session can be modified by the new engine.
+    V3_DATABASE_URL: PostgresDsn = Field(
+        default="postgresql+asyncpg://travaux_v3:travaux_v3_local@localhost:5433/travaux_v3",
+        description="V3-only async SQLAlchemy DSN (must use the `asyncpg` driver).",
+    )
+    V3_SYNC_DATABASE_URL: PostgresDsn | None = None
+    V3_OPENAI_API_KEY: str = Field(
+        default="",
+        repr=False,
+        description="OpenAI API key used only by the V3 semantic pipeline.",
+    )
+    V3_OPENAI_SEMANTIC_MODEL: str = "gpt-4o-2024-11-20"
+    V3_OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
+    V3_COHERE_API_KEY: str = Field(
+        default="",
+        repr=False,
+        description="Cohere API key used only by the V3 pack reranker.",
+    )
+    V3_COHERE_RERANK_MODEL: str = "rerank-v4.0-pro"
+    V3_SSOT_VERSION: str = "2026-07-30.3"
+    V3_LIBRARY_VERSION: str = "LIB-V3.1-2026-07-31.1"
 
     # ---------------------------- OpenAI (active provider) ------------------
     # The ``openai`` Python SDK is pointed at the official OpenAI API.
@@ -150,6 +175,17 @@ class Settings(BaseSettings):
         if value:
             return value
         async_dsn = info.data.get("DATABASE_URL")
+        if async_dsn is None:
+            return None
+        return str(async_dsn).replace("+asyncpg", "+psycopg2")
+
+    @field_validator("V3_SYNC_DATABASE_URL", mode="before")
+    @classmethod
+    def _default_v3_sync_dsn(cls, value: str | None, info) -> str | None:
+        """Derive the dedicated V3 Alembic DSN from ``V3_DATABASE_URL``."""
+        if value:
+            return value
+        async_dsn = info.data.get("V3_DATABASE_URL")
         if async_dsn is None:
             return None
         return str(async_dsn).replace("+asyncpg", "+psycopg2")
