@@ -806,18 +806,25 @@ def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, defau
         use_inherited_qty = primary_unit in _DISCRETE_UNITS
 
         # Compute proportional padding price based on existing real lines.
-        # Ancillary services (prep, cleanup, etc.) are typically ~10-15% of
+        # Ancillary services (prep, cleanup, etc.) are typically ~15% of
         # the main work, spread across the padding lines.
         total_real_ht = sum(l.get("total_ht", 0) for l in lines) or 0
         if total_real_ht > 0 and needed > 0:
-            # ~15% of total work spread across padding lines
-            pad_pu = round(max(25.0, min(85.0, (total_real_ht * 0.15) / needed)), 2)
+            # Distribute 15% of the total budget across the needed padding lines.
+            # We REMOVE the max(25.0, ...) limit to prevent artificially inflating small devis!
+            pad_pu_base = (total_real_ht * 0.15) / needed
+            # Still put a very soft minimum so we don't have 0.50€ lines if possible
+            pad_pu_base = max(5.0, pad_pu_base)
         elif "Nettoyage" in default_designation:
-            pad_pu = 75.0
+            pad_pu_base = 75.0
         elif "Mise en place" in default_designation:
-            pad_pu = 95.0
+            pad_pu_base = 95.0
         else:
-            pad_pu = 45.0  # low default — better than 120€
+            pad_pu_base = 45.0
+
+        # Deterministic variance factors to make the prices look human-generated (not robotic).
+        # They average to ~1.0.
+        _VARIANCE_FACTORS = [1.25, 0.82, 1.15, 0.88, 1.05, 0.92, 1.30, 0.75, 1.10, 0.90, 1.20, 0.80, 0.95, 1.08, 0.85]
 
         # Pick specific generic labels based on the default designation
         if "Mise en place" in default_designation:
@@ -940,13 +947,19 @@ def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, defau
             else:
                 qte = 1
             
+            # Apply deterministic variance to make prices look natural, rounded to integer for cleaner look
+            factor = _VARIANCE_FACTORS[i % len(_VARIANCE_FACTORS)]
+            pad_pu_human = round(pad_pu_base * factor)
+            # Ensure at least 1€
+            pad_pu_human = float(max(1, pad_pu_human))
+
             padded.append({
                 "designation": label_suffix,
                 "unite": "forfait",
                 "quantite": qte,
-                "pu_ht": pad_pu,
+                "pu_ht": pad_pu_human,
                 "tva": tva,
-                "total_ht": round(pad_pu * qte, 2)
+                "total_ht": round(pad_pu_human * qte, 2)
             })
         return padded
     return lines
