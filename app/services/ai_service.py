@@ -1015,7 +1015,7 @@ class AIService:
         validate_btp_context(user_text)
         
         # Load price maps and packs (cached in RAM after first call)
-        price_map, concept_map = await get_cached_price_map(db)
+        price_map, concept_map, metier_medians = await get_cached_price_map(db)
         exact_map, pack_list = await get_cached_packs_map(db)
         
         # Step 2: Generation (Semantic Mapping)
@@ -1082,7 +1082,8 @@ class AIService:
             surface_m2=surface_m2,
             user_text=user_text,
             price_map=price_map, 
-            concept_map=concept_map, 
+            concept_map=concept_map,
+            metier_medians=metier_medians,
             packs_maps=(exact_map, pack_list)
         )
         

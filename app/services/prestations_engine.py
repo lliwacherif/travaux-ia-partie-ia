@@ -1,7 +1,9 @@
 import asyncio
 import logging
+import statistics
 import unicodedata
 import re
+from collections import defaultdict
 from typing import Any, Dict, List, Optional
 
 from sqlalchemy import select
@@ -85,62 +87,93 @@ _KEYWORD_TO_BPU_SEARCH: Dict[str, List[str]] = {
     # ── Carrelage ──
     "carrelage": ["carrelage", "grès cérame", "gres cerame"],
     "faience": ["faïence", "faience", "carrelage mural"],
+    "ragreage": ["ragréage", "ragreage", "chape de ragréage"],
+    "joint_carrelage": ["joint de carrelage", "jointement", "joint hydrofuge"],
     # ── Plâtrerie ──
     "surface": ["faux plafond", "plafond suspendu"],
     "placo": ["plaque de plâtre", "ba13", "plaque platre", "placo"],
     "ossature": ["ossature", "fourrure", "f530"],
+    "cloison": ["cloison", "cloison alvéolaire", "cloison distribution"],
+    "doublage": ["doublage", "doublage collé", "doublage isolant"],
     # ── Maçonnerie ──
-    "beton": ["béton armé", "béton dosé"],
+    "beton": ["béton armé", "béton dosé", "béton", "dalle béton"],
     "treillis": ["treillis soudé"],
     "coffrage": ["coffrage"],
     "blocs": ["parpaing", "agglo creux"],
     "chainages": ["chaînage", "chainage"],
+    "dalle": ["dalle", "dalle béton", "chape"],
+    "chape": ["chape", "chape fluide", "chape ciment"],
+    "enduit_ciment": ["enduit ciment", "enduit monocouche", "crépi"],
+    "mur": ["mur porteur", "mur maçonné", "élévation de mur"],
     # ── Couverture / Toiture ──
     "toiture": ["toiture", "couverture", "réfection toiture", "refection toiture"],
     "tuiles": ["tuile", "tuiles mécaniques", "tuiles plates"],
-    "zinguerie": ["zinguerie", "gouttière", "chéneau"],
+    "zinguerie": ["zinguerie", "gouttière", "chéneau", "descente ep"],
     "ardoise": ["ardoise"],
+    "ecran_sous_toiture": ["écran sous-toiture", "sous-toiture", "pare-pluie"],
     # ── Climatisation / Ventilation ──
     "climatisation": ["climatisation", "climatiseur", "monosplit", "mono-split"],
-    "vmc": ["vmc", "ventilation"],
+    "vmc": ["vmc", "ventilation", "ventilation mécanique"],
     "split": ["split", "monosplit", "multisplit"],
+    "gainable": ["gainable", "climatisation gainable"],
     # ── Façade / Ravalement ──
     "ravalement": ["ravalement", "enduit extérieur"],
     "hydrofuge": ["hydrofuge", "imperméabilisant"],
     "antimousse": ["antimousse", "anti-mousse", "démoussage"],
-    "facade": ["façade", "facade"],
+    "facade": ["façade", "facade", "bardage"],
     # ── Isolation ──
     "ite": ["isolation thermique extérieure", "ite ", "fibre de bois"],
     "isolation": ["isolation", "isolant", "laine de verre", "laine de roche"],
+    "combles": ["combles", "combles perdus", "soufflage"],
     # ── Cuisine ──
     "cuisine": ["cuisine", "agencement cuisine", "cuisine sur-mesure"],
     # ── Peinture ──
     "peinture": ["peinture", "enduit décoratif"],
+    "enduit": ["enduit", "enduit de lissage", "enduit plâtre"],
+    "lasure": ["lasure", "vernis", "vitrificateur"],
     # ── Plomberie / Sanitaire ──
     "plomberie": ["plomberie", "sanitaire", "robinetterie"],
     "salle": ["salle de bain", "douche", "baignoire"],
+    "wc": ["wc", "toilette", "cuvette", "chasse d'eau"],
+    "chauffe_eau": ["chauffe-eau", "ballon", "cumulus"],
+    "evacuation": ["évacuation", "evacuation", "tout-à-l'égout"],
     # ── Électricité ──
     "electricite": ["électricité", "electricite", "tableau électrique"],
+    "prise": ["prise électrique", "prise de courant"],
+    "luminaire": ["luminaire", "point lumineux", "éclairage"],
+    "interrupteur": ["interrupteur", "va-et-vient", "variateur"],
     # ── Menuiserie ──
     "menuiserie": ["menuiserie", "porte", "fenêtre", "volet"],
+    "fenetre": ["fenêtre", "baie vitrée", "double vitrage"],
+    "porte": ["porte", "bloc-porte", "huisserie"],
+    "volet": ["volet", "volet roulant", "volet battant"],
+    "parquet": ["parquet", "parquet flottant", "parquet massif"],
     # ── Terrassement ──
     "terrassement": ["terrassement", "vrd", "assainissement"],
+    "fouille": ["fouille", "tranchée", "excavation"],
     # ── Démolition ──
     "demolition": ["démolition", "curage", "dépose"],
+    "depose": ["dépose", "dépose soignée", "dépose et évacuation"],
     # ── Charpente ──
     "charpente": ["charpente", "ossature bois"],
     # ── Serrurerie ──
     "serrurerie": ["serrurerie", "métallerie", "garde-corps"],
+    "portail": ["portail", "portillon", "clôture"],
     # ── Revêtements ──
     "revetement": ["revêtement", "parquet", "stratifié", "moquette"],
+    "sol_souple": ["sol souple", "vinyle", "lino", "pvc"],
     # ── Étanchéité ──
-    "etancheite": ["étanchéité", "toiture terrasse"],
+    "etancheite": ["étanchéité", "toiture terrasse", "membrane"],
     # ── Chauffage ──
     "chauffage": ["chauffage", "chaudière", "radiateur", "pac", "pompe à chaleur"],
+    "plancher_chauffant": ["plancher chauffant", "chauffage au sol"],
     # ── Photovoltaïque ──
     "photovoltaique": ["photovoltaïque", "panneau solaire"],
     # ── Dépannage ──
     "depannage": ["dépannage", "intervention rapide"],
+    # ── Nettoyage / Finitions ──
+    "nettoyage": ["nettoyage", "nettoyage fin de chantier"],
+    "evacuation_gravats": ["évacuation gravats", "benne", "déchets"],
 }
 
 # ----- Raw material / consumable prices -----
@@ -166,8 +199,8 @@ _MATERIAL_PRICES: Dict[str, float] = {
     "blocs_u": 1.80,           # Parpaing creux 20x20x50 ~1.80€/u
 }
 
-# Static fallback prices when no DB match is found
-_FALLBACK_PRICES: Dict[str, float] = {
+# Static fallback prices — LAST resort when no DB match AND no metier median.
+_STATIC_FALLBACK_PRICES: Dict[str, float] = {
     "m²": 45.0,
     "m³": 120.0,
     "ml": 15.0,
@@ -177,10 +210,37 @@ _FALLBACK_PRICES: Dict[str, float] = {
     "forfait": 120.0,
 }
 
+# Type alias for the metier-aware median price map:
+# normalised_metier_key → { unit → median_price }
+MetierMedianMap = Dict[str, Dict[str, float]]
 
-def _get_fallback_price(unit: str) -> float:
-    """Last-resort fallback price when no DB entry is found."""
-    return _FALLBACK_PRICES.get(unit, 50.0)
+
+def _get_fallback_price(
+    unit: str,
+    *,
+    corps_metier: str = "",
+    metier_medians: Optional[MetierMedianMap] = None,
+) -> float:
+    """Return a fallback price, preferring the metier-specific BPU median.
+
+    Resolution:
+    1. Metier-specific median price for the requested unit
+    2. Metier-specific median across all units (any-unit average)
+    3. Static fallback price by unit
+    """
+    if metier_medians and corps_metier:
+        norm_metier = _normalize_key(corps_metier)
+        unit_medians = metier_medians.get(norm_metier)
+        if unit_medians:
+            # Prefer exact unit match
+            p = unit_medians.get(unit.lower().strip())
+            if p and p > 0:
+                return p
+            # Any-unit fallback within this metier
+            vals = [v for v in unit_medians.values() if v > 0]
+            if vals:
+                return statistics.median(vals)
+    return _STATIC_FALLBACK_PRICES.get(unit, 50.0)
 
 
 def _normalize_key(text: str) -> str:
@@ -219,14 +279,17 @@ def _resolve_price(
     price_map: Optional[Dict[str, float]],
     *,
     concept_map: Optional[Dict[str, Dict[str, float]]] = None,
+    corps_metier: str = "",
+    metier_medians: Optional[MetierMedianMap] = None,
 ) -> float:
-    """Look up a price in the preloaded maps, falling back to a static price.
+    """Look up a price in the preloaded maps, falling back intelligently.
 
     Resolution order:
     1. Direct material price for known consumables (key with unit suffix)
     2. Exact match in ``price_map`` by normalised key
     3. Concept match in ``concept_map`` — tries full concept, then each word
-    4. Static fallback price by unit
+    4. Metier-specific BPU median price (calculated from real market data)
+    5. Static fallback price by unit (absolute last resort)
     """
     # 1. Known consumable material?
     key_lower = key.lower().strip()
@@ -273,20 +336,44 @@ def _resolve_price(
             if price:
                 return price
 
-    logger.warning("Prix DB non trouvé pour '%s' (unit=%s), utilisation du prix fallback", key, unit)
-    return _get_fallback_price(unit)
+    # 4 & 5. Metier median or static fallback
+    fallback = _get_fallback_price(
+        unit, corps_metier=corps_metier, metier_medians=metier_medians
+    )
+    has_metier_median = (
+        metier_medians
+        and corps_metier
+        and _normalize_key(corps_metier) in metier_medians
+    )
+    logger.warning(
+        "[FALLBACK_USED] key='%s' unit=%s metier='%s' → %.2f€ (%s)",
+        key,
+        unit,
+        corps_metier,
+        fallback,
+        "metier_median" if has_metier_median else "static_fallback",
+    )
+    return fallback
 
 
-async def load_price_map(db: AsyncSession) -> tuple[Dict[str, float], Dict[str, Dict[str, float]]]:
+# Type alias for the full price tuple returned by load_price_map
+PriceMapTuple = tuple[Dict[str, float], Dict[str, Dict[str, float]], MetierMedianMap]
+
+
+async def load_price_map(db: AsyncSession) -> PriceMapTuple:
     """Pre-load all real prices from the ``bpu_items`` table.
 
     Returns a tuple of:
     1. ``price_map`` — normalised designation/slug → price
     2. ``concept_map`` — material concept → {unit: price}
+    3. ``metier_medians`` — normalised corps_metier → {unit: median_price}
 
     The concept_map enables matching short rule keys like ``carrelage_m2``
     to real BPU prices by extracting the keyword ("carrelage") and
     searching for items whose designation contains that keyword.
+
+    The metier_medians map provides intelligent fallback prices by
+    computing the median BPU price per (corps_metier, unit) combination.
     """
     stmt = select(
         BpuItem.designation,
@@ -301,6 +388,10 @@ async def load_price_map(db: AsyncSession) -> tuple[Dict[str, float], Dict[str, 
     price_map: Dict[str, float] = {}
     # concept_map: concept_name -> {unit: best_price}
     concept_map: Dict[str, Dict[str, float]] = {}
+    # Collect all prices per (metier, unit) for median calculation
+    _metier_unit_prices: Dict[str, Dict[str, List[float]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
 
     for designation, slug, price, unit, corps_metier in rows:
         # 1. Index by slug
@@ -324,13 +415,29 @@ async def load_price_map(db: AsyncSession) -> tuple[Dict[str, float], Dict[str, 
                         concept_map[concept][norm_unit] = price
                     break  # one keyword match is enough
 
+        # 4. Accumulate prices for metier median calculation
+        norm_metier = _normalize_key(corps_metier)
+        norm_unit = unit.lower().strip()
+        _metier_unit_prices[norm_metier][norm_unit].append(price)
+
+    # Compute medians per (metier, unit)
+    metier_medians: MetierMedianMap = {}
+    for metier_key, unit_prices_dict in _metier_unit_prices.items():
+        metier_medians[metier_key] = {
+            u: round(statistics.median(prices), 2)
+            for u, prices in unit_prices_dict.items()
+            if prices
+        }
+
     logger.info(
-        "Loaded %d price keys + %d concept entries from bpu_items (%d rows).",
+        "Loaded %d price keys + %d concept entries + %d metier median groups "
+        "from bpu_items (%d rows).",
         len(price_map),
         sum(len(v) for v in concept_map.values()),
+        len(metier_medians),
         len(rows),
     )
-    return price_map, concept_map
+    return price_map, concept_map, metier_medians
 
 async def load_packs_map(db: AsyncSession) -> tuple[Dict[str, dict], List[dict]]:
     """Pre-load all active packs from the packs_travaux table."""
@@ -363,14 +470,14 @@ async def load_packs_map(db: AsyncSession) -> tuple[Dict[str, dict], List[dict]]
 # when the seed script runs (which restarts the server, clearing this).
 # ---------------------------------------------------------------------------
 _cache_lock = asyncio.Lock()
-_cached_prices: tuple[Dict[str, float], Dict[str, Dict[str, float]]] | None = None
+_cached_prices: PriceMapTuple | None = None
 _cached_packs: tuple[Dict[str, dict], List[dict]] | None = None
 
 
 async def get_cached_price_map(
     db: AsyncSession,
-) -> tuple[Dict[str, float], Dict[str, Dict[str, float]]]:
-    """Return the price_map and concept_map, loading from DB only once."""
+) -> PriceMapTuple:
+    """Return the price_map, concept_map, and metier_medians, loading from DB only once."""
     global _cached_prices
     if _cached_prices is not None:
         return _cached_prices
@@ -396,21 +503,94 @@ async def get_cached_packs_map(
         logger.info("Packs map cached in RAM.")
         return _cached_packs
 
-def _find_pack(pack_id: str, exact_map: Dict[str, dict], pack_list: List[dict]) -> Optional[dict]:
-    # Exact match
+def _find_pack(
+    pack_id: str,
+    exact_map: Dict[str, dict],
+    pack_list: List[dict],
+    *,
+    corps_metier: str = "",
+) -> Optional[dict]:
+    """Find a matching pack using multi-level resolution.
+
+    Resolution order:
+    1. Exact match by ``code_pack``
+    2. Normalised key match on ``code_pack``
+    3. Substring match in ``nom_pack``
+    4. Fuzzy match (difflib) on ``nom_pack``, scoped by ``corps_metier`` first
+       (cutoff=0.6 for confidence), then global fallback
+
+    Returns ``None`` only when no pack can be matched with sufficient confidence.
+    """
+    # 1. Exact code_pack match
     if pack_id in exact_map:
         return exact_map[pack_id]
-        
-    # Fuzzy match
+
+    # 2. Normalised code_pack match
     norm_pack_id = _normalize_key(pack_id)
     if not norm_pack_id:
         return None
-        
+
     for p in pack_list:
         if norm_pack_id == _normalize_key(p["code_pack"]):
             return p
+
+    # 3. Substring match in nom_pack
+    for p in pack_list:
         if norm_pack_id in _normalize_key(p["nom_pack"]):
             return p
+
+    # 4. Fuzzy match on nom_pack using difflib (confidence-scored)
+    _FUZZY_CUTOFF = 0.6
+
+    # Build candidate pools — prefer same-metier candidates
+    if corps_metier:
+        norm_metier = _normalize_key(corps_metier)
+        metier_candidates = [
+            p for p in pack_list
+            if norm_metier in _normalize_key(p.get("corps_metier", ""))
+            or _normalize_key(p.get("corps_metier", "")) in norm_metier
+        ]
+    else:
+        metier_candidates = []
+
+    # Try metier-scoped fuzzy first, then global
+    for candidates, scope_name in [
+        (metier_candidates, "metier_scoped"),
+        (pack_list, "global"),
+    ]:
+        if not candidates:
+            continue
+
+        candidate_names = [_normalize_key(p["nom_pack"]) for p in candidates]
+        matches = difflib.get_close_matches(
+            norm_pack_id, candidate_names, n=1, cutoff=_FUZZY_CUTOFF
+        )
+        if matches:
+            best_match_name = matches[0]
+            for p in candidates:
+                if _normalize_key(p["nom_pack"]) == best_match_name:
+                    # Compute confidence for logging
+                    confidence = difflib.SequenceMatcher(
+                        None, norm_pack_id, best_match_name
+                    ).ratio()
+                    logger.info(
+                        "[PACK_FUZZY_MATCH] '%s' → '%s' (code=%s, scope=%s, "
+                        "confidence=%.2f, metier='%s')",
+                        pack_id,
+                        p["nom_pack"],
+                        p["code_pack"],
+                        scope_name,
+                        confidence,
+                        p.get("corps_metier", "?"),
+                    )
+                    return p
+
+    logger.warning(
+        "[PACK_NOT_FOUND] pack_id='%s' metier='%s' — no match in %d packs",
+        pack_id,
+        corps_metier,
+        len(pack_list),
+    )
     return None
 
 ISOLATION_TVA_KEYWORDS = [
@@ -780,6 +960,7 @@ def process_ai_lots(
     user_text: str = "",
     price_map: Optional[Dict[str, float]] = None,
     concept_map: Optional[Dict[str, Dict[str, float]]] = None,
+    metier_medians: Optional[MetierMedianMap] = None,
     packs_maps: Optional[tuple[Dict[str, dict], List[dict]]] = None,
 ) -> List[Dict[str, Any]]:
     """
@@ -836,7 +1017,7 @@ def process_ai_lots(
             matched_pack = None
             if packs_maps:
                 exact_map, pack_list = packs_maps
-                matched_pack = _find_pack(pack_id, exact_map, pack_list)
+                matched_pack = _find_pack(pack_id, exact_map, pack_list, corps_metier=metier)
                 
             if matched_pack:
                 for line in matched_pack["pack_json"]:
@@ -886,7 +1067,7 @@ def process_ai_lots(
                     tva = decide_tva_finale(designation, metier, client_type, project_nature)
                     
                     qte_calc = safe_eval_formula(rule["formula"], {"surface": quantite_brute, "longueur": quantite_brute, "hauteur": 2.5})
-                    pu_ht = _resolve_price(line_key, rule["unit"], price_map, concept_map=concept_map)
+                    pu_ht = _resolve_price(line_key, rule["unit"], price_map, concept_map=concept_map, corps_metier=metier, metier_medians=metier_medians)
                     total_ht = round(qte_calc * pu_ht, 2)
                     
                     line_data = {
@@ -924,7 +1105,7 @@ def process_ai_lots(
                 else:
                     pack_unit = "u"
                 # Resolve price from DB using pack keywords
-                pu_ht = _resolve_price(pack_id, pack_unit, price_map, concept_map=concept_map)
+                pu_ht = _resolve_price(pack_id, pack_unit, price_map, concept_map=concept_map, corps_metier=metier, metier_medians=metier_medians)
                 total_ht = round(pu_ht * quantite_brute, 2)
                 lot_intervention_lines.append({
                     "designation": fallback_designation,
