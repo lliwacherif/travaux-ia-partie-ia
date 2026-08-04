@@ -1,4 +1,9 @@
-"""Layer 7 assembly from official lines using only SSOT geometries."""
+"""Layer 7 assembly from official lines using only SSOT geometries.
+
+V3.2 — assembleWithOneSharedProfile: SETUP/FINISH come from one shared
+profile for the whole quote; CORE lines come from each definitive pack.
+Never concatenates SETUP/FINISH per métier.
+"""
 
 from __future__ import annotations
 
@@ -11,6 +16,7 @@ from .contracts import (
     QuoteLine,
     QuoteResult,
     QuoteTotals,
+    SourceEntityType,
     TradeBlock,
 )
 from .pricing import calculate_totals
@@ -30,6 +36,10 @@ class AssembledQuoteParts:
     flow: Flow
     generation_mode: GenerationMode
     review_required: bool
+    # V3.2 — single shared profile framing the quote.
+    shared_profile_id: str
+    shared_profile_code: str
+    shared_profile_version: int
     setup_lines: tuple[QuoteLine, ...]
     trade_blocks: tuple[TradeBlock, ...]
     finish_lines: tuple[QuoteLine, ...]
@@ -123,6 +133,34 @@ def _mode(selections: Sequence[Any]) -> GenerationMode:
     return GenerationMode(selected)
 
 
+def _shared_profile_from_lines(
+    lines: Sequence[QuoteLine],
+    selection: Any,
+) -> tuple[str, str, int]:
+    """V3.2 — extract the single shared profile identity from SETUP/FINISH lines."""
+
+    for line in lines:
+        if line.source_entity_type is SourceEntityType.SHARED_PROFILE:
+            if (
+                line.shared_profile_id
+                and line.shared_profile_code
+                and line.shared_profile_version
+            ):
+                return (
+                    line.shared_profile_id,
+                    line.shared_profile_code,
+                    line.shared_profile_version,
+                )
+    pack_id = str(_selection_value(selection, "pack_id") or "unknown")
+    pack_code = str(_selection_value(selection, "pack_code") or pack_id)
+    pack_version = int(_selection_value(selection, "pack_version") or 1)
+    return (
+        f"legacy-profile-{pack_id}",
+        f"LEGACY-{pack_code}",
+        pack_version,
+    )
+
+
 def assemble_parts_by_ssot_geometry(
     *,
     quote_id: str,
@@ -132,7 +170,7 @@ def assemble_parts_by_ssot_geometry(
     review_required: bool = False,
     totals: QuoteTotals | Mapping[str, Any] | None = None,
 ) -> AssembledQuoteParts:
-    """Assemble exact lines; reject incomplete/oversized inputs without padding."""
+    """V3.2 assembleWithOneSharedProfile — exact geometry, no padding."""
 
     resolved_flow = Flow(flow)
     geometry = expected_geometry(resolved_flow)
@@ -152,12 +190,14 @@ def assemble_parts_by_ssot_geometry(
             _selection_value(selection, "intervention_id") or ""
         )
         pack_id = str(_selection_value(selection, "pack_id") or "")
+        pack_code = str(_selection_value(selection, "pack_code") or "")
         trade_code = str(_selection_value(selection, "trade_code") or "")
         pack = _selection_value(selection, "pack")
         if pack is not None:
             pack_data = _mapping(pack)
             trade_code = trade_code or str(pack_data.get("trade_code") or "")
             pack_id = pack_id or str(pack_data.get("pack_id") or "")
+            pack_code = pack_code or str(pack_data.get("pack_code") or "")
         if not intervention_id or intervention_id in intervention_ids:
             raise ValueError("Each selection requires one unique intervention_id")
         if not pack_id or pack_id in pack_ids:
@@ -174,7 +214,10 @@ def assemble_parts_by_ssot_geometry(
                 f"PACK_GEOMETRY_INVALID:CORE:{pack_id}:"
                 f"{len(core_lines)}!={geometry.core_per_trade}"
             )
-        if any(line.pack_id != pack_id for line in core_lines):
+        if any(
+            line.pack_id not in (pack_id, None) and line.source_entity_type is SourceEntityType.PACK
+            for line in core_lines
+        ):
             raise ValueError("CORE line pack_id must equal the definitive pack_id")
         pack_version = int(
             _selection_value(selection, "pack_version")
@@ -185,19 +228,21 @@ def assemble_parts_by_ssot_geometry(
             )
             or 1
         )
+        if not pack_code:
+            pack_code = pack_id
         blocks.append(
             TradeBlock(
                 intervention_id=intervention_id,
                 trade_code=trade_code,
                 pack_id=pack_id,
-                lines=list(core_lines),
+                pack_code=pack_code,
                 pack_version=pack_version,
+                lines=list(core_lines),
             )
         )
         all_lines_by_selection.append(lines)
 
-    # SETUP and FINISH are shared once.  They come from the first definitive
-    # official pack exactly as published; no union, truncation, or fill occurs.
+    # V3.2 — SETUP and FINISH come once from the first selection's shared profile.
     setup_lines = _sorted_lines(all_lines_by_selection[0], Phase.SETUP)
     finish_lines = _sorted_lines(all_lines_by_selection[0], Phase.FINISH)
     if len(setup_lines) != geometry.setup:
@@ -208,6 +253,13 @@ def assemble_parts_by_ssot_geometry(
         raise ValueError(
             f"PACK_GEOMETRY_INVALID:FINISH:{len(finish_lines)}!={geometry.finish}"
         )
+
+    shared_profile_id, shared_profile_code, shared_profile_version = (
+        _shared_profile_from_lines(
+            (*setup_lines, *finish_lines),
+            selections[0],
+        )
+    )
 
     final_lines = [
         *setup_lines,
@@ -244,6 +296,9 @@ def assemble_parts_by_ssot_geometry(
             or generation_mode is not GenerationMode.EXACT_PACK
             or assumption_used
         ),
+        shared_profile_id=shared_profile_id,
+        shared_profile_code=shared_profile_code,
+        shared_profile_version=shared_profile_version,
         setup_lines=setup_lines,
         trade_blocks=tuple(blocks),
         finish_lines=finish_lines,
@@ -265,6 +320,9 @@ def finalize_quote(
         flow=parts.flow,
         generation_mode=parts.generation_mode,
         review_required=parts.review_required or bool(resolved_trace.assumption_codes),
+        shared_profile_id=parts.shared_profile_id,
+        shared_profile_code=parts.shared_profile_code,
+        shared_profile_version=parts.shared_profile_version,
         setup_lines=list(parts.setup_lines),
         trade_blocks=list(parts.trade_blocks),
         finish_lines=list(parts.finish_lines),
@@ -294,7 +352,8 @@ def assemble_by_ssot_geometry(
     return finalize_quote(parts, trace)
 
 
-# Concise public alias for direct unit tests.
+# V3.2 public alias matching the specification name.
+assemble_with_one_shared_profile = assemble_by_ssot_geometry
 assemble_quote = assemble_by_ssot_geometry
 
 
@@ -303,5 +362,6 @@ __all__ = [
     "assemble_by_ssot_geometry",
     "assemble_parts_by_ssot_geometry",
     "assemble_quote",
+    "assemble_with_one_shared_profile",
     "finalize_quote",
 ]

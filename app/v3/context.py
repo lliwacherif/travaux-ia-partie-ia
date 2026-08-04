@@ -95,9 +95,11 @@ UNIT_ALIASES: Mapping[str, str] = MappingProxyType(
         "JOUR": "DAY",
         "JOURS": "DAY",
         "FORFAIT": "FORFAIT",
-        "T": "TONNE",
-        "TONNE": "TONNE",
-        "TONNES": "TONNE",
+        # V3.2 — TONNE is no longer an authorized library unit; map spoken
+        # steel-weight language to UNIT for demand normalization only.
+        "T": "UNIT",
+        "TONNE": "UNIT",
+        "TONNES": "UNIT",
     }
 )
 
@@ -216,6 +218,26 @@ def normalize_and_enrich(pipeline_input: Any) -> NormalizedPipelineContext:
         )
     else:
         project["country"] = str(country).upper()
+
+    # V3.2 — territory_code is required for VAT; default metropolitan scope.
+    territory = project.get("territory_code")
+    if territory in (None, ""):
+        from app.v3.ssot import DEFAULT_TERRITORY_CODE
+
+        project["territory_code"] = DEFAULT_TERRITORY_CODE
+        assumptions.append(
+            Assumption(
+                code="CONTEXT_DEFAULT_TERRITORY_FR_MET",
+                field="project.territory_code",
+                value=DEFAULT_TERRITORY_CODE,
+                reason=(
+                    "The request omitted territory_code; "
+                    "V3.2 defaults to FR_METROPOLE_CORSE scope."
+                ),
+            )
+        )
+    else:
+        project["territory_code"] = str(territory).strip().upper()
 
     company["primary_trade_code"] = str(
         company.get("primary_trade_code") or ""

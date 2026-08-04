@@ -1,4 +1,8 @@
-"""Strict Pydantic contracts for the isolated V3.1 pipeline."""
+"""Strict Pydantic contracts for the isolated V3.2 pipeline.
+
+V3.2 — shared profiles, territory_code, library snapshot trace fields,
+PackCandidate scoring fields required, and source_entity_type on lines.
+"""
 
 from __future__ import annotations
 
@@ -25,6 +29,8 @@ PositiveNumber = Annotated[float, Field(gt=0, allow_inf_nan=False)]
 Score = Annotated[float, Field(ge=0, le=1, allow_inf_nan=False)]
 RequestItemId = Annotated[str, Field(pattern=r"^ITEM-[0-9]{3}$")]
 DimensionId = Annotated[str, Field(pattern=r"^DIM-[0-9]{3}$")]
+# V3.2 — vat_rate is numeric 0–100 (multipleOf 0.01), not a fixed enum.
+VatRate = Annotated[float, Field(ge=0, le=100, allow_inf_nan=False)]
 
 
 class StrictModel(BaseModel):
@@ -60,7 +66,10 @@ class CompanyContext(StrictModel):
 
 
 class ProjectContext(StrictModel):
+    """V3.2 — territory_code is required for VAT resolution."""
+
     country: Literal["FR"]
+    territory_code: Annotated[str, Field(min_length=2)]
     customer_type: CustomerTypeValue | None
     building_use: BuildingUseValue | None
     building_age_years: Annotated[float, Field(ge=0, allow_inf_nan=False)] | None
@@ -239,7 +248,10 @@ class LineSearchHit(StrictModel):
 
 
 class PackCandidate(StrictModel):
+    """V3.2 PackCandidate.v2 — all scoring / tie-breaker fields are required."""
+
     pack_id: NonEmptyString
+    pack_code: NonEmptyString
     pack_version: Annotated[int, Field(ge=1)]
     trade_code: NonEmptyString
     service_code: str | None
@@ -252,15 +264,14 @@ class PackCandidate(StrictModel):
     rrf_score: Annotated[float, Field(allow_inf_nan=False)]
     rerank_score: Annotated[float, Field(allow_inf_nan=False)]
     coverage_score: Score
+    object_exactness: Score
+    material_compatibility: Score
+    unit_compatibility: Score
+    context_compatibility: Score
+    exclusion_penalty: Annotated[float, Field(ge=0, allow_inf_nan=False)]
     extra_scope_penalty: Annotated[float, Field(ge=0, allow_inf_nan=False)]
+    fallback_rank: Annotated[int, Field(ge=1)] | None
     final_score: Annotated[float, Field(allow_inf_nan=False)]
-    pack_code: str | None = None
-    fallback_rank: Annotated[int, Field(ge=0)] | None = None
-    object_exactness: Score = 0.0
-    material_compatibility: Score = 0.0
-    unit_compatibility: Score = 0.0
-    context_compatibility: Score = 0.0
-    exclusion_penalty: Annotated[float, Field(ge=0, allow_inf_nan=False)] = 0.0
 
 
 class GenerationMode(StrEnum):
@@ -285,6 +296,13 @@ class ConfidenceLevel(StrEnum):
     LOW = "LOW"
 
 
+class SourceEntityType(StrEnum):
+    """V3.2 — line origin: CORE pack vs shared SETUP/FINISH profile."""
+
+    PACK = "PACK"
+    SHARED_PROFILE = "SHARED_PROFILE"
+
+
 GenerationModeValue = Annotated[GenerationMode, Field(strict=False)]
 PipelineStatusValue = Annotated[PipelineStatus, Field(strict=False)]
 StageStatusValue = Annotated[StageStatus, Field(strict=False)]
@@ -292,6 +310,7 @@ ConfidenceLevelValue = Annotated[ConfidenceLevel, Field(strict=False)]
 PipelineStageValue = Annotated[PipelineStage, Field(strict=False)]
 PhaseValue = Annotated[Phase, Field(strict=False)]
 ResolutionSourceValue = Annotated[ResolutionSource, Field(strict=False)]
+SourceEntityTypeValue = Annotated[SourceEntityType, Field(strict=False)]
 
 
 class StageEvidence(StrictModel):
@@ -306,9 +325,39 @@ class StageEvidence(StrictModel):
     evidence: dict[str, object] = Field(default_factory=dict)
 
 
+class SelectedPackRef(StrictModel):
+    """V3.2 — versioned pack reference in the execution trace."""
+
+    pack_id: NonEmptyString
+    pack_code: NonEmptyString
+    pack_version: Annotated[int, Field(ge=1)]
+
+
+class SharedProfileRef(StrictModel):
+    """V3.2 — single shared SETUP/FINISH profile for the quote."""
+
+    profile_id: NonEmptyString
+    profile_code: NonEmptyString
+    profile_version: Annotated[int, Field(ge=1)]
+
+
+class PriceVersionRef(StrictModel):
+    price_id: NonEmptyString
+    price_version: Annotated[int, Field(ge=1)]
+
+
+class VatRuleVersionRef(StrictModel):
+    vat_rule_id: NonEmptyString
+    vat_rule_version: Annotated[int, Field(ge=1)]
+
+
 class ExecutionTrace(StrictModel):
     ssot_version: NonEmptyString
     library_version: NonEmptyString
+    # V3.2 — snapshot identity and territory for reproducibility.
+    library_snapshot_id: NonEmptyString
+    fallback_snapshot_used: bool
+    territory_code: NonEmptyString
     prompt_hash: NonEmptyString
     config_hash: NonEmptyString
     arbitrage_applied: bool
@@ -324,6 +373,11 @@ class ExecutionTrace(StrictModel):
     line_search_hits_count: NonNegativeInt = 0
     parent_pack_candidates_count: NonNegativeInt = 0
     reranked_pack_count: NonNegativeInt = 0
+    selected_packs: list[SelectedPackRef] = Field(default_factory=list)
+    shared_profile: SharedProfileRef | None = None
+    price_versions: list[PriceVersionRef] = Field(default_factory=list)
+    vat_rule_versions: list[VatRuleVersionRef] = Field(default_factory=list)
+    # Legacy-compatible pack id list derived from selected_packs for persistence.
     selected_pack_ids: list[str] = Field(default_factory=list)
     replaced_line_ids: list[str] = Field(default_factory=list)
     assumption_codes: list[str] = Field(default_factory=list)
@@ -336,18 +390,28 @@ class ExecutionTrace(StrictModel):
 
 class QuoteLine(StrictModel):
     line_id: NonEmptyString
-    pack_id: NonEmptyString
+    # V3.2 — distinguish pack CORE vs shared SETUP/FINISH lines.
+    source_entity_type: SourceEntityTypeValue
+    pack_id: str | None
+    pack_code: str | None
+    pack_version: Annotated[int, Field(ge=1)] | None
+    shared_profile_id: str | None
+    shared_profile_code: str | None
+    shared_profile_version: Annotated[int, Field(ge=1)] | None
     phase: PhaseValue
     slot_index: NonNegativeInt = 0
     designation: NonEmptyString
     quantity: PositiveNumber
-    unit: NonEmptyString
+    unit: Annotated[
+        QuantityUnit,
+        Field(strict=False),
+    ]
     price_id: NonEmptyString
     price_version: Annotated[int, Field(ge=1)]
     unit_price_cents: NonNegativeInt
     vat_rule_id: NonEmptyString
     vat_rule_version: Annotated[int, Field(ge=1)]
-    vat_rate: Literal[0, 5.5, 10, 20]
+    vat_rate: VatRate
     total_ht_cents: NonNegativeInt
     covered_request_item_ids: list[RequestItemId]
     technical_dependency_ids: list[str]
@@ -358,10 +422,27 @@ class QuoteLine(StrictModel):
     def validate_justification_and_linear_trace(self) -> "QuoteLine":
         if not self.covered_request_item_ids and not self.technical_dependency_ids:
             raise ValueError("every quote line requires demand or dependency justification")
-        if self.unit == "ML" and self.linear_measurement is None:
+        if self.unit == QuantityUnit.ML and self.linear_measurement is None:
             raise ValueError("ML lines require a linear_measurement trace")
-        if self.unit != "ML" and self.linear_measurement is not None:
+        if self.unit != QuantityUnit.ML and self.linear_measurement is not None:
             raise ValueError("only ML lines may carry a linear_measurement trace")
+        # V3.2 — entity provenance must match phase ownership.
+        if self.source_entity_type is SourceEntityType.PACK:
+            if not self.pack_id or self.pack_code is None or self.pack_version is None:
+                raise ValueError("PACK lines require pack_id/code/version")
+            if self.phase is not Phase.CORE:
+                raise ValueError("PACK lines must be CORE")
+        if self.source_entity_type is SourceEntityType.SHARED_PROFILE:
+            if (
+                not self.shared_profile_id
+                or self.shared_profile_code is None
+                or self.shared_profile_version is None
+            ):
+                raise ValueError(
+                    "SHARED_PROFILE lines require shared_profile_id/code/version"
+                )
+            if self.phase is Phase.CORE:
+                raise ValueError("SHARED_PROFILE lines cannot be CORE")
         return self
 
 
@@ -369,8 +450,10 @@ class TradeBlock(StrictModel):
     intervention_id: NonEmptyString
     trade_code: NonEmptyString
     pack_id: NonEmptyString
+    # V3.2 — pack identity fully versioned on each trade block.
+    pack_code: NonEmptyString
+    pack_version: Annotated[int, Field(ge=1)]
     lines: list[QuoteLine]
-    pack_version: Annotated[int, Field(ge=1)] = 1
 
 
 class QuoteTotals(StrictModel):
@@ -390,6 +473,10 @@ class QuoteResult(StrictModel):
     flow: FlowValue
     generation_mode: GenerationModeValue
     review_required: bool
+    # V3.2 — one shared profile frames all trade blocks.
+    shared_profile_id: NonEmptyString
+    shared_profile_code: NonEmptyString
+    shared_profile_version: Annotated[int, Field(ge=1)]
     setup_lines: list[QuoteLine]
     trade_blocks: Annotated[list[TradeBlock], Field(min_length=1)]
     finish_lines: list[QuoteLine]
@@ -420,6 +507,14 @@ class QuoteResult(StrictModel):
             raise ValueError("finish_lines may only contain FINISH lines")
         if self.flow is Flow.DEPANNAGE and len(self.trade_blocks) != 1:
             raise ValueError("DEPANNAGE requires exactly one trade block")
+        # V3.2 — SETUP/FINISH never repeated per métier.
+        total = (
+            len(self.setup_lines)
+            + sum(len(block.lines) for block in self.trade_blocks)
+            + len(self.finish_lines)
+        )
+        if total != expected.line_count(len(self.trade_blocks)):
+            raise ValueError("quote line count does not match shared-profile geometry")
         return self
 
 

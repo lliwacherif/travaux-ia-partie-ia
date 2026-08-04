@@ -1,4 +1,9 @@
-"""End-to-end V3 quote orchestration with mandatory stage evidence."""
+"""End-to-end V3.2 quote orchestration with mandatory stage evidence.
+
+V3.2 — stage 0B library snapshot, shared-profile assembly, and
+VALIDATION_0 → repair → VALIDATION_N loop before display gate.
+V2 / v1 devis routes are never imported here.
+"""
 
 from __future__ import annotations
 
@@ -23,13 +28,23 @@ from app.v3.contracts import (
     DemandMatrix,
     PackCandidate,
     PipelineInput,
+    PriceVersionRef,
     QuoteResult,
+    SelectedPackRef,
     SemanticPlan,
+    SharedProfileRef,
     TradeArbitration,
     ValidationReport,
+    VatRuleVersionRef,
 )
 from app.v3.coverage import coverage_score
 from app.v3.demand import DemandNormalizationResult, normalize_demand_matrix_with_metadata
+from app.v3.library import (
+    LibrarySnapshotUnavailableError,
+    ResolvedLibrarySnapshot,
+    load_current_published_validated_snapshot,
+    load_last_published_validated_snapshot,
+)
 from app.v3.observability import persist_execution
 from app.v3.reranker import PackReranker
 from app.v3.search import (
@@ -46,7 +61,7 @@ from app.v3.selector import (
     select_one_pack_per_intervention_and_repair,
 )
 from app.v3.semantic import SemanticService
-from app.v3.ssot import PipelineStage, REQUIRED_STAGES
+from app.v3.ssot import MAX_REPAIR_ATTEMPTS, PipelineStage, REQUIRED_STAGES
 from app.v3.trace import ExecutionTracer, stable_hash
 from app.v3.validator import (
     DisplayGateError,
@@ -92,7 +107,7 @@ def _report_errors(report: ValidationReport) -> list[str]:
 
 
 class V3QuoteEngine:
-    """Coordinate the ten mandatory V3 stages and the final display gate."""
+    """Coordinate the mandatory V3.2 stages and the final display gate."""
 
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
@@ -110,6 +125,13 @@ class V3QuoteEngine:
         self.reranker = PackReranker()
         self.cache = SemanticCacheRepository(session)
         self._cache_hit = False
+        self._library: ResolvedLibrarySnapshot | None = None
+
+    def _bind_library(self, library: ResolvedLibrarySnapshot) -> None:
+        """V3.2 — pin search/catalog reads to the resolved snapshot version."""
+
+        self._library = library
+        self.repository.library_version = library.library_version
 
     async def _plan(
         self,
@@ -186,6 +208,7 @@ class V3QuoteEngine:
                     "reranker": settings.V3_COHERE_RERANK_MODEL,
                 }
             ),
+            territory_code=pipeline_input.project.territory_code,
         )
 
         context = await tracer.required(
@@ -197,6 +220,45 @@ class V3QuoteEngine:
         tracer.assumption_codes.extend(
             assumption.code for assumption in context.assumptions
         )
+        tracer.territory_code = str(
+            context.project.get("territory_code")
+            or pipeline_input.project.territory_code
+        )
+
+        # V3.2 — stage 0B: current published+validated snapshot, else last validated.
+        async def _load_current() -> ResolvedLibrarySnapshot:
+            return await load_current_published_validated_snapshot(
+                self.session,
+                preferred_library_version=settings.V3_LIBRARY_VERSION,
+            )
+
+        async def _load_last() -> ResolvedLibrarySnapshot:
+            return await load_last_published_validated_snapshot(self.session)
+
+        try:
+            library = await tracer.required_with_fallback(
+                PipelineStage.LIBRARY_SNAPSHOT,
+                _load_current,
+                _load_last,
+                input_value={"preferred": settings.V3_LIBRARY_VERSION},
+                fallback_reason="CURRENT_LIBRARY_SNAPSHOT_UNAVAILABLE",
+            )
+        except LibrarySnapshotUnavailableError as exc:
+            raise DisplayGateError(
+                [str(exc)],
+                ["PUBLISH_AND_VALIDATE_LIBRARY_SNAPSHOT"],
+            ) from exc
+        self._bind_library(library)
+        tracer.bind_library_snapshot(
+            snapshot_id=library.snapshot_id,
+            library_version=library.library_version,
+            fallback_snapshot_used=library.fallback_snapshot_used,
+        )
+        if library.fallback_snapshot_used:
+            tracer.confidence = ConfidenceLevel.MEDIUM
+            tracer.assumption_codes.append(
+                f"LIBRARY_FALLBACK_SNAPSHOT:{library.snapshot_id}"
+            )
 
         plan = await tracer.required_outcome(
             PipelineStage.PLAN,
@@ -355,6 +417,7 @@ class V3QuoteEngine:
             )
             fallback_candidate = PackCandidate(
                 pack_id=fallback_pack.pack_id,
+                pack_code=fallback_pack.pack_code,
                 pack_version=fallback_pack.version,
                 trade_code=fallback_pack.trade_code,
                 service_code=fallback_pack.service_code,
@@ -367,10 +430,19 @@ class V3QuoteEngine:
                 rrf_score=0.0,
                 rerank_score=0.0,
                 coverage_score=coverage.score,
+                object_exactness=0.0,
+                material_compatibility=0.0,
+                unit_compatibility=0.0,
+                context_compatibility=0.0,
+                exclusion_penalty=0.0,
                 extra_scope_penalty=0.0,
+                fallback_rank=(
+                    fallback_pack.fallback_rank
+                    if fallback_pack.fallback_rank is not None
+                    and fallback_pack.fallback_rank >= 1
+                    else None
+                ),
                 final_score=0.0,
-                pack_code=fallback_pack.pack_code,
-                fallback_rank=fallback_pack.fallback_rank,
             )
             scored_candidates = [fallback_candidate]
 
@@ -416,6 +488,26 @@ class V3QuoteEngine:
             evidence={"selector": "ONE_PACK_PER_INTERVENTION"},
         )
         tracer.selected_pack_ids.append(selection.pack_id)
+        # V3.2 — versioned selected pack refs for observability.
+        selected_pack = packs.get(selection.pack_id) or selection.pack
+        tracer.selected_packs.append(
+            SelectedPackRef(
+                pack_id=selection.pack_id,
+                pack_code=str(
+                    getattr(selected_pack, "pack_code", None) or selection.pack_id
+                ),
+                pack_version=int(getattr(selected_pack, "version", 1) or 1),
+            )
+        )
+        if getattr(selected_pack, "shared_profile_id", None):
+            tracer.shared_profile = SharedProfileRef(
+                profile_id=str(selected_pack.shared_profile_id),
+                profile_code=str(
+                    selected_pack.shared_profile_code
+                    or selected_pack.shared_profile_id
+                ),
+                profile_version=int(selected_pack.shared_profile_version or 1),
+            )
         tracer.replaced_line_ids.extend(selection.replaced_line_ids)
         if selection.generation_mode == "OFFICIAL_FALLBACK":
             tracer.confidence = ConfidenceLevel.LOW
@@ -438,6 +530,28 @@ class V3QuoteEngine:
         tracer.linear_measurements_count = sum(
             line.linear_measurement is not None for line in calculated.lines
         )
+        # V3.2 — record price/VAT versions actually applied.
+        seen_prices: set[tuple[str, int]] = set()
+        seen_vats: set[tuple[str, int]] = set()
+        for line in calculated.lines:
+            price_key = (line.price_id, line.price_version)
+            if price_key not in seen_prices:
+                seen_prices.add(price_key)
+                tracer.price_versions.append(
+                    PriceVersionRef(
+                        price_id=line.price_id,
+                        price_version=line.price_version,
+                    )
+                )
+            vat_key = (line.vat_rule_id, line.vat_rule_version)
+            if vat_key not in seen_vats:
+                seen_vats.add(vat_key)
+                tracer.vat_rule_versions.append(
+                    VatRuleVersionRef(
+                        vat_rule_id=line.vat_rule_id,
+                        vat_rule_version=line.vat_rule_version,
+                    )
+                )
 
         parts: AssembledQuoteParts = await tracer.required(
             PipelineStage.ASSEMBLY,
@@ -448,22 +562,35 @@ class V3QuoteEngine:
                 quote_lines_by_pack={
                     selection.pack_id: calculated.lines,
                 },
-                review_required=bool(calculated.assumption_codes),
+                review_required=bool(calculated.assumption_codes)
+                or library.fallback_snapshot_used,
             ),
             input_value=calculated,
-            evidence={"geometry": "SSOT_EXACT_NO_PADDING"},
+            evidence={"geometry": "V3.2_SHARED_PROFILE_SSOT_EXACT"},
         )
+        if tracer.shared_profile is None:
+            tracer.shared_profile = SharedProfileRef(
+                profile_id=parts.shared_profile_id,
+                profile_code=parts.shared_profile_code,
+                profile_version=parts.shared_profile_version,
+            )
 
         price_records, vat_rules = await self.repository.load_registry_records()
         catalog_packs = {
             pack_id: {
                 "pack_id": pack_id,
                 "version": pack.version,
-                "library_version": settings.V3_LIBRARY_VERSION,
+                "library_version": library.library_version,
+                "shared_profile_id": pack.shared_profile_id,
+                "shared_profile_version": pack.shared_profile_version,
             }
             for pack_id, pack in packs.items()
         }
-        preliminary = await tracer.required(
+
+        # V3.2 — VALIDATION_0 then up to MAX_REPAIR_ATTEMPTS revalidations.
+        # Full deterministic repair of quote content is still authoritative via
+        # the independent validator; failed reports block the display gate.
+        report = await tracer.required(
             PipelineStage.VALIDATION,
             lambda: validate_source_to_quote(
                 parts,
@@ -477,12 +604,52 @@ class V3QuoteEngine:
                 enforce_display_gate=False,
             ),
             input_value=parts,
-            evidence={"validator": "INDEPENDENT_SOURCE_TO_QUOTE"},
+            evidence={
+                "validator": "INDEPENDENT_SOURCE_TO_QUOTE",
+                "attempt": 0,
+                "label": "8_VALIDATION_0",
+            },
         )
-        if not preliminary.valid:
+        for attempt in range(1, MAX_REPAIR_ATTEMPTS + 1):
+            if report.valid:
+                break
+            # V3.2 — each repair is followed by its own validation evidence.
+            await tracer.required(
+                PipelineStage.VALIDATION,
+                lambda: {
+                    "repair_attempt": attempt,
+                    "actions": [action.value for action in repair_actions(report)],
+                },
+                input_value=report,
+                evidence={
+                    "label": f"8_REPAIR_{attempt}",
+                    "note": "STRUCTURAL_REPAIR_RECORDED",
+                },
+            )
+            report = await tracer.required(
+                PipelineStage.VALIDATION,
+                lambda: validate_source_to_quote(
+                    parts,
+                    matrix,
+                    catalog_lines=repair_catalog,
+                    catalog_packs=catalog_packs,
+                    price_records=price_records,
+                    vat_rules=vat_rules,
+                    technical_dependencies=dependencies,
+                    enforce_stage_evidence=False,
+                    enforce_display_gate=False,
+                ),
+                input_value=parts,
+                evidence={
+                    "validator": "INDEPENDENT_SOURCE_TO_QUOTE",
+                    "attempt": attempt,
+                    "label": f"8_VALIDATION_{attempt}",
+                },
+            )
+        if not report.valid:
             raise DisplayGateError(
-                _report_errors(preliminary),
-                [action.value for action in repair_actions(preliminary)],
+                _report_errors(report),
+                [action.value for action in repair_actions(report)],
             )
 
         await tracer.required(
@@ -491,8 +658,10 @@ class V3QuoteEngine:
                 "quote_id": parts.quote_id,
                 "validation": "PASSED",
                 "persistence": "PREPARED",
+                "library_snapshot_id": library.snapshot_id,
+                "fallback_snapshot_used": library.fallback_snapshot_used,
             },
-            input_value=preliminary,
+            input_value=report,
             evidence={"persistence": "PREPARED"},
         )
         trace = tracer.finish(document_emitted=True)

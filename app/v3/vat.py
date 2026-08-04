@@ -126,7 +126,9 @@ def _applies(
             return False
     if rule.work_natures and str(work_nature or "").upper() not in rule.work_natures:
         return False
-    territory = str(project.get("location") or "").upper()
+    territory = str(
+        project.get("territory_code") or project.get("location") or ""
+    ).upper()
     if rule.territories and territory not in rule.territories:
         return False
     if pricing_date is not None:
@@ -134,12 +136,10 @@ def _applies(
             return False
         if rule.effective_to and pricing_date > rule.effective_to:
             return False
-    return rule.vat_rate in {
-        Decimal("0"),
-        Decimal("5.5"),
-        Decimal("10"),
-        Decimal("20"),
-    }
+    # V3.2 — rate may be any official published percentage in [0, 100].
+    if rule.vat_rate < 0 or rule.vat_rate > 100:
+        return False
+    return True
 
 
 def _specificity(rule: VatRule) -> int:

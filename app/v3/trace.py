@@ -1,4 +1,4 @@
-"""Proof-of-execution recorder for every mandatory V3 stage."""
+"""Proof-of-execution recorder for every mandatory V3.2 stage."""
 
 from __future__ import annotations
 
@@ -13,8 +13,12 @@ from app.v3.contracts import (
     ConfidenceLevel,
     ExecutionTrace,
     PipelineStatus,
+    PriceVersionRef,
+    SelectedPackRef,
+    SharedProfileRef,
     StageEvidence,
     StageStatus,
+    VatRuleVersionRef,
 )
 from app.v3.ssot import REQUIRED_STAGES, SSOT_VERSION, PipelineStage
 
@@ -48,15 +52,26 @@ class ExecutionTracer:
         library_version: str,
         prompt_hash: str,
         config_hash: str,
+        # V3.2 — snapshot + territory threaded into every finished trace.
+        library_snapshot_id: str = "",
+        fallback_snapshot_used: bool = False,
+        territory_code: str = "FR-MET",
     ) -> None:
         self.library_version = library_version
         self.prompt_hash = prompt_hash
         self.config_hash = config_hash
+        self.library_snapshot_id = library_snapshot_id
+        self.fallback_snapshot_used = fallback_snapshot_used
+        self.territory_code = territory_code
         self.started = perf_counter()
         self.executions: list[StageEvidence] = []
         self.assumption_codes: list[str] = []
         self.replaced_line_ids: list[str] = []
         self.selected_pack_ids: list[str] = []
+        self.selected_packs: list[SelectedPackRef] = []
+        self.shared_profile: SharedProfileRef | None = None
+        self.price_versions: list[PriceVersionRef] = []
+        self.vat_rule_versions: list[VatRuleVersionRef] = []
         self.cache_hit = False
         self.arbitrage_applied = False
         self.line_search_hits_count = 0
@@ -65,6 +80,19 @@ class ExecutionTracer:
         self.linear_measurements_count = 0
         self.linear_formula_ids: list[str] = []
         self.confidence = ConfidenceLevel.HIGH
+
+    def bind_library_snapshot(
+        self,
+        *,
+        snapshot_id: str,
+        library_version: str,
+        fallback_snapshot_used: bool,
+    ) -> None:
+        """V3.2 — update tracer after stage 0B resolves the snapshot."""
+
+        self.library_snapshot_id = snapshot_id
+        self.library_version = library_version
+        self.fallback_snapshot_used = fallback_snapshot_used
 
     async def required(
         self,
@@ -216,6 +244,8 @@ class ExecutionTracer:
         if missing:
             labels = ", ".join(missing)
             raise RuntimeError(f"DISPLAY_GATE_STAGE_EVIDENCE_MISSING:{labels}")
+        if not self.library_snapshot_id:
+            raise RuntimeError("DISPLAY_GATE_LIBRARY_SNAPSHOT_MISSING")
         degraded = any(
             execution.status is StageStatus.DEGRADED_AUTHORIZED
             for execution in self.executions
@@ -223,6 +253,9 @@ class ExecutionTracer:
         return ExecutionTrace(
             ssot_version=SSOT_VERSION,
             library_version=self.library_version,
+            library_snapshot_id=self.library_snapshot_id,
+            fallback_snapshot_used=self.fallback_snapshot_used,
+            territory_code=self.territory_code,
             prompt_hash=self.prompt_hash,
             config_hash=self.config_hash,
             arbitrage_applied=self.arbitrage_applied,
@@ -238,7 +271,12 @@ class ExecutionTracer:
             line_search_hits_count=self.line_search_hits_count,
             parent_pack_candidates_count=self.parent_pack_candidates_count,
             reranked_pack_count=self.reranked_pack_count,
-            selected_pack_ids=self.selected_pack_ids,
+            selected_packs=self.selected_packs,
+            shared_profile=self.shared_profile,
+            price_versions=self.price_versions,
+            vat_rule_versions=self.vat_rule_versions,
+            selected_pack_ids=self.selected_pack_ids
+            or [pack.pack_id for pack in self.selected_packs],
             replaced_line_ids=self.replaced_line_ids,
             assumption_codes=sorted(set(self.assumption_codes)),
             linear_measurements_count=self.linear_measurements_count,
@@ -252,17 +290,16 @@ class ExecutionTracer:
 def _safe_count(value: Any) -> int:
     if value is None:
         return 0
-    if isinstance(value, (str, bytes, dict)):
-        return 1
-    try:
+    if isinstance(value, (list, tuple, set, dict)):
         return len(value)
-    except TypeError:
-        return 1
+    return 1
 
 
 def _hashable(value: Any) -> Any:
     dump = getattr(value, "model_dump", None)
-    return dump(mode="json") if callable(dump) else value
+    if callable(dump):
+        return dump(mode="json")
+    return value
 
 
 __all__ = ["ExecutionTracer", "stable_hash"]

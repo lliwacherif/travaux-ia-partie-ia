@@ -1,8 +1,10 @@
 """Single source of truth for the V3 quote engine.
 
-The values in this module mirror the final V3.1 specification.  Runtime code,
-publication tooling, migrations, and tests must import them instead of copying
-geometry, retrieval, or execution constants.
+V3.2 — Consolidation corrective finale (2026-07-31.1).
+Mirrors TRAVAUX_IA_Specification_Generateur_Devis_IA_V3.2_FINALE_CORRIGEE:
+shared SETUP/FINISH profiles, library snapshots, territory scope, and
+immutable published versions. Runtime code, publication tooling, migrations,
+and tests must import these values instead of copying constants.
 """
 
 from __future__ import annotations
@@ -12,8 +14,9 @@ from enum import StrEnum
 from types import MappingProxyType
 from typing import Final, Mapping
 
-SSOT_VERSION: Final = "2026-07-30.3"
-PIPELINE_VERSION: Final = "V3.1"
+# V3.2 — SSOT / pipeline identity (was 2026-07-30.3 / V3.1).
+SSOT_VERSION: Final = "2026-07-31.1"
+PIPELINE_VERSION: Final = "V3.2"
 
 SEMANTIC_MODEL: Final = "gpt-4o-2024-11-20"
 EMBEDDING_MODEL: Final = "text-embedding-3-small"
@@ -52,6 +55,7 @@ class Geometry:
     def line_count(self, trade_count: int = 1) -> int:
         if trade_count < 1:
             raise ValueError("trade_count must be at least 1")
+        # V3.2 — one shared SETUP + one shared FINISH for the whole quote.
         return self.setup + (self.core_per_trade * trade_count) + self.finish
 
 
@@ -65,6 +69,18 @@ GEOMETRIES: Final[Mapping[Flow, Geometry]] = MappingProxyType(
 )
 REMOVED_FLOWS: Final = ("INTERVENTION_1_5_1",)
 FORBIDDEN_GEOMETRIES: Final = ((1, 5, 1),)
+
+# V3.2 — explicit allowedUnits from SSOT (TONNE no longer authorized).
+AUTHORIZED_LIBRARY_UNITS: Final = (
+    "M2",
+    "ML",
+    "M3",
+    "UNIT",
+    "HOUR",
+    "DAY",
+    "FORFAIT",
+)
+ALLOWED_UNITS: Final = AUTHORIZED_LIBRARY_UNITS
 
 
 @dataclass(frozen=True, slots=True)
@@ -113,18 +129,6 @@ LINEAR_MEASUREMENT_MODES: Final = tuple(
 LINEAR_MEASUREMENT_UNIT: Final = "ML"
 LINEAR_MEASUREMENT_PRECISION: Final = 3
 FORBID_UNREGISTERED_LINEAR_CONVERSION: Final = True
-AUTHORIZED_LIBRARY_UNITS: Final = (
-    "M2",
-    "ML",
-    "M3",
-    "UNIT",
-    "HOUR",
-    "DAY",
-    "FORFAIT",
-    # The official BPU contains steel fabrication priced by metric tonne.
-    # This is a catalog unit, not an inferred user-input conversion.
-    "TONNE",
-)
 
 FORBIDDEN_LABELS: Final = (
     "autres travaux",
@@ -137,6 +141,9 @@ FORBIDDEN_LABELS: Final = (
 MONEY_STORAGE: Final = "CENTS"
 MONEY_SCALE: Final = 2
 DEFAULT_COUNTRY: Final = "FR"
+# V3.2 — territorial VAT scope (no overseas rates until a full referential exists).
+TERRITORY_SCOPE: Final = "FR_METROPOLE_CORSE"
+DEFAULT_TERRITORY_CODE: Final = "FR-MET"
 DEFAULT_VAT_RULE: Final = "FR_STANDARD_20"
 MAX_REPAIR_ATTEMPTS: Final = 3
 
@@ -144,6 +151,12 @@ REQUIRE_STAGE_EVIDENCE: Final = True
 FORBID_SILENT_FALLBACK: Final = True
 MINIMUM_STAGE_COMPLETION_RATE: Final = 1.0
 ARTIFICIAL_MINIMUM_LATENCY_MS: Final = 0
+
+# V3.2 — library snapshot gates.
+REQUIRE_PUBLISHED_SNAPSHOT: Final = True
+REQUIRE_LAST_VALIDATED_SNAPSHOT: Final = True
+IMMUTABLE_PUBLISHED_VERSIONS: Final = True
+
 AUTO_PUBLISH_OFFICIAL_LIBRARY: Final = False
 REQUIRE_HUMAN_APPROVAL: Final = True
 REQUIRE_FULL_REGRESSION: Final = True
@@ -151,6 +164,8 @@ REQUIRE_FULL_REGRESSION: Final = True
 
 class PipelineStage(StrEnum):
     CONTEXT = "0_CONTEXT"
+    # V3.2 — mandatory library snapshot resolution before semantic work.
+    LIBRARY_SNAPSHOT = "0B_LIBRARY_SNAPSHOT"
     PLAN = "1_PLAN"
     ANALYSIS = "2_ANALYSIS"
     ARBITRATION = "2BIS_ARBITRATION"

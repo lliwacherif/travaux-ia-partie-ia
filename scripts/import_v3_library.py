@@ -25,6 +25,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.v3.curated_library import CURATED_PACKS, CuratedPackSpec, SourceLineRef
 from app.v3.models import (
+    LibrarySnapshot,
     PriceVersion,
     QuotePack,
     QuotePackLine,
@@ -42,7 +43,7 @@ from app.v3.publication import (
 from app.v3.ssot import EMBEDDING_MODEL, Flow
 from app.v3.trace import stable_hash
 
-LIBRARY_VERSION = "LIB-V3.1-2026-07-31.1"
+LIBRARY_VERSION = "LIB-V3.2-2026-07-31.1"
 NAMESPACE = uuid.UUID("d46a21c0-6d12-4d7a-96c6-2b50a8f01465")
 
 
@@ -90,9 +91,9 @@ def _unit(value: str) -> str:
         "h": "HOUR",
         "heure": "HOUR",
         "jour": "DAY",
-        "tonne": "TONNE",
-        "tonnes": "TONNE",
-        "t": "TONNE",
+        "tonne": "UNIT",
+        "tonnes": "UNIT",
+        "t": "UNIT",
     }
     if "m²" in value.casefold():
         return "M2"
@@ -540,8 +541,42 @@ def _import_curated_pack(
         line.published_at = now if publish else None
 
     trade.fallback_pack_id = pack_id
+    # V3.2 — versioned fallback identity.
+    trade.fallback_pack_version = 1
     session.flush()
     return pack_id
+
+
+def _ensure_library_snapshot(
+    session: Session,
+    *,
+    publish: bool,
+    now: datetime,
+) -> LibrarySnapshot:
+    """V3.2 — create or refresh the published+validated snapshot for stage 0B."""
+
+    snapshot_id = _uuid("snapshot", LIBRARY_VERSION)
+    snapshot = session.get(LibrarySnapshot, snapshot_id)
+    if snapshot is None:
+        snapshot = LibrarySnapshot(snapshot_id=snapshot_id)
+        session.add(snapshot)
+    snapshot.library_version = LIBRARY_VERSION
+    snapshot.content_hash = stable_hash(
+        {
+            "library_version": LIBRARY_VERSION,
+            "packs": [spec.pack_code for spec in CURATED_PACKS],
+        }
+    )
+    if publish:
+        snapshot.status = "PUBLISHED"
+        snapshot.validated_at = now
+        snapshot.published_at = now
+    else:
+        snapshot.status = "DRAFT"
+        snapshot.validated_at = None
+        snapshot.published_at = None
+    session.flush()
+    return snapshot
 
 
 def import_library(
@@ -565,9 +600,12 @@ def import_library(
     imported: list[str] = []
     try:
         with v2_engine.connect() as v2_connection, Session(v3_engine) as session:
+            snapshot = _ensure_library_snapshot(
+                session, publish=publish_curated, now=now
+            )
             _upsert_vat_rules(session, now, publish=publish_curated)
             for spec in CURATED_PACKS:
-                _import_curated_pack(
+                pack_id = _import_curated_pack(
                     v2_connection=v2_connection,
                     session=session,
                     embeddings=embedding_client,
@@ -577,6 +615,11 @@ def import_library(
                     regression_passed=regression_passed,
                     now=now,
                 )
+                pack = session.get(QuotePack, pack_id)
+                if pack is not None:
+                    # V3.2 — bind pack to the library snapshot (shared profile
+                    # extraction can follow in a later import pass).
+                    pack.snapshot_id = snapshot.snapshot_id
                 imported.append(spec.pack_code)
             session.flush()
 

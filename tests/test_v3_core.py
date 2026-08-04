@@ -97,14 +97,15 @@ def test_structured_coverage_requires_action_object_material_and_unit() -> None:
         ],
         "synonym_tags": [],
         "exclusion_tags": [],
-        "unit": "TONNE",
+        # V3.2 — TONNE removed from authorized library units; use UNIT.
+        "unit": "UNIT",
     }
     assert match_item_to_line(item, line).matched
     assert not match_item_to_line(
         {**item, "material": "bois"},
         line,
     ).matched
-    assert normalize_unit("tonnes") == "TONNE"
+    assert normalize_unit("tonnes") == "UNIT"
 
 
 def test_trace_rejects_missing_stage_and_accepts_complete_evidence() -> None:
@@ -113,6 +114,9 @@ def test_trace_rejects_missing_stage_and_accepts_complete_evidence() -> None:
             library_version="TEST",
             prompt_hash=stable_hash("prompt"),
             config_hash=stable_hash("config"),
+            # V3.2 — snapshot identity required before display gate.
+            library_snapshot_id="00000000-0000-0000-0000-000000000001",
+            territory_code="FR-MET",
         )
         await tracer.required(PipelineStage.CONTEXT, lambda: {"ok": True})
         with pytest.raises(RuntimeError, match="DISPLAY_GATE_STAGE_EVIDENCE_MISSING"):
@@ -125,6 +129,8 @@ def test_trace_rejects_missing_stage_and_accepts_complete_evidence() -> None:
         assert trace.display_gate_passed
         assert trace.stage_completion_rate == 1
         assert len(trace.stage_executions) == len(PipelineStage)
+        assert trace.library_snapshot_id
+        assert trace.pipeline_version == "V3.2"
 
     asyncio.run(exercise())
 
@@ -139,6 +145,8 @@ def test_simple_pipeline_input_contract_for_parallel_v3_api() -> None:
         ),
         project=ProjectContext(
             country="FR",
+            # V3.2 — territory_code required.
+            territory_code="FR-MET",
             customer_type=None,
             building_use=None,
             building_age_years=None,

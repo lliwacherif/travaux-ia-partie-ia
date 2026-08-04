@@ -1,4 +1,7 @@
-"""Layer 6 deterministic quantity, price and VAT application."""
+"""Layer 6 deterministic quantity, price and VAT application.
+
+V3.2 — QuoteLine carries source_entity_type and shared-profile provenance.
+"""
 
 from __future__ import annotations
 
@@ -8,8 +11,10 @@ from typing import Any, Mapping
 
 from app.v3.contracts import (
     DemandMatrix,
+    QuantityUnit,
     QuoteLine,
     ResolutionSource,
+    SourceEntityType,
 )
 from app.v3.ssot import Phase
 from app.v3.measurements import resolve_quantity
@@ -60,6 +65,55 @@ def _covered_items(
     ]
 
 
+def _entity_provenance(
+    line: Mapping[str, Any],
+    pack: Mapping[str, Any],
+) -> tuple[SourceEntityType, str | None, str | None, int | None, str | None, str | None, int | None]:
+    """V3.2 — resolve PACK vs SHARED_PROFILE provenance for a catalog line."""
+
+    phase = str(line.get("phase") or "").upper()
+    raw_type = str(line.get("source_entity_type") or "").upper()
+    if raw_type == SourceEntityType.SHARED_PROFILE.value or phase in {"SETUP", "FINISH"}:
+        profile_id = (
+            str(line.get("shared_profile_id") or "")
+            or str(pack.get("shared_profile_id") or "")
+            or f"legacy-profile-{pack.get('pack_id')}"
+        )
+        profile_code = (
+            str(line.get("shared_profile_code") or "")
+            or str(pack.get("shared_profile_code") or "")
+            or f"LEGACY-{pack.get('pack_code') or pack.get('pack_id')}"
+        )
+        profile_version = int(
+            line.get("shared_profile_version")
+            or pack.get("shared_profile_version")
+            or pack.get("version")
+            or 1
+        )
+        return (
+            SourceEntityType.SHARED_PROFILE,
+            None,
+            None,
+            None,
+            profile_id,
+            profile_code,
+            profile_version,
+        )
+
+    pack_id = str(line.get("pack_id") or pack.get("pack_id") or "")
+    pack_code = str(line.get("pack_code") or pack.get("pack_code") or "")
+    pack_version = int(line.get("pack_version") or pack.get("version") or 1)
+    return (
+        SourceEntityType.PACK,
+        pack_id,
+        pack_code,
+        pack_version,
+        None,
+        None,
+        None,
+    )
+
+
 def calculate_selection(
     selection: SelectionResult,
     matrix: DemandMatrix,
@@ -75,6 +129,7 @@ def calculate_selection(
         **dict(project),
         "global_context": matrix.global_context.model_dump(mode="python"),
     }
+    pack_data = _mapping(selection.pack)
 
     for source_line in _pack_lines(selection.pack):
         line = _mapping(source_line)
@@ -109,6 +164,14 @@ def calculate_selection(
             vat_rule_id=str(line.get("vat_rule_id") or "FR_STANDARD_20"),
             version=int(line.get("vat_rule_version") or 1),
             vat_rate=Decimal(str(embedded_rate)),
+            territories=tuple(
+                filter(
+                    None,
+                    (
+                        str(project.get("territory_code") or "").upper(),
+                    ),
+                )
+            ),
         )
         standard = ResolvableVatRule(
             vat_rule_id="FR_STANDARD_20",
@@ -124,15 +187,32 @@ def calculate_selection(
         if vat.assumption_code:
             assumptions.append(vat.assumption_code)
 
+        (
+            source_entity_type,
+            pack_id,
+            pack_code,
+            pack_version,
+            shared_profile_id,
+            shared_profile_code,
+            shared_profile_version,
+        ) = _entity_provenance(line, pack_data)
+
+        unit_raw = str(quantity.unit or line.get("unit") or "FORFAIT")
         final_lines.append(
             QuoteLine(
                 line_id=line_id,
-                pack_id=selection.pack_id,
+                source_entity_type=source_entity_type,
+                pack_id=pack_id,
+                pack_code=pack_code,
+                pack_version=pack_version,
+                shared_profile_id=shared_profile_id,
+                shared_profile_code=shared_profile_code,
+                shared_profile_version=shared_profile_version,
                 phase=Phase(str(line.get("phase") or "")),
                 slot_index=int(line.get("slot_index") or 0),
                 designation=str(line.get("designation") or ""),
                 quantity=quantity.value,
-                unit=quantity.unit,
+                unit=QuantityUnit(unit_raw),
                 price_id=price.price_id,
                 price_version=price.price_version,
                 unit_price_cents=price.unit_price_cents,

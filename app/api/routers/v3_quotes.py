@@ -49,6 +49,8 @@ def _pipeline_input(request: GenerateV3Request) -> PipelineInput:
     )
     project = request.project or ProjectContext(
         country="FR",
+        # V3.2 — default metropolitan territory when the client omits project.
+        territory_code="FR-MET",
         customer_type=None,
         building_use=None,
         building_age_years=None,
@@ -170,11 +172,26 @@ async def v3_readiness(
             )
         ).scalar_one()
     )
-    ready = vector_available and published_packs > 0
+    # V3.2 — service is operational only with a published+validated snapshot.
+    from app.v3.models import LibrarySnapshot
+
+    validated_snapshots = int(
+        (
+            await session.execute(
+                select(func.count()).select_from(LibrarySnapshot).where(
+                    LibrarySnapshot.status == "PUBLISHED",
+                    LibrarySnapshot.validated_at.is_not(None),
+                )
+            )
+        ).scalar_one()
+    )
+    ready = vector_available and published_packs > 0 and validated_snapshots > 0
     return {
         "status": "ready" if ready else "not_ready",
+        "pipeline_version": "V3.2",
         "pgvector": vector_available,
         "published_packs": published_packs,
+        "validated_library_snapshots": validated_snapshots,
     }
 
 

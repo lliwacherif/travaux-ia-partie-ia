@@ -72,8 +72,9 @@ class Settings(BaseSettings):
         description="Cohere API key used only by the V3 pack reranker.",
     )
     V3_COHERE_RERANK_MODEL: str = "rerank-v4.0-pro"
-    V3_SSOT_VERSION: str = "2026-07-30.3"
-    V3_LIBRARY_VERSION: str = "LIB-V3.1-2026-07-31.1"
+    # V3.2 — SSOT / library identity (was 2026-07-30.3 / LIB-V3.1-...).
+    V3_SSOT_VERSION: str = "2026-07-31.1"
+    V3_LIBRARY_VERSION: str = "LIB-V3.2-2026-07-31.1"
 
     # ---------------------------- OpenAI (active provider) ------------------
     # The ``openai`` Python SDK is pointed at the official OpenAI API.

@@ -1,4 +1,7 @@
-"""Independent V3 source-to-quote validator and repair instructions."""
+"""Independent V3.2 source-to-quote validator and repair instructions.
+
+V3.2 — shared-profile geometry, versioned price/VAT, stage 0B evidence.
+"""
 
 from __future__ import annotations
 

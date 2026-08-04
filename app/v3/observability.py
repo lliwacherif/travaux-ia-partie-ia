@@ -49,6 +49,14 @@ async def persist_execution(
         pipeline_version=trace.pipeline_version,
         ssot_version=trace.ssot_version,
         library_version=trace.library_version,
+        # V3.2 — snapshot identity on every persisted execution.
+        library_snapshot_id=(
+            uuid.UUID(trace.library_snapshot_id)
+            if trace.library_snapshot_id
+            else None
+        ),
+        fallback_snapshot_used=trace.fallback_snapshot_used,
+        territory_code=trace.territory_code,
         semantic_model=trace.semantic_model,
         embedding_model=trace.embedding_model,
         reranker_model=trace.reranker_model,

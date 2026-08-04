@@ -1,4 +1,9 @@
-"""Normalized SQLAlchemy models for the isolated V3 database."""
+"""Normalized SQLAlchemy models for the isolated V3.2 database.
+
+V3.2 — library_snapshots, shared_line_profiles / shared_profile_lines,
+snapshot-scoped catalog entities, and pack→shared-profile references.
+V2 / v1 devis tables are never imported or mutated here.
+"""
 
 from __future__ import annotations
 
@@ -57,6 +62,199 @@ PHASE_SQL = _sql_values(PHASE_VALUES)
 UNIT_SQL = _sql_values(UNIT_VALUES)
 LINEAR_MODE_SQL = _sql_values(tuple(mode.value for mode in LinearMeasurementMode))
 STAGE_SQL = _sql_values(tuple(stage.value for stage in PipelineStage))
+# V3.2 — shared profiles only hold SETUP / FINISH.
+SHARED_PHASE_SQL = _sql_values(("SETUP", "FINISH"))
+
+
+class LibrarySnapshot(Base):
+    """V3.2 — immutable published library snapshot used by stage 0B."""
+
+    __tablename__ = "library_snapshots"
+    __table_args__ = (
+        CheckConstraint(
+            f"status IN ({PUBLICATION_STATUS_SQL})",
+            name="library_snapshots_status",
+        ),
+        CheckConstraint(
+            "status <> 'PUBLISHED' OR "
+            "(validated_at IS NOT NULL AND published_at IS NOT NULL)",
+            name="library_snapshots_published_validated",
+        ),
+        Index("ix_library_snapshots_status", "status"),
+    )
+
+    snapshot_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    library_version: Mapped[str] = mapped_column(
+        String(100), unique=True, nullable=False
+    )
+    status: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="DRAFT"
+    )
+    content_hash: Mapped[str] = mapped_column(String(80), nullable=False)
+    validated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    published_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+
+class SharedLineProfile(Base):
+    """V3.2 — shared SETUP/FINISH profile referenced by CORE packs."""
+
+    __tablename__ = "shared_line_profiles"
+    __table_args__ = (
+        CheckConstraint(
+            f"flow IN ({FLOW_SQL})", name="shared_line_profiles_flow"
+        ),
+        CheckConstraint(
+            f"status IN ({PUBLICATION_STATUS_SQL})",
+            name="shared_line_profiles_status",
+        ),
+        CheckConstraint(
+            "version >= 1", name="shared_line_profiles_version_positive"
+        ),
+        CheckConstraint(
+            "status <> 'PUBLISHED' OR published_at IS NOT NULL",
+            name="shared_line_profiles_published_at",
+        ),
+        UniqueConstraint(
+            "snapshot_id",
+            "profile_code",
+            "version",
+            name="uq_shared_line_profiles_snapshot_code_version",
+        ),
+        Index("ix_shared_line_profiles_snapshot", "snapshot_id"),
+    )
+
+    profile_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    version: Mapped[int] = mapped_column(Integer, primary_key=True)
+    profile_code: Mapped[str] = mapped_column(String(150), nullable=False)
+    snapshot_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            "library_snapshots.snapshot_id",
+            name="fk_shared_line_profiles_snapshot",
+        ),
+        nullable=False,
+    )
+    flow: Mapped[str] = mapped_column(String(20), nullable=False)
+    title: Mapped[str] = mapped_column(Text, nullable=False)
+    applicability_rule: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, default=dict, server_default=text("'{}'::jsonb")
+    )
+    status: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="DRAFT"
+    )
+    content_hash: Mapped[str] = mapped_column(String(80), nullable=False)
+    published_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+
+class SharedProfileLine(Base):
+    """V3.2 — SETUP or FINISH line belonging to a shared profile."""
+
+    __tablename__ = "shared_profile_lines"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["profile_id", "profile_version"],
+            ["shared_line_profiles.profile_id", "shared_line_profiles.version"],
+            name="fk_shared_profile_lines_profile",
+        ),
+        ForeignKeyConstraint(
+            ["price_id", "price_version"],
+            ["price_versions.price_id", "price_versions.version"],
+            name="fk_shared_profile_lines_price_version",
+        ),
+        ForeignKeyConstraint(
+            ["vat_rule_id", "vat_rule_version"],
+            ["vat_rules.vat_rule_id", "vat_rules.version"],
+            name="fk_shared_profile_lines_vat_rule",
+        ),
+        CheckConstraint(
+            f"phase IN ({SHARED_PHASE_SQL})",
+            name="shared_profile_lines_phase",
+        ),
+        CheckConstraint(
+            f"unit IN ({UNIT_SQL})", name="shared_profile_lines_unit"
+        ),
+        CheckConstraint(
+            "slot_index >= 0", name="shared_profile_lines_slot_nonnegative"
+        ),
+        CheckConstraint(
+            "default_quantity > 0",
+            name="shared_profile_lines_default_quantity_positive",
+        ),
+        CheckConstraint(
+            f"linear_measurement_mode IS NULL OR "
+            f"linear_measurement_mode IN ({LINEAR_MODE_SQL})",
+            name="shared_profile_lines_linear_mode",
+        ),
+        CheckConstraint(
+            "(unit = 'ML' AND linear_measurement_mode IS NOT NULL "
+            "AND linear_formula_id IS NOT NULL) OR "
+            "(unit <> 'ML' AND linear_measurement_mode IS NULL "
+            "AND linear_formula_id IS NULL)",
+            name="shared_profile_lines_linear_integrity",
+        ),
+        UniqueConstraint(
+            "profile_id",
+            "profile_version",
+            "phase",
+            "slot_index",
+            name="uq_shared_profile_lines_phase_slot",
+        ),
+    )
+
+    line_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    profile_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), nullable=False
+    )
+    profile_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    phase: Mapped[str] = mapped_column(String(20), nullable=False)
+    slot_index: Mapped[int] = mapped_column(Integer, nullable=False)
+    designation: Mapped[str] = mapped_column(Text, nullable=False)
+    unit: Mapped[str] = mapped_column(String(20), nullable=False)
+    quantity_rule: Mapped[str] = mapped_column(String(150), nullable=False)
+    linear_measurement_mode: Mapped[str | None] = mapped_column(
+        String(40), nullable=True
+    )
+    linear_formula_id: Mapped[str | None] = mapped_column(
+        String(150), nullable=True
+    )
+    linear_params: Mapped[dict[str, Any] | None] = mapped_column(
+        JSONB, nullable=True
+    )
+    quantity_precision: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, default=3
+    )
+    rounding_step: Mapped[Decimal | None] = mapped_column(
+        Numeric(12, 3), nullable=True
+    )
+    default_quantity: Mapped[Decimal] = mapped_column(
+        Numeric(14, 3), nullable=False
+    )
+    price_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    price_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    vat_rule_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    vat_rule_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
 
 
 class TradeCatalog(Base):
@@ -72,6 +270,12 @@ class TradeCatalog(Base):
             "status <> 'PUBLISHED' OR published_at IS NOT NULL",
             name="trade_catalog_published_at",
         ),
+        # V3.2 — fallback pack identity is versioned.
+        CheckConstraint(
+            "(fallback_pack_id IS NULL AND fallback_pack_version IS NULL) OR "
+            "(fallback_pack_id IS NOT NULL AND fallback_pack_version IS NOT NULL)",
+            name="trade_catalog_fallback_pair",
+        ),
     )
 
     trade_code: Mapped[str] = mapped_column(String(100), primary_key=True)
@@ -84,6 +288,19 @@ class TradeCatalog(Base):
             "quote_packs.pack_id",
             name="fk_trade_catalog_fallback_pack",
             use_alter=True,
+        ),
+        nullable=True,
+    )
+    # V3.2
+    fallback_pack_version: Mapped[int | None] = mapped_column(
+        Integer, nullable=True
+    )
+    # V3.2 — optional snapshot scoping (nullable during transitional import).
+    snapshot_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            "library_snapshots.snapshot_id",
+            name="fk_trade_catalog_snapshot",
         ),
         nullable=True,
     )
@@ -139,6 +356,12 @@ class QuotePack(Base):
             postgresql_ops={"embedding": "vector_cosine_ops"},
             postgresql_with={"lists": 100},
         ),
+        ForeignKeyConstraint(
+            ["shared_profile_id", "shared_profile_version"],
+            ["shared_line_profiles.profile_id", "shared_line_profiles.version"],
+            name="fk_quote_packs_shared_profile",
+            use_alter=True,
+        ),
     )
 
     pack_id: Mapped[uuid.UUID] = mapped_column(
@@ -155,6 +378,21 @@ class QuotePack(Base):
     title: Mapped[str] = mapped_column(Text, nullable=False)
     version: Mapped[int] = mapped_column(Integer, nullable=False)
     library_version: Mapped[str] = mapped_column(String(100), nullable=False)
+    # V3.2 — pack binds to one published shared SETUP/FINISH profile.
+    snapshot_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            "library_snapshots.snapshot_id",
+            name="fk_quote_packs_snapshot",
+        ),
+        nullable=True,
+    )
+    shared_profile_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), nullable=True
+    )
+    shared_profile_version: Mapped[int | None] = mapped_column(
+        Integer, nullable=True
+    )
     status: Mapped[str] = mapped_column(
         String(20), nullable=False, default="DRAFT"
     )
@@ -247,6 +485,15 @@ class PriceVersion(Base):
     effective_to: Mapped[date | None] = mapped_column(Date, nullable=True)
     source_ref: Mapped[str] = mapped_column(Text, nullable=False)
     library_version: Mapped[str] = mapped_column(String(100), nullable=False)
+    # V3.2 — price rows belong to an immutable library snapshot when published.
+    snapshot_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            "library_snapshots.snapshot_id",
+            name="fk_price_versions_snapshot",
+        ),
+        nullable=True,
+    )
     status: Mapped[str] = mapped_column(
         String(20), nullable=False, default="DRAFT"
     )
@@ -263,8 +510,9 @@ class VatRule(Base):
     __tablename__ = "vat_rules"
     __table_args__ = (
         CheckConstraint("version >= 1", name="vat_rules_version_positive"),
+        # V3.2 — rate is numeric 0–100 (no longer a fixed enum of four rates).
         CheckConstraint(
-            "rate IN (0, 5.5, 10, 20)", name="vat_rules_allowed_rate"
+            "rate >= 0 AND rate <= 100", name="vat_rules_allowed_rate"
         ),
         CheckConstraint(
             f"status IN ({PUBLICATION_STATUS_SQL})", name="vat_rules_status"
@@ -284,6 +532,10 @@ class VatRule(Base):
     country: Mapped[str] = mapped_column(
         String(2), nullable=False, default="FR"
     )
+    # V3.2 — territorial applicability (FR_METROPOLE_CORSE scope).
+    territory_code: Mapped[str] = mapped_column(
+        String(40), nullable=False, default="FR-MET"
+    )
     label: Mapped[str] = mapped_column(Text, nullable=False)
     rate: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=False)
     applicability_rule: Mapped[dict[str, Any]] = mapped_column(
@@ -291,6 +543,14 @@ class VatRule(Base):
     )
     effective_from: Mapped[date] = mapped_column(Date, nullable=False)
     effective_to: Mapped[date | None] = mapped_column(Date, nullable=True)
+    snapshot_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            "library_snapshots.snapshot_id",
+            name="fk_vat_rules_snapshot",
+        ),
+        nullable=True,
+    )
     status: Mapped[str] = mapped_column(
         String(20), nullable=False, default="DRAFT"
     )
@@ -621,6 +881,21 @@ class QuoteExecution(Base):
     pipeline_version: Mapped[str] = mapped_column(String(30), nullable=False)
     ssot_version: Mapped[str] = mapped_column(String(100), nullable=False)
     library_version: Mapped[str] = mapped_column(String(100), nullable=False)
+    # V3.2 — snapshot used for this execution (current or last-validated fallback).
+    library_snapshot_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            "library_snapshots.snapshot_id",
+            name="fk_quote_executions_snapshot",
+        ),
+        nullable=True,
+    )
+    fallback_snapshot_used: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
+    territory_code: Mapped[str | None] = mapped_column(
+        String(40), nullable=True
+    )
     semantic_model: Mapped[str] = mapped_column(String(100), nullable=False)
     embedding_model: Mapped[str] = mapped_column(String(100), nullable=False)
     reranker_model: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -797,6 +1072,15 @@ class QuoteFeedbackEvent(Base):
     )
     pipeline_version: Mapped[str] = mapped_column(String(30), nullable=False)
     library_version: Mapped[str] = mapped_column(String(100), nullable=False)
+    # V3.2 — feedback is tied to the snapshot that produced the quote.
+    library_snapshot_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            "library_snapshots.snapshot_id",
+            name="fk_quote_feedback_events_snapshot",
+        ),
+        nullable=True,
+    )
     structural_diff: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
     correction_scope: Mapped[str] = mapped_column(String(30), nullable=False)
     reason_code: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -874,6 +1158,7 @@ class ImprovementCandidate(Base):
 
 __all__ = [
     "ImprovementCandidate",
+    "LibrarySnapshot",
     "PriceVersion",
     "QuoteExecution",
     "QuoteFeedbackEvent",
@@ -881,6 +1166,8 @@ __all__ = [
     "QuotePackLine",
     "QuoteStageExecution",
     "SemanticCache",
+    "SharedLineProfile",
+    "SharedProfileLine",
     "TechnicalDependency",
     "TradeCatalog",
     "VatRule",

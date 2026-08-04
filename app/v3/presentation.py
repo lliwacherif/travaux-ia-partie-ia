@@ -32,6 +32,11 @@ def _line_payload(line: QuoteLine, number: int) -> dict[str, Any]:
         "ttc": _money(line.total_ht_cents + vat_cents),
         "line_id": line.line_id,
         "pack_id": line.pack_id,
+        # V3.2 — provenance for shared-profile vs pack CORE lines.
+        "source_entity_type": getattr(
+            line.source_entity_type, "value", line.source_entity_type
+        ),
+        "shared_profile_id": line.shared_profile_id,
         "price_id": line.price_id,
         "price_version": line.price_version,
         "vat_rule_id": line.vat_rule_id,

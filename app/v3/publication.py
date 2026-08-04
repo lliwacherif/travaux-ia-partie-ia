@@ -1,4 +1,8 @@
-"""Pure publication gates and snapshot helpers for the V3 catalog.
+"""Pure publication gates and snapshot helpers for the V3.2 catalog.
+
+V3.2 — publishable packs are CORE-only and must reference a published shared
+SETUP/FINISH profile. Transitional full-geometry packs (SETUP+CORE+FINISH
+embedded) remain acceptable until the importer splits them.
 
 The gate functions operate on immutable snapshots so they can be tested without
 a database or embedding provider.  SQL helpers accept an existing synchronous

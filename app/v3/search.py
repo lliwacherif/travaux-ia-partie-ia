@@ -26,6 +26,8 @@ from app.v3.models import (
     PriceVersion,
     QuotePack,
     QuotePackLine,
+    SharedLineProfile,
+    SharedProfileLine,
     TechnicalDependency,
     TradeCatalog,
     VatRule,
@@ -40,9 +42,14 @@ class EmbeddingUnavailableError(RuntimeError):
 @dataclass(frozen=True, slots=True)
 class CatalogLine:
     line_id: str
-    pack_id: str
-    pack_code: str
-    pack_version: int
+    pack_id: str | None
+    pack_code: str | None
+    pack_version: int | None
+    # V3.2 — PACK for CORE; SHARED_PROFILE for SETUP/FINISH.
+    source_entity_type: str
+    shared_profile_id: str | None
+    shared_profile_code: str | None
+    shared_profile_version: int | None
     trade_code: str
     service_code: str | None
     phase: str
@@ -84,6 +91,10 @@ class CatalogPack:
     title: str
     searchable_text: str
     fallback_rank: int | None
+    # V3.2 — shared SETUP/FINISH profile binding.
+    shared_profile_id: str | None
+    shared_profile_code: str | None
+    shared_profile_version: int | None
     lines: tuple[CatalogLine, ...]
 
 
@@ -343,7 +354,9 @@ class CatalogRepository:
             or pack.library_version != self.library_version
         ):
             return None
-        stmt = (
+
+        # V3.2 — CORE lines live on the pack; SETUP/FINISH on the shared profile.
+        core_stmt = (
             select(QuotePackLine, PriceVersion, VatRule)
             .join(
                 PriceVersion,
@@ -359,10 +372,97 @@ class CatalogRepository:
                 QuotePackLine.pack_id == pack.pack_id,
                 QuotePackLine.status == "PUBLISHED",
                 QuotePackLine.active.is_(True),
+                QuotePackLine.phase == "CORE",
             )
-            .order_by(QuotePackLine.phase, QuotePackLine.slot_index)
+            .order_by(QuotePackLine.slot_index)
         )
-        rows = (await self.session.execute(stmt)).all()
+        core_rows = (await self.session.execute(core_stmt)).all()
+        core_lines = tuple(
+            _catalog_line_from_pack(line, pack, price, vat)
+            for line, price, vat in core_rows
+        )
+
+        shared_profile_id = (
+            str(pack.shared_profile_id) if pack.shared_profile_id else None
+        )
+        shared_profile_code: str | None = None
+        shared_profile_version = pack.shared_profile_version
+        profile_lines: tuple[CatalogLine, ...] = ()
+
+        if pack.shared_profile_id is not None and pack.shared_profile_version is not None:
+            profile = await self.session.get(
+                SharedLineProfile,
+                {
+                    "profile_id": pack.shared_profile_id,
+                    "version": pack.shared_profile_version,
+                },
+            )
+            if profile is not None and profile.status == "PUBLISHED":
+                shared_profile_code = profile.profile_code
+                profile_stmt = (
+                    select(SharedProfileLine, PriceVersion, VatRule)
+                    .join(
+                        PriceVersion,
+                        (PriceVersion.price_id == SharedProfileLine.price_id)
+                        & (
+                            PriceVersion.version
+                            == SharedProfileLine.price_version
+                        ),
+                    )
+                    .join(
+                        VatRule,
+                        (VatRule.vat_rule_id == SharedProfileLine.vat_rule_id)
+                        & (VatRule.version == SharedProfileLine.vat_rule_version),
+                    )
+                    .where(
+                        SharedProfileLine.profile_id == pack.shared_profile_id,
+                        SharedProfileLine.profile_version
+                        == pack.shared_profile_version,
+                        SharedProfileLine.active.is_(True),
+                    )
+                    .order_by(SharedProfileLine.phase, SharedProfileLine.slot_index)
+                )
+                profile_rows = (await self.session.execute(profile_stmt)).all()
+                profile_lines = tuple(
+                    _catalog_line_from_profile(
+                        line,
+                        profile,
+                        pack,
+                        price,
+                        vat,
+                    )
+                    for line, price, vat in profile_rows
+                )
+        else:
+            # Transitional fallback: legacy packs that still embed SETUP/FINISH.
+            legacy_stmt = (
+                select(QuotePackLine, PriceVersion, VatRule)
+                .join(
+                    PriceVersion,
+                    (PriceVersion.price_id == QuotePackLine.price_id)
+                    & (PriceVersion.version == QuotePackLine.price_version),
+                )
+                .join(
+                    VatRule,
+                    (VatRule.vat_rule_id == QuotePackLine.vat_rule_id)
+                    & (VatRule.version == QuotePackLine.vat_rule_version),
+                )
+                .where(
+                    QuotePackLine.pack_id == pack.pack_id,
+                    QuotePackLine.status == "PUBLISHED",
+                    QuotePackLine.active.is_(True),
+                    QuotePackLine.phase.in_(("SETUP", "FINISH")),
+                )
+                .order_by(QuotePackLine.phase, QuotePackLine.slot_index)
+            )
+            legacy_rows = (await self.session.execute(legacy_stmt)).all()
+            profile_lines = tuple(
+                _catalog_line_from_pack(line, pack, price, vat)
+                for line, price, vat in legacy_rows
+            )
+
+        setup = tuple(line for line in profile_lines if line.phase == "SETUP")
+        finish = tuple(line for line in profile_lines if line.phase == "FINISH")
         return CatalogPack(
             pack_id=str(pack.pack_id),
             pack_code=pack.pack_code,
@@ -373,9 +473,10 @@ class CatalogRepository:
             title=pack.title,
             searchable_text=pack.searchable_text,
             fallback_rank=pack.fallback_rank,
-            lines=tuple(
-                _catalog_line(line, pack, price, vat) for line, price, vat in rows
-            ),
+            shared_profile_id=shared_profile_id,
+            shared_profile_code=shared_profile_code,
+            shared_profile_version=shared_profile_version,
+            lines=(*setup, *core_lines, *finish),
         )
 
     async def load_fallback(self, arbitration: TradeArbitration) -> CatalogPack | None:
@@ -548,20 +649,33 @@ class CatalogRepository:
         )
 
 
-def _catalog_line(
+def _catalog_line_from_pack(
     line: QuotePackLine,
     pack: QuotePack,
     price: PriceVersion,
     vat: VatRule,
 ) -> CatalogLine:
+    phase = line.phase
+    # V3.2 — CORE is always PACK; transitional SETUP/FINISH on pack still tagged SHARED_PROFILE-like via PACK until migrated.
+    source_entity_type = "PACK" if phase == "CORE" else "SHARED_PROFILE"
     return CatalogLine(
         line_id=str(line.line_id),
-        pack_id=str(line.pack_id),
-        pack_code=pack.pack_code,
-        pack_version=pack.version,
+        pack_id=str(line.pack_id) if phase == "CORE" else str(pack.pack_id),
+        pack_code=pack.pack_code if phase == "CORE" else pack.pack_code,
+        pack_version=pack.version if phase == "CORE" else pack.version,
+        source_entity_type=source_entity_type,
+        shared_profile_id=(
+            str(pack.shared_profile_id)
+            if phase != "CORE" and pack.shared_profile_id
+            else None
+        ),
+        shared_profile_code=None,
+        shared_profile_version=(
+            pack.shared_profile_version if phase != "CORE" else None
+        ),
         trade_code=pack.trade_code,
         service_code=pack.service_code,
-        phase=line.phase,
+        phase=phase,
         slot_index=line.slot_index,
         designation=line.designation,
         normalized_action=line.normalized_action,
@@ -588,6 +702,65 @@ def _catalog_line(
         replacement_group=line.replacement_group,
         replaceable=line.replaceable,
     )
+
+
+def _catalog_line_from_profile(
+    line: SharedProfileLine,
+    profile: SharedLineProfile,
+    pack: QuotePack,
+    price: PriceVersion,
+    vat: VatRule,
+) -> CatalogLine:
+    """V3.2 — SETUP/FINISH originating from the shared profile."""
+
+    return CatalogLine(
+        line_id=str(line.line_id),
+        pack_id=None,
+        pack_code=None,
+        pack_version=None,
+        source_entity_type="SHARED_PROFILE",
+        shared_profile_id=str(profile.profile_id),
+        shared_profile_code=profile.profile_code,
+        shared_profile_version=profile.version,
+        trade_code=pack.trade_code,
+        service_code=pack.service_code,
+        phase=line.phase,
+        slot_index=line.slot_index,
+        designation=line.designation,
+        normalized_action="",
+        object_family="",
+        material_family=None,
+        synonym_tags=(),
+        capability_tags=(),
+        exclusion_tags=(),
+        technical_dependency_ids=(),
+        unit=line.unit,
+        quantity_rule=line.quantity_rule,
+        linear_measurement_mode=line.linear_measurement_mode,
+        linear_formula_id=line.linear_formula_id,
+        linear_params=line.linear_params,
+        quantity_precision=line.quantity_precision,
+        rounding_step=float(line.rounding_step) if line.rounding_step else None,
+        default_quantity=float(line.default_quantity),
+        price_id=str(price.price_id),
+        price_version=price.version,
+        unit_price_cents=price.unit_price_cents,
+        vat_rule_id=vat.vat_rule_id,
+        vat_rule_version=vat.version,
+        vat_rate=float(vat.rate),
+        replacement_group=None,
+        replaceable=False,
+    )
+
+
+# Backward-compatible alias used by repair-catalog loaders.
+def _catalog_line(
+    line: QuotePackLine,
+    pack: QuotePack,
+    price: PriceVersion,
+    vat: VatRule,
+) -> CatalogLine:
+    return _catalog_line_from_pack(line, pack, price, vat)
 
 
 class HierarchicalSearch:
@@ -685,8 +858,10 @@ class HierarchicalSearch:
         )
         candidates: list[PackCandidate] = []
         for rank, (pack, lexical_score, dense_score) in enumerate(rows, start=1):
+            # V3.2 — PackCandidate.v2 requires every scoring field.
             candidate = PackCandidate(
                 pack_id=str(pack.pack_id),
+                pack_code=pack.pack_code,
                 pack_version=pack.version,
                 trade_code=pack.trade_code,
                 service_code=pack.service_code,
@@ -699,10 +874,18 @@ class HierarchicalSearch:
                 rrf_score=reciprocal_rank(rank),
                 rerank_score=0.0,
                 coverage_score=0.0,
+                object_exactness=0.0,
+                material_compatibility=0.0,
+                unit_compatibility=0.0,
+                context_compatibility=0.0,
+                exclusion_penalty=0.0,
                 extra_scope_penalty=0.0,
+                fallback_rank=(
+                    pack.fallback_rank
+                    if pack.fallback_rank is not None and pack.fallback_rank >= 1
+                    else None
+                ),
                 final_score=0.0,
-                pack_code=pack.pack_code,
-                fallback_rank=pack.fallback_rank,
             )
             candidates.append(
                 candidate.model_copy(update={"final_score": compute_final_score(candidate)})
@@ -736,6 +919,8 @@ def aggregate_parent_candidates(
         best_hits = list(item_votes.values())
         candidate = PackCandidate(
             pack_id=pack_id,
+            # V3.2 — pack_code required; enriched later when the full pack is loaded.
+            pack_code=pack_id,
             pack_version=max(hit.pack_version for hit in best_hits),
             trade_code=trade_code,
             service_code=service_code,
@@ -748,7 +933,13 @@ def aggregate_parent_candidates(
             rrf_score=sum(hit.rrf_score for hit in best_hits) / denominator,
             rerank_score=0.0,
             coverage_score=len(item_votes) / denominator,
+            object_exactness=0.0,
+            material_compatibility=0.0,
+            unit_compatibility=0.0,
+            context_compatibility=0.0,
+            exclusion_penalty=0.0,
             extra_scope_penalty=0.0,
+            fallback_rank=None,
             final_score=0.0,
         )
         candidates.append(
