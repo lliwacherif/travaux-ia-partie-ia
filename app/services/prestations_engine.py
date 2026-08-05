@@ -917,10 +917,16 @@ def calculate_quantity_from_unit(
         mode = mode_calcul_ml
         coeff = coefficient_ml or 1.0
 
-        # An explicit user length beats every geometric estimate for the
-        # lines that directly follow the length of the work.
-        if longueur_ml and (not mode or mode in ("LONGUEUR", "FIXE", "MANUEL")):
-            qty = longueur_ml * (coeff if mode == "LONGUEUR" else 1.0)
+        # An explicit user length beats every geometric ESTIMATE: for a
+        # linear job ("32 ml de tranchées") the perimeter/length/ratio modes
+        # are only proxies for the real length, so the declared value drives
+        # them directly (scaled by the line's coefficient). FIXE/MANUEL
+        # lines keep their curated fixed quantity.
+        if longueur_ml and (
+            not mode
+            or mode in ("PERIMETRE", "LONGUEUR", "LARGEUR", "RAMPANT", "RATIO_SURFACE")
+        ):
+            qty = longueur_ml * (coeff if mode else 1.0)
             return _cap(round(qty, 2), "ML_FROM_AI_LENGTH")
 
         longueur = geometry.get("length_m") if geometry else surface_m2 / math.sqrt(max(surface_m2, 1) / 2)
@@ -956,6 +962,12 @@ def calculate_quantity_from_unit(
 
     if u in ("m³", "m3"):
         desig = (designation or "").lower()
+        is_volume_desig = any(
+            kw in desig for kw in _VOLUME_SLAB_KEYWORDS + _VOLUME_RUBBLE_KEYWORDS
+        )
+        # Linear job: trench volume ≈ 0.35 m³ per ml (40x80 cm + foisonnement).
+        if longueur_ml and is_volume_desig:
+            return _cap(round(longueur_ml * 0.35, 2), "M3_FROM_LENGTH_035")
         if surface_known and any(kw in desig for kw in _VOLUME_SLAB_KEYWORDS):
             return _cap(round(surface_m2 * 0.12, 2), "M3_SLAB_012")
         if surface_known and any(kw in desig for kw in _VOLUME_RUBBLE_KEYWORDS):
@@ -1337,6 +1349,12 @@ def process_ai_lots(
 
             unit_count = quantite_brute if qty_type == "unitaire" else 1.0
             longueur_ml = quantite_brute if qty_type == "longueur_ml" else None
+
+            # A declared length without any surface implies the working strip
+            # (standard 0.6 m width): drives the pack's m² lines (décapage,
+            # dépose de revêtements...) instead of leaving them at qty 1.
+            if pack_surface is None and longueur_ml:
+                pack_surface = round(longueur_ml * 0.6, 2)
 
             surface_known = pack_surface is not None or global_surface is not None
             effective_surface = (

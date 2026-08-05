@@ -242,6 +242,66 @@ class TestQuantityThreading:
         assert qty == 25.0
         assert rule == "ML_FROM_AI_LENGTH"
 
+    def test_longueur_ml_overrides_perimetre_mode(self):
+        """'32 ml de tranchées' must beat the geometry perimeter estimate."""
+        qty, rule = calculate_quantity_from_unit(
+            "ml", 40.0, 1.0, mode_calcul_ml="PERIMETRE", coefficient_ml=1.0,
+            geometry=None, longueur_ml=32.0, surface_known=False,
+        )
+        assert qty == 32.0
+        assert rule == "ML_FROM_AI_LENGTH"
+
+    def test_longueur_ml_scaled_by_mode_coefficient(self):
+        qty, _ = calculate_quantity_from_unit(
+            "ml", 40.0, 1.0, mode_calcul_ml="RATIO_SURFACE", coefficient_ml=0.5,
+            geometry=None, longueur_ml=32.0, surface_known=False,
+        )
+        assert qty == 16.0
+
+    def test_longueur_ml_does_not_override_fixed_lines(self):
+        """Curated FIXE quantities (e.g. 'raccordement 2 ml') stay fixed."""
+        qty, rule = calculate_quantity_from_unit(
+            "ml", 40.0, 2.0, mode_calcul_ml="FIXE",
+            geometry=None, longueur_ml=32.0, surface_known=False,
+        )
+        assert qty == 2.0
+        assert rule == "ML_FIXED_PACK_QTY"
+
+    def test_trench_volume_from_length(self):
+        qty, rule = calculate_quantity_from_unit(
+            "m³", 19.2, 1.0, geometry=None, longueur_ml=32.0,
+            surface_known=True, designation="Evacuation des déblais en décharge",
+        )
+        assert qty == pytest.approx(32 * 0.35)
+        assert rule == "M3_FROM_LENGTH_035"
+
+    def test_strip_surface_inferred_from_length(self):
+        """32 ml with no surface → m² lines billed on the 0.6 m working strip."""
+        trench_pack = _mk_pack(
+            "VRD-PACK-001", "Tranchée réseaux",
+            "Terrassement – VRD – Assainissement",
+            [
+                {"bloc": 2, "unite": "m²", "quantite": 1, "prix_unitaire_ht": 4.5,
+                 "taux_tva_defaut": 20, "designation": "Décapage de la terre végétale"},
+                {"bloc": 3, "unite": "ml", "quantite": 1, "prix_unitaire_ht": 22,
+                 "taux_tva_defaut": 20, "designation": "Ouverture mécanique de tranchée",
+                 "mode_calcul_ml": "PERIMETRE", "coefficient_ml": 1.0},
+            ],
+        )
+        maps = ({trench_pack["code_pack"]: trench_pack}, [trench_pack])
+        lots = [_ai_lot("Terrassement – VRD – Assainissement",
+                        [_ai_pack("VRD-PACK-001", 32, "longueur_ml", "32 ml de tranchées")])]
+        blocks = process_ai_lots(
+            lots, surface_m2=None, user_text="32 ml de tranchées",
+            price_map={}, concept_map=CONCEPT_MAP, metier_medians=METIER_MEDIANS,
+            packs_maps=maps,
+        )
+        lines = _intervention_blocks(blocks)[0]["lots"][0]["lignes"]
+        trench = next(l for l in lines if "tranchée" in l["description"].lower())
+        assert trench["qte"] == 32.0  # NOT the perimeter estimate
+        decapage = next(l for l in lines if "Décapage" in l["description"])
+        assert decapage["qte"] == pytest.approx(32 * 0.6)
+
     def test_quantity_cap(self):
         qty, rule = calculate_quantity_from_unit(
             "m²", 50_000.0, 1.0, surface_known=True,
@@ -554,3 +614,27 @@ class TestAiServiceHelpers:
             "élévation des murs en parpaings, chaînages et linteaux"
         )
         assert "Maçonnerie – Gros œuvre" in hints
+
+    def test_semantic_cache_key_is_normalised(self):
+        from app.services.ai_service import _semantic_cache_key
+
+        assert _semantic_cache_key("Peinture  Salon 20m²") == \
+            _semantic_cache_key("peinture salon 20M²")
+        assert _semantic_cache_key("Rénovation") == _semantic_cache_key("renovation")
+
+    def test_semantic_cache_roundtrip_and_isolation(self):
+        from app.services.ai_service import (
+            _semantic_cache_get,
+            _semantic_cache_key,
+            _semantic_cache_put,
+        )
+
+        key = _semantic_cache_key("test cache roundtrip xyz")
+        payload = {"is_btp": True, "lots": [{"metier": "Peinture", "packs": []}]}
+        _semantic_cache_put(key, payload)
+        got = _semantic_cache_get(key)
+        assert got == payload
+        # Deep-copied: mutating the returned object must not corrupt the cache.
+        got["lots"][0]["metier"] = "MUTATED"
+        assert _semantic_cache_get(key)["lots"][0]["metier"] == "Peinture"
+        assert _semantic_cache_get(_semantic_cache_key("autre demande")) is None

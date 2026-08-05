@@ -442,6 +442,43 @@ def _detect_metier_hints(user_text: str, limit: int = 4) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
+# Semantic-payload cache — hard determinism for identical prompts.
+#
+# OpenAI sampling is only best-effort deterministic even at temperature 0
+# with a fixed seed. Since the downstream engine is fully deterministic, the
+# one remaining variance source is the Stage-2 payload: caching it by
+# normalized prompt text guarantees that the same request produces the same
+# devis (with fresh dates) for every client hitting this server.
+# ---------------------------------------------------------------------------
+import copy
+from collections import OrderedDict
+
+_SEMANTIC_CACHE_MAX: Final[int] = 512
+_semantic_cache: "OrderedDict[str, dict[str, Any]]" = OrderedDict()
+
+
+def _semantic_cache_key(user_text: str) -> str:
+    """Case-, accent- and whitespace-insensitive identity of a request."""
+    norm = _normalise_for_match(user_text)
+    return re.sub(r"\s+", " ", norm).strip()
+
+
+def _semantic_cache_get(key: str) -> dict[str, Any] | None:
+    cached = _semantic_cache.get(key)
+    if cached is None:
+        return None
+    _semantic_cache.move_to_end(key)
+    return copy.deepcopy(cached)
+
+
+def _semantic_cache_put(key: str, parsed: dict[str, Any]) -> None:
+    _semantic_cache[key] = copy.deepcopy(parsed)
+    _semantic_cache.move_to_end(key)
+    while len(_semantic_cache) > _SEMANTIC_CACHE_MAX:
+        _semantic_cache.popitem(last=False)
+
+
+# ---------------------------------------------------------------------------
 # Stage-2 payload sanitation
 # ---------------------------------------------------------------------------
 _VALID_QTY_TYPES: Final[frozenset[str]] = frozenset(
@@ -711,7 +748,9 @@ class AIService:
     _DEVIS_TITLE_MODEL: Final[str] = "gpt-4"
     _DEVIS_TITLE_PARAMS: Final[dict[str, Any]] = {
         "max_tokens": 60,
-        "temperature": 0.2,
+        # Deterministic title: the same request must render the same devis
+        # heading run after run.
+        "temperature": 0,
         "top_p": 1,
         "presence_penalty": 0,
         "stream": False,
@@ -735,12 +774,20 @@ class AIService:
         self._chatbot_model: str = settings.OPENAI_CHATBOT_MODEL
         self._mobile_model: str = settings.OPENAI_MOBILE_MODEL
         self._landing_model: str = settings.OPENAI_LANDING_MODEL
-        # Devis-generation params: wire the (previously unused) reasoning
-        # effort setting for reasoning-capable model families. Structured
-        # extraction needs no hidden reasoning, so "minimal" cuts latency.
+        # Devis-generation params, adapted to the model family:
+        # * reasoning models (gpt-5 / o*): temperature is locked to 1 by the
+        #   API, but reasoning effort is configurable — "minimal" cuts latency
+        #   for this structured-extraction task.
+        # * sampling models (gpt-4o...): pin the sampling (temperature 0 +
+        #   fixed seed) so the same prompt maps to the same packs run after
+        #   run, on any machine — the engine being deterministic, the whole
+        #   devis becomes reproducible.
         self._devis_params: dict[str, Any] = dict(self._COMPLETION_PARAMS)
         if self._model.lower().startswith(("gpt-5", "o1", "o3", "o4")):
             self._devis_params["reasoning_effort"] = settings.OPENAI_REASONING_EFFORT
+        else:
+            self._devis_params["temperature"] = 0
+            self._devis_params["seed"] = 42
         self._client: AsyncOpenAI = AsyncOpenAI(
             api_key=api_key or settings.OPENAI_API_KEY,
             base_url=base_url or "https://api.openai.com/v1",
@@ -1293,6 +1340,23 @@ class AIService:
                 f"(Métiers les plus probables pour cette demande : {', '.join(hints)})"
             )
 
+        # Deterministic replay: an identical request (case/accent/whitespace
+        # insensitive) reuses the cached semantic payload instead of
+        # re-sampling the LLM, so the same prompt always yields the same
+        # devis regardless of client, account or machine.
+        cache_key = _semantic_cache_key(user_text)
+        cached_payload = _semantic_cache_get(cache_key)
+        if cached_payload is not None:
+            logger.info("Stage-2 semantic cache hit — deterministic replay.")
+            parsed = cached_payload
+            lots = _sanitize_ai_lots(parsed.get("lots", []))
+            return await self._finalize_devis(
+                parsed, lots, user_text, on_progress=on_progress,
+                price_map=price_map, concept_map=concept_map,
+                metier_medians=metier_medians,
+                exact_map=exact_map, pack_list=pack_list,
+            )
+
         # Stage-2 with one self-correcting retry: a payload with zero usable
         # lots (or unparseable JSON) gets a second chance with the error
         # context appended, before falling back to the minimal generic lot.
@@ -1334,6 +1398,31 @@ class AIService:
             last_error = "aucun lot exploitable dans la réponse"
             logger.warning("Stage-2 attempt %d returned no usable lots.", attempt)
 
+        # Only successful, usable payloads enter the deterministic cache.
+        if lots:
+            _semantic_cache_put(cache_key, parsed)
+
+        return await self._finalize_devis(
+            parsed, lots, user_text, on_progress=on_progress,
+            price_map=price_map, concept_map=concept_map,
+            metier_medians=metier_medians,
+            exact_map=exact_map, pack_list=pack_list,
+        )
+
+    async def _finalize_devis(
+        self,
+        parsed: dict[str, Any],
+        lots: list[dict[str, Any]],
+        user_text: str,
+        *,
+        on_progress: ProgressCallback | None,
+        price_map: dict[str, Any],
+        concept_map: dict[str, Any],
+        metier_medians: dict[str, Any],
+        exact_map: dict[str, Any],
+        pack_list: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        """Deterministic tail of the pipeline: engine, totals, assembly."""
         # Step 3: Calculation (Deterministic engine)
         if on_progress is not None:
             await on_progress(3, PROGRESS_STEPS[2])
