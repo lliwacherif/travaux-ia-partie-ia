@@ -64,6 +64,13 @@ _DEVIS_RESPONSE_FORMAT: dict[str, Any] = {
         "schema": {
             "type": "object",
             "properties": {
+                "is_btp": {
+                    "type": "boolean",
+                    "description": (
+                        "true only when the request concerns building works "
+                        "(construction, renovation, repair of building equipment)."
+                    ),
+                },
                 "client_type": {
                     "type": "string",
                     "enum": ["pro", "particulier"],
@@ -97,9 +104,25 @@ _DEVIS_RESPONSE_FORMAT: dict[str, Any] = {
                                             ],
                                         },
                                         "quantite": {"type": "number"},
+                                        "quantite_type": {
+                                            "type": "string",
+                                            "enum": [
+                                                "surface_m2",
+                                                "longueur_ml",
+                                                "unitaire",
+                                                "forfait",
+                                                "non_specifie",
+                                            ],
+                                        },
                                         "source_qte": {"type": "string"},
                                     },
-                                    "required": ["id", "type", "quantite", "source_qte"],
+                                    "required": [
+                                        "id",
+                                        "type",
+                                        "quantite",
+                                        "quantite_type",
+                                        "source_qte",
+                                    ],
                                     "additionalProperties": False,
                                 },
                             },
@@ -109,7 +132,7 @@ _DEVIS_RESPONSE_FORMAT: dict[str, Any] = {
                     },
                 },
             },
-            "required": ["client_type", "project_nature", "lots"],
+            "required": ["is_btp", "client_type", "project_nature", "lots"],
             "additionalProperties": False,
         },
     },
@@ -118,6 +141,7 @@ _DEVIS_RESPONSE_FORMAT: dict[str, Any] = {
 from app.services.prestations_engine import (
     process_ai_lots,
     calculate_global_totals,
+    estimate_duration_days,
     get_cached_price_map,
     get_cached_packs_map,
     extract_surface_m2,
@@ -282,15 +306,224 @@ def _normalise_for_match(text: str) -> str:
     return "".join(c for c in nfkd if not unicodedata.combining(c))
 
 
-def _is_depannage_request(user_text: str) -> bool:
-    """Return True when the free-form text looks like a repair / breakdown.
+# Strong "real works" signals that veto the depannage-only catalog even when a
+# repair keyword is present ("rénovation salle de bain, remplacer le carrelage
+# cassé" must NOT be scoped to DEP-* packs). The standard catalog still
+# contains every DEP pack, so mixed requests lose nothing.
+_RENOVATION_OVERRIDE_KEYWORDS: Final[tuple[str, ...]] = (
+    "renovation", "renover", "renovation complete", "refection",
+    "extension", "agrandissement", "surelevation", "construction",
+    "construire", "creer", "creation", "amenagement", "amenager",
+    "installation complete", "isolation", "ravalement", "elevation",
+    "maconnerie", "charpente", "carrelage", "peinture des", "peindre",
+    "cloison", "faux plafond", "terrassement", "chape", "dalle beton",
+)
 
-    Conservative on purpose: only requests containing an explicit repair
-    signal are routed to the depannage-scoped catalog. Anything else takes
-    the untouched standard path.
+
+def _is_depannage_request(user_text: str) -> bool:
+    """Return True when the text should use the depannage-scoped catalog.
+
+    Conservative on purpose: requires an explicit repair signal AND the
+    absence of strong renovation/construction signals. A renovation text
+    that merely mentions a broken element ("carrelage cassé") keeps the
+    full catalog, where every DEP-* pack is still listed anyway.
     """
     norm = _normalise_for_match(user_text)
-    return any(kw in norm for kw in _DEPANNAGE_TRIGGER_KEYWORDS)
+    if not any(kw in norm for kw in _DEPANNAGE_TRIGGER_KEYWORDS):
+        return False
+    if any(kw in norm for kw in _RENOVATION_OVERRIDE_KEYWORDS):
+        return False
+    # An explicit surface of works (e.g. "80 m²") signals a real project,
+    # not a quick repair intervention.
+    m = re.search(r"(\d+(?:[.,]\d+)?)\s*m[²2]\b", norm)
+    if m and float(m.group(1).replace(",", ".")) >= 15:
+        return False
+    return True
+
+
+# ---------------------------------------------------------------------------
+# Métier hints — lightweight keyword detection appended to the user message.
+#
+# The full catalog stays in the (cacheable) system prompt; this hint only
+# focuses the model's attention on the most probable trades, which greatly
+# stabilises pack selection from one run to the next.
+# ---------------------------------------------------------------------------
+_METIER_HINT_KEYWORDS: Final[dict[str, tuple[str, ...]]] = {
+    "Maçonnerie – Gros œuvre": (
+        "parpaing", "mur porteur", "dalle beton", "fondation", "linteau",
+        "chainage", "agglo", "elevation", "extension", "arase", "maconnerie",
+        "ouverture de mur", "beton arme",
+    ),
+    "Démolition – Curage – Dépose": ("demolition", "demolir", "curage", "abattre"),
+    "Terrassement – VRD – Assainissement": (
+        "terrassement", "tranchee", "vrd", "assainissement", "fosse septique",
+        "empierrement", "decaissement",
+    ),
+    "Plâtrerie – Cloisons – Doublages – Faux plafonds": (
+        "placo", "cloison", "doublage", "faux plafond", "ba13", "platrerie",
+    ),
+    "Peinture – Finitions – Enduits décoratifs": (
+        "peinture", "peindre", "enduit decoratif", "papier peint", "toile de verre",
+    ),
+    "Plomberie – Sanitaire": (
+        "plomberie", "robinet", "lavabo", "evier", "chauffe-eau", "chauffe eau",
+        "wc", "sanitaire", "arrivee d'eau",
+    ),
+    "Chauffage – Chaudières – Radiateurs – Réseaux": (
+        "chaudiere", "radiateur", "plancher chauffant", "chauffage central",
+    ),
+    "Chauffage ENR – PAC – Solaire thermique": (
+        "pompe a chaleur", "pac ", "solaire thermique", "ballon thermodynamique",
+    ),
+    "Climatisation – Ventilation – VMC": (
+        "climatisation", "clim ", "split", "vmc", "ventilation",
+    ),
+    "Électricité – Courants forts": (
+        "electricite", "tableau electrique", "prise", "interrupteur",
+        "luminaire", "mise aux normes electrique",
+    ),
+    "Électricité – Courants faibles – Domotique – Réseaux": (
+        "domotique", "reseau informatique", "camera", "alarme", "interphone",
+        "visiophone", "fibre",
+    ),
+    "Menuiserie intérieure": (
+        "porte interieure", "placard", "dressing", "escalier bois", "plinthe",
+        "verriere interieure",
+    ),
+    "Menuiserie extérieure": (
+        "fenetre", "baie vitree", "volet", "porte d'entree", "porte de garage",
+        "double vitrage",
+    ),
+    "Serrurerie – Métallerie": (
+        "portail", "garde-corps", "grille", "metallerie", "cloture acier",
+        "serrurerie",
+    ),
+    "Revêtements de sols": (
+        "parquet", "stratifie", "moquette", "sol souple", "lino", "vinyle",
+    ),
+    "Carrelage – Sols & Murs": ("carrelage", "faience", "carreler", "gres cerame"),
+    "Isolation intérieure": (
+        "isolation interieure", "isolation des combles", "combles", "laine de verre",
+        "laine de roche", "isolation phonique",
+    ),
+    "Isolation thermique extérieure (ITE)": (
+        "ite", "isolation exterieure", "isolation par l'exterieur", "sarking",
+    ),
+    "Calorifugeage": ("calorifugeage", "calorifuge"),
+    "Couverture – Toiture – Zinguerie": (
+        "toiture", "tuile", "ardoise", "gouttiere", "zinguerie", "couverture",
+        "demoussage toiture",
+    ),
+    "Étanchéité – Toiture terrasse": ("etancheite", "toiture terrasse", "toit plat"),
+    "Façade – Ravalement – Enduits extérieurs": (
+        "facade", "ravalement", "crepi", "enduit exterieur", "bardage",
+    ),
+    "Charpente bois – Ossature": ("charpente", "solivage", "ossature bois", "ferme"),
+    "Charpente métallique": ("charpente metallique", "structure acier", "ipn"),
+    "Panneaux photovoltaïques": ("photovoltaique", "panneau solaire"),
+    "Salle de bain – Aménagement complet": (
+        "salle de bain", "sdb", "douche italienne", "salle d'eau",
+    ),
+    "Cuisine – Agencement sur mesure": ("cuisine equipee", "agencement cuisine",),
+    "Dépannage & Interventions rapides": ("depannage", "urgence", "panne"),
+}
+
+
+def _detect_metier_hints(user_text: str, limit: int = 4) -> list[str]:
+    """Return up to ``limit`` probable trade labels detected in the text."""
+    norm = _normalise_for_match(user_text)
+    scored: list[tuple[int, str]] = []
+    for label, keywords in _METIER_HINT_KEYWORDS.items():
+        hits = sum(1 for kw in keywords if kw in norm)
+        if hits:
+            scored.append((hits, label))
+    scored.sort(key=lambda t: (-t[0], t[1]))
+    return [label for _, label in scored[:limit]]
+
+
+# ---------------------------------------------------------------------------
+# Stage-2 payload sanitation
+# ---------------------------------------------------------------------------
+_VALID_QTY_TYPES: Final[frozenset[str]] = frozenset(
+    {"surface_m2", "longueur_ml", "unitaire", "forfait", "non_specifie"}
+)
+_MAX_SANE_QUANTITY: Final[float] = 10_000.0
+
+
+def _sanitize_ai_lots(raw_lots: Any) -> list[dict[str, Any]]:
+    """Validate and normalise the LLM lots before the deterministic engine.
+
+    Guarantees for downstream code:
+    * every lot has a non-empty ``metier`` and at least one pack;
+    * packs are deduplicated by id within a lot (LLM repetition guard);
+    * ``quantite`` is a positive, sane float; ``quantite_type`` is one of
+      :data:`_VALID_QTY_TYPES`; ``source_qte`` is a non-empty string.
+    """
+    if not isinstance(raw_lots, list):
+        return []
+
+    cleaned_lots: list[dict[str, Any]] = []
+    for idx, lot in enumerate(raw_lots, 1):
+        if not isinstance(lot, dict):
+            continue
+        packs_in = lot.get("packs") or []
+        if not isinstance(packs_in, list):
+            continue
+
+        seen_ids: set[str] = set()
+        packs_out: list[dict[str, Any]] = []
+        for pack in packs_in:
+            if not isinstance(pack, dict):
+                continue
+            pack_id = str(pack.get("id") or "").strip()
+            if not pack_id:
+                continue
+            dedupe_key = pack_id.upper()
+            if dedupe_key in seen_ids:
+                logger.info("Dropping duplicate pack %r in lot %d.", pack_id, idx)
+                continue
+            seen_ids.add(dedupe_key)
+
+            try:
+                qty = float(pack.get("quantite", 1))
+            except (TypeError, ValueError):
+                qty = 1.0
+            qty_type = str(pack.get("quantite_type") or "").strip().lower()
+            if qty_type not in _VALID_QTY_TYPES:
+                qty_type = "non_specifie"
+            source = str(pack.get("source_qte") or "").strip() or "non spécifié"
+
+            if qty <= 0:
+                qty, qty_type = 1.0, "non_specifie"
+            elif qty > _MAX_SANE_QUANTITY:
+                logger.warning(
+                    "Pack %r has absurd quantite=%s — treated as unspecified.",
+                    pack_id, qty,
+                )
+                qty, qty_type = 1.0, "non_specifie"
+
+            packs_out.append(
+                {
+                    "id": pack_id,
+                    "type": str(pack.get("type") or "PRESTATION").strip().upper(),
+                    "quantite": qty,
+                    "quantite_type": qty_type,
+                    "source_qte": source,
+                }
+            )
+
+        if not packs_out:
+            continue
+        metier = str(lot.get("metier") or "").strip() or "Métier inconnu"
+        cleaned_lots.append(
+            {
+                "lot_key": str(lot.get("lot_key") or f"LOT_{idx:02d}"),
+                "metier": metier,
+                "zone": lot.get("zone", "interieur"),
+                "packs": packs_out,
+            }
+        )
+    return cleaned_lots
 
 
 def _detect_depannage_sous_metiers(user_text: str) -> list[str]:
@@ -502,6 +735,12 @@ class AIService:
         self._chatbot_model: str = settings.OPENAI_CHATBOT_MODEL
         self._mobile_model: str = settings.OPENAI_MOBILE_MODEL
         self._landing_model: str = settings.OPENAI_LANDING_MODEL
+        # Devis-generation params: wire the (previously unused) reasoning
+        # effort setting for reasoning-capable model families. Structured
+        # extraction needs no hidden reasoning, so "minimal" cuts latency.
+        self._devis_params: dict[str, Any] = dict(self._COMPLETION_PARAMS)
+        if self._model.lower().startswith(("gpt-5", "o1", "o3", "o4")):
+            self._devis_params["reasoning_effort"] = settings.OPENAI_REASONING_EFFORT
         self._client: AsyncOpenAI = AsyncOpenAI(
             api_key=api_key or settings.OPENAI_API_KEY,
             base_url=base_url or "https://api.openai.com/v1",
@@ -536,7 +775,7 @@ class AIService:
             valid JSON output at the decoding layer — no post-hoc
             healing needed.
         """
-        params = dict(completion_params or self._COMPLETION_PARAMS)
+        params = dict(completion_params or self._devis_params)
         if response_format is not None:
             params["response_format"] = response_format
         started_at = perf_counter()
@@ -1043,38 +1282,86 @@ class AIService:
             catalog_str = "\n".join(catalog_lines)
 
         prompt = SYSTEM_PROMPT_GENERATOR.replace("{catalog}", catalog_str)
-            
-        raw = await self._chat(
-            prompt,
-            user_text,
-            response_format=_DEVIS_RESPONSE_FORMAT,
-        )
-        # Structured Outputs guarantees valid JSON, but we keep the
-        # healer as a safety net — it's a no-op when input is clean.
-        parsed = clean_and_parse_json(raw)
-        
+
+        # Metier hints ride along the user message so the (large) system
+        # prompt stays byte-stable and prompt-cacheable.
+        hints = _detect_metier_hints(user_text)
+        user_message = user_text
+        if hints:
+            user_message = (
+                f"{user_text}\n\n"
+                f"(Métiers les plus probables pour cette demande : {', '.join(hints)})"
+            )
+
+        # Stage-2 with one self-correcting retry: a payload with zero usable
+        # lots (or unparseable JSON) gets a second chance with the error
+        # context appended, before falling back to the minimal generic lot.
+        parsed: dict[str, Any] = {}
+        lots: list[dict[str, Any]] = []
+        last_error = ""
+        for attempt in range(1, self._STAGE2_MAX_ATTEMPTS + 1):
+            message = user_message
+            if attempt > 1 and last_error:
+                message = (
+                    f"{user_message}\n\n"
+                    f"IMPORTANT — ta réponse précédente était invalide ({last_error}). "
+                    "Retourne un JSON conforme avec au moins un lot contenant un pack."
+                )
+            try:
+                raw = await self._chat(
+                    prompt,
+                    message,
+                    response_format=_DEVIS_RESPONSE_FORMAT,
+                )
+                # Structured Outputs guarantees valid JSON, but we keep the
+                # healer as a safety net — it's a no-op when input is clean.
+                parsed = clean_and_parse_json(raw)
+            except JSONHealingError as exc:
+                last_error = _short(str(exc), 150)
+                logger.warning("Stage-2 attempt %d unparseable: %s", attempt, last_error)
+                if attempt >= self._STAGE2_MAX_ATTEMPTS:
+                    raise
+                continue
+
+            if parsed.get("is_btp") is False:
+                raise InvalidBuildingRequestError(
+                    "La demande ne concerne pas des travaux de bâtiment."
+                )
+
+            lots = _sanitize_ai_lots(parsed.get("lots", []))
+            if lots:
+                break
+            last_error = "aucun lot exploitable dans la réponse"
+            logger.warning("Stage-2 attempt %d returned no usable lots.", attempt)
+
         # Step 3: Calculation (Deterministic engine)
         if on_progress is not None:
             await on_progress(3, PROGRESS_STEPS[2])
-            
-        lots = parsed.get("lots", [])
-        logger.info("AI returned %d lots: %s", len(lots), [l.get("metier", "?") for l in lots])
+
+        logger.info(
+            "AI returned %d lots: %s", len(lots), [l.get("metier", "?") for l in lots]
+        )
         client_type = parsed.get("client_type", "particulier")
         project_nature = parsed.get("project_nature", "renovation")
-        
+
         surface_m2 = extract_surface_m2(user_text)
 
-        # V2 Enhancement: if AI returned zero lots, inject a minimal fallback
-        # so we always emit a devis instead of returning empty.
+        # Last-resort fallback: always emit a devis instead of returning empty.
         if not lots:
-            logger.warning("AI returned 0 lots — injecting minimal fallback lot.")
+            logger.warning("AI returned 0 lots after retry — injecting fallback lot.")
             lots = [{
                 "lot_key": "LOT_01",
                 "metier": "Travaux généraux",
                 "zone": "interieur",
-                "packs": [{"id": "TRAVAUX_GENERAUX", "type": "PRESTATION", "quantite": surface_m2, "source_qte": "fallback"}],
+                "packs": [{
+                    "id": "TRAVAUX_GENERAUX",
+                    "type": "PRESTATION",
+                    "quantite": surface_m2 if surface_m2 else 1,
+                    "quantite_type": "surface_m2" if surface_m2 else "non_specifie",
+                    "source_qte": "fallback",
+                }],
             }]
-        
+
         four_blocks = process_ai_lots(
             lots, 
             client_type, 
@@ -1102,7 +1389,7 @@ class AIService:
         devis = {
             "date": now.isoformat(),
             "validite": (now + timedelta(days=30)).isoformat(),
-            "duree": 30,
+            "duree": estimate_duration_days(totals["total_ht"], four_blocks),
             "montant_ttc": totals["total_ttc"],
             "blocs": four_blocks,
         }

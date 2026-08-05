@@ -200,14 +200,21 @@ _MATERIAL_PRICES: Dict[str, float] = {
 }
 
 # Static fallback prices — LAST resort when no DB match AND no metier median.
+# Values are the measured MEDIANS of the bpu_items catalog (3 330 priced rows),
+# so even the worst-case fallback stays market-realistic.
 _STATIC_FALLBACK_PRICES: Dict[str, float] = {
     "m²": 45.0,
     "m³": 120.0,
-    "ml": 15.0,
-    "kg": 5.0,
-    "u": 2.5,
+    "ml": 42.0,
+    "kg": 12.0,
+    "u": 200.0,
     "l": 10.0,
-    "forfait": 120.0,
+    "forfait": 380.0,
+    "ens": 380.0,
+    "lot": 380.0,
+    "h": 70.0,
+    "j": 85.0,
+    "t": 550.0,
 }
 
 # Type alias for the metier-aware median price map:
@@ -273,6 +280,40 @@ def _extract_concept(line_key: str) -> str:
     return re.sub(r'_(?:m2|m3|ml|kg|u|l)$', '', line_key.lower().strip())
 
 
+# Widest acceptable ratio between a resolved price and the metier/unit median.
+# Only guards keyword-resolved prices against absurd bindings; curated pack
+# prices are trusted and never clamped.
+_PRICE_SANITY_BAND: float = 8.0
+
+
+def _sanity_clamp(
+    price: float,
+    unit: str,
+    *,
+    corps_metier: str = "",
+    metier_medians: Optional[MetierMedianMap] = None,
+    context: str = "",
+) -> float:
+    """Clamp a keyword-resolved price into a sane band around the metier median."""
+    if not metier_medians or not corps_metier or price <= 0:
+        return price
+    unit_medians = metier_medians.get(_normalize_key(corps_metier))
+    if not unit_medians:
+        return price
+    median = unit_medians.get(unit.lower().strip())
+    if not median or median <= 0:
+        return price
+    lo, hi = median / _PRICE_SANITY_BAND, median * _PRICE_SANITY_BAND
+    if price < lo or price > hi:
+        clamped = round(min(max(price, lo), hi), 2)
+        logger.warning(
+            "[PRICE_CLAMP] %s: %.2f€/%s outside [%.2f, %.2f] for metier %r → %.2f€",
+            context, price, unit, lo, hi, corps_metier, clamped,
+        )
+        return clamped
+    return price
+
+
 def _resolve_price(
     key: str,
     unit: str,
@@ -325,7 +366,11 @@ def _resolve_price(
         # Try full concept first (e.g. "toiture_tuiles" — unlikely but possible)
         price = _try_concept(concept)
         if price:
-            return price
+            return _sanity_clamp(
+                price, unit,
+                corps_metier=corps_metier, metier_medians=metier_medians,
+                context=f"concept:{concept}",
+            )
 
         # Split on underscores and try each word (e.g. "toiture", "tuiles")
         # Try longer words first — they are more specific.
@@ -334,7 +379,11 @@ def _resolve_price(
         for word in words:
             price = _try_concept(word)
             if price:
-                return price
+                return _sanity_clamp(
+                    price, unit,
+                    corps_metier=corps_metier, metier_medians=metier_medians,
+                    context=f"concept:{word}",
+                )
 
     # 4 & 5. Metier median or static fallback
     fallback = _get_fallback_price(
@@ -386,8 +435,11 @@ async def load_price_map(db: AsyncSession) -> PriceMapTuple:
     rows = (await db.execute(stmt)).all()
 
     price_map: Dict[str, float] = {}
-    # concept_map: concept_name -> {unit: best_price}
-    concept_map: Dict[str, Dict[str, float]] = {}
+    # concept prices are accumulated then reduced to the MEDIAN per unit, so
+    # a single expensive/cheap outlier row can no longer define the concept.
+    _concept_prices: Dict[str, Dict[str, List[float]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
     # Collect all prices per (metier, unit) for median calculation
     _metier_unit_prices: Dict[str, Dict[str, List[float]]] = defaultdict(
         lambda: defaultdict(list)
@@ -407,18 +459,23 @@ async def load_price_map(db: AsyncSession) -> PriceMapTuple:
         for concept, keywords in _KEYWORD_TO_BPU_SEARCH.items():
             for kw in keywords:
                 if kw.lower() in desig_lower:
-                    if concept not in concept_map:
-                        concept_map[concept] = {}
-                    norm_unit = unit.lower().strip()
-                    # Keep the first price found per unit (usually the most generic)
-                    if norm_unit not in concept_map[concept]:
-                        concept_map[concept][norm_unit] = price
+                    _concept_prices[concept][unit.lower().strip()].append(price)
                     break  # one keyword match is enough
 
         # 4. Accumulate prices for metier median calculation
         norm_metier = _normalize_key(corps_metier)
         norm_unit = unit.lower().strip()
         _metier_unit_prices[norm_metier][norm_unit].append(price)
+
+    # Reduce concept price lists to medians
+    concept_map: Dict[str, Dict[str, float]] = {
+        concept: {
+            u: round(statistics.median(prices), 2)
+            for u, prices in unit_prices.items()
+            if prices
+        }
+        for concept, unit_prices in _concept_prices.items()
+    }
 
     # Compute medians per (metier, unit)
     metier_medians: MetierMedianMap = {}
@@ -503,6 +560,21 @@ async def get_cached_packs_map(
         logger.info("Packs map cached in RAM.")
         return _cached_packs
 
+def _metier_compatible(pack_metier: str, lot_metier: str) -> bool:
+    """Loose compatibility check between a pack's trade and the lot's trade."""
+    if not pack_metier or not lot_metier:
+        return False
+    a, b = _normalize_key(pack_metier), _normalize_key(lot_metier)
+    if not a or not b:
+        return False
+    if a in b or b in a:
+        return True
+    # Token overlap (e.g. "maconnerie_gros_oeuvre" vs "maconnerie")
+    tokens_a = {t for t in a.split("_") if len(t) > 3}
+    tokens_b = {t for t in b.split("_") if len(t) > 3}
+    return bool(tokens_a & tokens_b)
+
+
 def _find_pack(
     pack_id: str,
     exact_map: Dict[str, dict],
@@ -515,9 +587,11 @@ def _find_pack(
     Resolution order:
     1. Exact match by ``code_pack``
     2. Normalised key match on ``code_pack``
-    3. Substring match in ``nom_pack``
-    4. Fuzzy match (difflib) on ``nom_pack``, scoped by ``corps_metier`` first
-       (cutoff=0.6 for confidence), then global fallback
+    3. Substring match in ``nom_pack`` — same-metier candidates first
+    4. Fuzzy match (difflib) on ``nom_pack``: same-metier candidates at
+       cutoff 0.6, then global at cutoff 0.75 AND metier compatibility
+       (or near-certainty >= 0.85). A wrong-metier pack is worse than the
+       unknown-pack fallback, which at least prices the right trade.
 
     Returns ``None`` only when no pack can be matched with sufficient confidence.
     """
@@ -534,56 +608,70 @@ def _find_pack(
         if norm_pack_id == _normalize_key(p["code_pack"]):
             return p
 
-    # 3. Substring match in nom_pack
-    for p in pack_list:
-        if norm_pack_id in _normalize_key(p["nom_pack"]):
-            return p
-
-    # 4. Fuzzy match on nom_pack using difflib (confidence-scored)
-    _FUZZY_CUTOFF = 0.6
-
-    # Build candidate pools — prefer same-metier candidates
+    # Build the same-metier candidate pool once.
     if corps_metier:
-        norm_metier = _normalize_key(corps_metier)
         metier_candidates = [
             p for p in pack_list
-            if norm_metier in _normalize_key(p.get("corps_metier", ""))
-            or _normalize_key(p.get("corps_metier", "")) in norm_metier
+            if _metier_compatible(p.get("corps_metier", ""), corps_metier)
         ]
     else:
         metier_candidates = []
 
-    # Try metier-scoped fuzzy first, then global
-    for candidates, scope_name in [
-        (metier_candidates, "metier_scoped"),
-        (pack_list, "global"),
+    # 3. Substring match in nom_pack — metier scope first, then global.
+    for candidates in (metier_candidates, pack_list):
+        for p in candidates:
+            if norm_pack_id in _normalize_key(p["nom_pack"]):
+                return p
+
+    # 4. Fuzzy match on nom_pack using difflib (confidence-scored).
+    for candidates, scope_name, cutoff in [
+        (metier_candidates, "metier_scoped", 0.6),
+        (pack_list, "global", 0.75),
     ]:
         if not candidates:
             continue
 
         candidate_names = [_normalize_key(p["nom_pack"]) for p in candidates]
         matches = difflib.get_close_matches(
-            norm_pack_id, candidate_names, n=1, cutoff=_FUZZY_CUTOFF
+            norm_pack_id, candidate_names, n=1, cutoff=cutoff
         )
-        if matches:
-            best_match_name = matches[0]
-            for p in candidates:
-                if _normalize_key(p["nom_pack"]) == best_match_name:
-                    # Compute confidence for logging
-                    confidence = difflib.SequenceMatcher(
-                        None, norm_pack_id, best_match_name
-                    ).ratio()
-                    logger.info(
-                        "[PACK_FUZZY_MATCH] '%s' → '%s' (code=%s, scope=%s, "
-                        "confidence=%.2f, metier='%s')",
-                        pack_id,
-                        p["nom_pack"],
-                        p["code_pack"],
-                        scope_name,
-                        confidence,
-                        p.get("corps_metier", "?"),
+        if not matches:
+            continue
+        best_match_name = matches[0]
+        for p in candidates:
+            if _normalize_key(p["nom_pack"]) != best_match_name:
+                continue
+            confidence = difflib.SequenceMatcher(
+                None, norm_pack_id, best_match_name
+            ).ratio()
+            if scope_name == "global":
+                # Global scope: require metier agreement unless the match
+                # is nearly certain.
+                if (
+                    confidence < 0.85
+                    and corps_metier
+                    and not _metier_compatible(
+                        p.get("corps_metier", ""), corps_metier
                     )
-                    return p
+                ):
+                    logger.info(
+                        "[PACK_FUZZY_REJECT] '%s' → '%s' (code=%s, conf=%.2f) "
+                        "rejected: metier '%s' incompatible with lot '%s'",
+                        pack_id, p["nom_pack"], p["code_pack"], confidence,
+                        p.get("corps_metier", "?"), corps_metier,
+                    )
+                    break
+            logger.info(
+                "[PACK_FUZZY_MATCH] '%s' → '%s' (code=%s, scope=%s, "
+                "confidence=%.2f, metier='%s')",
+                pack_id,
+                p["nom_pack"],
+                p["code_pack"],
+                scope_name,
+                confidence,
+                p.get("corps_metier", "?"),
+            )
+            return p
 
     logger.warning(
         "[PACK_NOT_FOUND] pack_id='%s' metier='%s' — no match in %d packs",
@@ -619,15 +707,26 @@ def decide_tva_finale(designation: str, lot_label: str, client_type: str, projec
     return 10.0
 
 UNIT_MAP = {
-    "m2": "m²", "m²": "m²",
-    "ml": "ml", "m.l": "ml", "m.l.": "ml",
-    "m3": "m³", "m³": "m³",
-    "u": "u", "u.": "u", "unite": "u", "unité": "u", "piece": "u", "pièce": "u",
+    "m2": "m²", "m²": "m²", "m² ": "m²", "metre carre": "m²", "mètre carré": "m²",
+    "ml": "ml", "m.l": "ml", "m.l.": "ml", "m": "ml",
+    "metre": "ml", "mètre": "ml", "metres": "ml", "mètres": "ml",
+    "metre lineaire": "ml", "mètre linéaire": "ml", "metre linéaire": "ml",
+    "mètre lineaire": "ml", "metres lineaires": "ml", "mètres linéaires": "ml",
+    "m3": "m³", "m³": "m³", "metre cube": "m³", "mètre cube": "m³",
+    "u": "u", "u.": "u", "unite": "u", "unité": "u", "unites": "u", "unités": "u",
+    "piece": "u", "pièce": "u", "pieces": "u", "pièces": "u",
+    "point": "u", "sac": "u", "paire": "u", "jeu": "u", "rouleau": "u",
+    "poste": "u", "circuit": "u", "zone": "u", "niveau": "u", "bidon": "u",
+    "cartouche": "u", "filtre": "u", "disjoncteur": "u", "coffret": "u",
+    "radiateur": "u", "repartiteur": "u", "répartiteur": "u", "prise": "u",
+    "tremie": "u", "trémie": "u", "angle": "u", "kwc": "u", "kwh": "u",
     "ens": "ens", "ensemble": "ens",
-    "forfait": "forfait", "ft": "forfait",
+    "forfait": "forfait", "ft": "forfait", "intervention": "forfait",
+    "voyage": "forfait", "semaine": "forfait", "mois": "forfait",
     "h": "h", "heure": "h", "heures": "h",
     "j": "j", "jour": "j", "jours": "j",
     "kg": "kg", "t": "t", "tonne": "t", "tonnes": "t",
+    "l": "l", "litre": "l", "litres": "l",
     "lot": "lot",
 }
 
@@ -636,9 +735,69 @@ def normalize_unit(raw: str | None) -> str:
         return "u"
     return UNIT_MAP.get(raw.strip(), UNIT_MAP.get(raw.strip().lower(), "unknown"))
 
-def extract_surface_m2(description: str) -> float:
-    m = re.search(r"(\d+(?:[.,]\d+)?)\s*(?:m[²2]|m[eè]tres?\s*carr[eé]s?)", description, re.I)
-    return float(m.group(1).replace(",", ".")) if m else 50.0
+_SURFACE_RE = re.compile(
+    r"(\d+(?:[.,]\d+)?)\s*(?:m[²2]\b|m[eè]tres?\s*carr[eé]s?)", re.I
+)
+
+
+def extract_surface_m2(description: str) -> float | None:
+    """Extract the first explicit surface (m²) from free text, or ``None``.
+
+    Returning ``None`` (instead of a blind 50 m² default) lets the engine
+    distinguish "the user gave a surface" from "we would be inventing one".
+    """
+    if not description:
+        return None
+    m = _SURFACE_RE.search(description)
+    return float(m.group(1).replace(",", ".")) if m else None
+
+
+# Conservative default surfaces per trade, used ONLY when a surface-driven
+# pack is requested without any usable dimension anywhere in the text.
+_DEFAULT_SURFACE_BY_METIER: Dict[str, float] = {
+    "salle_de_bain": 5.0,
+    "cuisine": 10.0,
+    "peinture": 30.0,
+    "revetement": 20.0,
+    "sol": 20.0,
+    "carrelage": 15.0,
+    "platrerie": 25.0,
+    "cloison": 25.0,
+    "isolation": 40.0,
+    "ite": 90.0,
+    "facade": 90.0,
+    "ravalement": 90.0,
+    "toiture": 80.0,
+    "couverture": 80.0,
+    "etancheite": 60.0,
+    "maconnerie": 30.0,
+    "demolition": 30.0,
+    "terrassement": 40.0,
+    "charpente": 80.0,
+}
+_GENERIC_DEFAULT_SURFACE: float = 20.0
+
+
+def _default_surface_for(metier: str) -> float:
+    """Return a conservative default surface for the given trade."""
+    norm = _normalize_key(metier)
+    for key, surface in _DEFAULT_SURFACE_BY_METIER.items():
+        if key in norm:
+            return surface
+    return _GENERIC_DEFAULT_SURFACE
+
+
+def _dominant_unit(pack_json: List[dict]) -> str:
+    """Return the dominant normalised unit among a pack's work lines (blocs 2-3)."""
+    counts: Dict[str, int] = {}
+    for line in pack_json:
+        if line.get("bloc", 2) not in (2, 3):
+            continue
+        u = normalize_unit(line.get("unite"))
+        counts[u] = counts.get(u, 0) + 1
+    if not counts:
+        return "forfait"
+    return max(counts.items(), key=lambda kv: kv[1])[0]
 
 def clamp(v, mn, mx):
     return max(mn, min(mx, v))
@@ -695,6 +854,15 @@ def compute_geometry(surface_m2: float, metier: str, description: str, user_heig
         "roof_values": roof_values,
     }
 
+# Designation keywords whose m³ volume genuinely scales with the surface
+# (slab-like works ~12 cm thick, or rubble ~8 cm equivalent).
+_VOLUME_SLAB_KEYWORDS = ("dalle", "beton", "béton", "chape", "ragréage", "ragreage")
+_VOLUME_RUBBLE_KEYWORDS = ("gravat", "déblai", "deblai", "terre", "évacuation", "evacuation")
+
+# Hard ceiling for any single computed line quantity (absurdity guard).
+_MAX_LINE_QUANTITY: float = 10_000.0
+
+
 def calculate_quantity_from_unit(
     unite: str,
     surface_m2: float,
@@ -702,18 +870,61 @@ def calculate_quantity_from_unit(
     mode_calcul_ml: str | None = None,
     coefficient_ml: float | None = None,
     geometry: dict | None = None,
+    *,
+    unit_count: float = 1.0,
+    longueur_ml: float | None = None,
+    surface_known: bool = True,
+    line_bloc: int = 2,
+    designation: str = "",
 ) -> tuple[float, str]:
+    """Compute the billable quantity for one pack line.
+
+    Parameters (new, all optional so legacy calls keep working)
+    ----------
+    unit_count:
+        Discrete multiplier extracted by the AI ("5 splits" → 5). Applied
+        to per-unit work lines (blocs 2-3) only; prep/finish lines stay x1.
+    longueur_ml:
+        Explicit length from the AI ("25 ml de clôture" → 25). Overrides
+        geometry estimates for linear lines.
+    surface_known:
+        True when the surface comes from the user text (per-pack or global).
+        When False, m² lines fall back to the pack quantity instead of
+        billing an invented surface.
+    line_bloc:
+        The pack line's bloc (1=prep, 2/3=work, 4=finish).
+    """
     u = normalize_unit(unite).lower().strip()
+    is_work_line = line_bloc in (2, 3)
+
+    def _cap(qty: float, rule: str) -> tuple[float, str]:
+        if qty > _MAX_LINE_QUANTITY:
+            logger.warning(
+                "[QTY_CAP] %s: quantity %.2f capped to %.0f (%s)",
+                designation[:60], qty, _MAX_LINE_QUANTITY, rule,
+            )
+            return _MAX_LINE_QUANTITY, f"{rule}_CAPPED"
+        return qty, rule
 
     if u in ("m²", "m2"):
-        return max(surface_m2, 0), "GENERIC_M2_SURFACE"
+        if surface_known:
+            return _cap(max(surface_m2, 0), "M2_SURFACE")
+        # No surface signal anywhere: bill the pack's own quantity rather
+        # than inventing square meters of work.
+        return max(quantite_pack, 1), "M2_PACK_QTY_NO_SURFACE"
 
     if u == "ml":
         mode = mode_calcul_ml
         coeff = coefficient_ml or 1.0
 
-        longueur = geometry.get("length_m") if geometry else surface_m2 / math.sqrt(surface_m2 / 2)
-        largeur = geometry.get("width_m") if geometry else math.sqrt(surface_m2 / 2)
+        # An explicit user length beats every geometric estimate for the
+        # lines that directly follow the length of the work.
+        if longueur_ml and (not mode or mode in ("LONGUEUR", "FIXE", "MANUEL")):
+            qty = longueur_ml * (coeff if mode == "LONGUEUR" else 1.0)
+            return _cap(round(qty, 2), "ML_FROM_AI_LENGTH")
+
+        longueur = geometry.get("length_m") if geometry else surface_m2 / math.sqrt(max(surface_m2, 1) / 2)
+        largeur = geometry.get("width_m") if geometry else math.sqrt(max(surface_m2, 1) / 2)
         perimetre = geometry.get("perimeter_ml") if geometry else 2 * (longueur + largeur)
         hauteur = geometry.get("height_m") if geometry else 2.5
 
@@ -734,30 +945,61 @@ def calculate_quantity_from_unit(
             rampant = (geometry or {}).get("roof_values", {}).get("rampant_ml")
             qty = (rampant if rampant else (largeur / 2) / 0.8192) * coeff
         elif mode in ("FIXE", "MANUEL"):
-            return quantite_pack or 1, "ML_FIXED_PACK_QTY"
+            qty = (quantite_pack or 1) * (unit_count if is_work_line else 1)
+            return _cap(round(qty, 2), "ML_FIXED_PACK_QTY")
         elif mode == "AUCUN":
             return 0, "ML_NONE"
         else:
             return quantite_pack or 1, f"ML_UNKNOWN_{mode}"
 
-        return round(qty, 2), f"ML_{mode}"
+        return _cap(round(qty, 2), f"ML_{mode}")
 
     if u in ("m³", "m3"):
-        return round(surface_m2 * 0.12, 2), "GENERIC_M3_SURFACE_012"
+        desig = (designation or "").lower()
+        if surface_known and any(kw in desig for kw in _VOLUME_SLAB_KEYWORDS):
+            return _cap(round(surface_m2 * 0.12, 2), "M3_SLAB_012")
+        if surface_known and any(kw in desig for kw in _VOLUME_RUBBLE_KEYWORDS):
+            return _cap(round(max(surface_m2 * 0.08, 0.5), 2), "M3_RUBBLE_008")
+        return quantite_pack if quantite_pack >= 1 else 1, "M3_PACK_QTY"
 
-    if u in ("forfait", "u", "ensemble", "lot", "ens"):
+    if u == "u":
+        base = quantite_pack if quantite_pack >= 1 else 1
+        if unit_count > 1 and is_work_line:
+            return _cap(round(base * unit_count, 2), "U_SCALED_BY_COUNT")
+        return base, "GENERIC_FIXED"
+
+    if u in ("forfait", "ensemble", "lot", "ens"):
         return quantite_pack if quantite_pack >= 1 else 1, "GENERIC_FIXED"
 
     if u in ("jour", "heure", "h", "j"):
         return quantite_pack if quantite_pack >= 1 else 1, "GENERIC_TIME"
 
-    if u in ("kg", "tonnes", "t"):
-        return quantite_pack if quantite_pack >= 1 else surface_m2, "GENERIC_WEIGHT"
+    if u in ("kg", "tonnes", "t", "l"):
+        return quantite_pack if quantite_pack >= 1 else 1, "GENERIC_WEIGHT"
 
-    return quantite_pack if quantite_pack >= 1 else surface_m2, "GENERIC_DEFAULT"
+    # Unknown units: never fall back to the surface — bill the pack quantity.
+    return quantite_pack if quantite_pack >= 1 else 1, "GENERIC_DEFAULT"
 
-def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, default_designation: str, tva: float, metier: str = "") -> List[Dict[str, Any]]:
-    """Enforces exactly target_count lines. Sums prices if truncated, injects proportional lines if padded."""
+def _pad_or_truncate_lines(
+    lines: List[Dict[str, Any]],
+    target_count: int,
+    default_designation: str,
+    tva: float,
+    metier: str = "",
+    *,
+    total_neutral: bool = False,
+) -> List[Dict[str, Any]]:
+    """Enforce exactly ``target_count`` lines.
+
+    Truncation keeps the highest-value lines (original order preserved) and
+    merges only the smallest ones, so an expensive real prestation can no
+    longer disappear into an opaque merge line.
+
+    Padding fills missing lines with metier-specific ancillary labels. In
+    ``total_neutral`` mode (sparse lots, e.g. a single fallback line) the
+    padding budget is carved OUT of the main line instead of being added on
+    top — the lot total stays market-accurate while looking fully detailed.
+    """
     if target_count <= 0:
         return []
         
@@ -772,12 +1014,23 @@ def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, defau
                 "tva": tva,
                 "total_ht": total_ht
             }]
-            
-        kept = lines[:target_count-1]
-        dropped = lines[target_count-1:]
+
+        # Keep the (target-1) highest-HT lines, preserving their original
+        # order; merge the smallest remainder into one summary line.
+        indexed = list(enumerate(lines))
+        by_value = sorted(
+            indexed, key=lambda t: t[1].get("total_ht", 0), reverse=True
+        )
+        keep_idx = {i for i, _ in by_value[: target_count - 1]}
+        kept = [l for i, l in indexed if i in keep_idx]
+        dropped = [l for i, l in indexed if i not in keep_idx]
         dropped_ht = round(sum(l.get("total_ht", 0) for l in dropped), 2)
+        context = (metier or default_designation).strip()
         kept.append({
-            "designation": f"Autres {default_designation.lower()} et finitions",
+            "designation": (
+                f"Ensemble de prestations complémentaires — {context} "
+                f"({len(dropped)} postes regroupés)"
+            ),
             "unite": "forfait",
             "quantite": 1,
             "pu_ht": dropped_ht,
@@ -805,14 +1058,38 @@ def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, defau
         _DISCRETE_UNITS = {"u"}
         use_inherited_qty = primary_unit in _DISCRETE_UNITS
 
+        total_real_ht = sum(l.get("total_ht", 0) for l in lines) or 0
+
+        # ---- Total-neutral mode: carve the detail budget out of the main
+        # line so the lot total is preserved exactly. -----------------------
+        pad_budget: float | None = None
+        if total_neutral and total_real_ht >= 300 and needed > 0 and lines:
+            main = max(padded, key=lambda l: l.get("total_ht", 0))
+            main_total = float(main.get("total_ht", 0) or 0)
+            qte_main = float(main.get("quantite", 1) or 1)
+            desired_budget = round(total_real_ht * 0.15, 2)
+            if main_total > desired_budget * 2 and qte_main > 0:
+                new_main_total = round(main_total - desired_budget, 2)
+                main["pu_ht"] = round(new_main_total / qte_main, 2)
+                main["total_ht"] = round(main["pu_ht"] * qte_main, 2)
+                pad_budget = round(main_total - main["total_ht"], 2)
+                use_inherited_qty = False  # detail lines are global forfaits
+
         # Compute proportional padding price based on existing real lines.
         # Ancillary services (prep, cleanup, etc.) are typically ~15% of
         # the main work, spread across the padding lines.
-        total_real_ht = sum(l.get("total_ht", 0) for l in lines) or 0
-        if total_real_ht > 0 and needed > 0:
+        if pad_budget is not None:
+            pad_pu_base = max(1.0, pad_budget / needed)
+        elif total_real_ht > 0 and needed > 0:
             # Distribute 15% of the total budget across the needed padding lines.
             # We REMOVE the max(25.0, ...) limit to prevent artificially inflating small devis!
             pad_pu_base = (total_real_ht * 0.15) / needed
+            # When padding lines inherit a discrete quantity (e.g. 5 splits →
+            # per-unit ancillary ops), the UNIT price must be divided by that
+            # quantity — otherwise the 15% envelope gets multiplied by the
+            # count and silently inflates the devis.
+            if use_inherited_qty and target_quantite > 1:
+                pad_pu_base = pad_pu_base / target_quantite
             # Still put a very soft minimum so we don't have 0.50€ lines if possible
             pad_pu_base = max(5.0, pad_pu_base)
         elif "Nettoyage" in default_designation:
@@ -934,6 +1211,7 @@ def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, defau
                     "Mise en propreté de la zone d'intervention"
                 ]
         
+        remaining_budget = pad_budget
         for i in range(needed):
             label_suffix = generic_labels[i] if i < len(generic_labels) else f"Prestation annexe {i+1}"
             
@@ -953,6 +1231,17 @@ def _pad_or_truncate_lines(lines: List[Dict[str, Any]], target_count: int, defau
             # Ensure at least 1€
             pad_pu_human = float(max(1, pad_pu_human))
 
+            if remaining_budget is not None:
+                # Total-neutral mode: the last line absorbs rounding drift so
+                # the padding sums exactly to the carved-out budget.
+                lines_left_after = needed - 1 - i
+                if lines_left_after == 0:
+                    pad_pu_human = float(max(1.0, round(remaining_budget, 2)))
+                else:
+                    ceiling = remaining_budget - lines_left_after * 1.0
+                    pad_pu_human = float(max(1.0, min(pad_pu_human, round(ceiling, 2))))
+                remaining_budget = round(remaining_budget - pad_pu_human, 2)
+
             padded.append({
                 "designation": label_suffix,
                 "unite": "forfait",
@@ -969,7 +1258,7 @@ def process_ai_lots(
     client_type: str = "particulier",
     project_nature: str = "renovation",
     *,
-    surface_m2: float = 50.0,
+    surface_m2: float | None = None,
     user_text: str = "",
     price_map: Optional[Dict[str, float]] = None,
     concept_map: Optional[Dict[str, Dict[str, float]]] = None,
@@ -983,49 +1272,79 @@ def process_ai_lots(
     if not lots:
         return []
 
-    # Determine global type based on the first pack of the first lot
-    global_type = "PRESTATION"
-    for lot in lots:
-        for pack in lot.get("packs", []):
-            if pack.get("type", "").upper() == "DEPANNAGE":
-                global_type = "DEPANNAGE"
-                break
+    # Per-lot depannage detection. Intervention sizing is decided lot by lot
+    # (a mixed DEPANNAGE + PRESTATION request no longer crushes prestation
+    # lots down to 3 lines); the global prep/finish blocks use the compact
+    # depannage sizing only when the WHOLE request is a depannage.
+    lot_is_dep: List[bool] = [
+        any(p.get("type", "").upper() == "DEPANNAGE" for p in lot.get("packs", []))
+        for lot in lots
+    ]
+    all_depannage = all(lot_is_dep) if lot_is_dep else False
+    target_mise_en_place = 1 if all_depannage else 3
+    target_finition = 1 if all_depannage else 3
 
-    is_depannage = (global_type == "DEPANNAGE")
-    target_mise_en_place = 1 if is_depannage else 3
-    target_intervention = 3 if is_depannage else 14
-    target_finition = 1 if is_depannage else 3
-    
+    # Global surface extracted from the raw user text (None when absent).
+    global_surface = surface_m2 if surface_m2 and surface_m2 > 0 else None
+
     global_mise_en_place_lines = []
     global_finition_lines = []
     intervention_blocks = []
     
-    for lot in lots:
+    for lot, is_dep_lot in zip(lots, lot_is_dep):
         metier = lot.get("metier", "Métier inconnu")
         lot_key = lot.get("lot_key", "LOT_01")
         packs = lot.get("packs", [])
+        target_intervention = 3 if is_dep_lot else 14
         tva = decide_tva_finale("", metier, client_type, project_nature)
         
         matched_rules = next((rules for code, rules in ALL_METIER_RULES.items() if rules["metier"].lower() in metier.lower()), None)
         
         lot_intervention_lines = []
         
-        lot_qty = lot.get("quantite", lot.get("qte", 1))
-        try:
-            effective_surface = float(lot_qty) if float(lot_qty) > 1 else surface_m2
-        except (ValueError, TypeError):
-            effective_surface = surface_m2
-            
-        geometry = compute_geometry(effective_surface, metier, user_text)
-        
         for pack in packs:
             pack_id = pack.get("id", "INCONNU")
             quantite_brute = pack.get("quantite", 1)
-            # V2 Enhancement: clamp invalid quantities to 1
+            # Clamp invalid quantities to 1
             if not isinstance(quantite_brute, (int, float)) or quantite_brute <= 0:
                 logger.warning("Pack %r has invalid quantite=%r — defaulting to 1", pack_id, quantite_brute)
                 quantite_brute = 1
-            
+            quantite_brute = float(quantite_brute)
+
+            # ---- Quantity semantics --------------------------------------
+            # quantite_type tells the engine what the AI's number MEANS.
+            # Legacy payloads without it fall back to a magnitude heuristic.
+            qty_type = str(pack.get("quantite_type") or "").strip().lower()
+            if qty_type not in ("surface_m2", "longueur_ml", "unitaire", "forfait", "non_specifie"):
+                if quantite_brute > 10:
+                    qty_type = "surface_m2"
+                elif quantite_brute > 1:
+                    qty_type = "unitaire"
+                else:
+                    qty_type = "non_specifie"
+
+            source_qte = str(pack.get("source_qte") or "")
+
+            # Per-pack surface: the AI value, else a surface quoted in the
+            # pack's own source passage, else the global text surface.
+            pack_surface: float | None = None
+            if qty_type == "surface_m2":
+                pack_surface = quantite_brute
+            else:
+                source_surface = extract_surface_m2(source_qte)
+                if source_surface:
+                    pack_surface = source_surface
+
+            unit_count = quantite_brute if qty_type == "unitaire" else 1.0
+            longueur_ml = quantite_brute if qty_type == "longueur_ml" else None
+
+            surface_known = pack_surface is not None or global_surface is not None
+            effective_surface = (
+                pack_surface
+                if pack_surface is not None
+                else (global_surface if global_surface is not None else _default_surface_for(metier))
+            )
+
             # Try packs_travaux first
             matched_pack = None
             if packs_maps:
@@ -1033,6 +1352,19 @@ def process_ai_lots(
                 matched_pack = _find_pack(pack_id, exact_map, pack_list, corps_metier=metier)
                 
             if matched_pack:
+                # A surface-driven pack requested without any dimension in
+                # the text gets the conservative per-metier default surface
+                # instead of billing qty-1 lines.
+                if not surface_known and _dominant_unit(matched_pack["pack_json"]) == "m²":
+                    surface_known = True
+                    logger.info(
+                        "[QTY_DEFAULT_SURFACE] pack=%s metier=%r → default %.0f m²",
+                        matched_pack["code_pack"], metier, effective_surface,
+                    )
+
+                # Geometry is computed per pack from ITS effective surface.
+                geometry = compute_geometry(effective_surface, metier, user_text)
+
                 for line in matched_pack["pack_json"]:
                     qty, rule = calculate_quantity_from_unit(
                         unite=line.get("unite", "forfait"),
@@ -1040,12 +1372,28 @@ def process_ai_lots(
                         quantite_pack=line.get("quantite", 1.0),
                         mode_calcul_ml=line.get("mode_calcul_ml"),
                         coefficient_ml=line.get("coefficient_ml"),
-                        geometry=geometry
+                        geometry=geometry,
+                        unit_count=unit_count,
+                        longueur_ml=longueur_ml,
+                        surface_known=surface_known,
+                        line_bloc=line.get("bloc", 2),
+                        designation=line.get("designation", ""),
                     )
                     
                     qte_calc = max(round(qty, 2), 0.01)
                     
-                    pu_ht = line.get("prix_unitaire_ht", 0.0)
+                    pu_ht = line.get("prix_unitaire_ht") or 0.0
+                    if pu_ht <= 0:
+                        # Curated pack line without a price: resolve through
+                        # the price cascade instead of emitting a 0 € line.
+                        pu_ht = _resolve_price(
+                            line.get("designation", pack_id),
+                            line.get("unite", "forfait"),
+                            price_map,
+                            concept_map=concept_map,
+                            corps_metier=metier,
+                            metier_medians=metier_medians,
+                        )
                     total_ht = round(qte_calc * pu_ht, 2)
                     tva = decide_tva_finale(line.get("designation", ""), metier, client_type, project_nature)
                     
@@ -1101,7 +1449,9 @@ def process_ai_lots(
                     else:
                         lot_intervention_lines.append(line_data)
             else:
-                # V2 Enhancement: log unknown pack IDs for tracing
+                # Unknown pack (invented id): one main line priced from the
+                # BPU cascade. The unit now follows the AI's declared
+                # quantity semantics instead of a magnitude guess.
                 logger.warning(
                     "Pack ID %r not found in catalog — using fallback line for metier=%r",
                     pack_id, metier,
@@ -1109,9 +1459,13 @@ def process_ai_lots(
                 clean_pack_id = str(pack_id).replace("_", " ").capitalize()
                 fallback_designation = f"Fourniture et pose : {clean_pack_id}"
                 tva = decide_tva_finale(fallback_designation, metier, client_type, project_nature)
-                # Determine the correct unit based on quantity
-                # If qty > 1, it's most likely m² (surface-based packs)
-                if quantite_brute == 1:
+                if qty_type == "surface_m2":
+                    pack_unit = "m²"
+                elif qty_type == "longueur_ml":
+                    pack_unit = "ml"
+                elif qty_type == "unitaire":
+                    pack_unit = "u"
+                elif quantite_brute == 1:
                     pack_unit = "forfait"
                 elif quantite_brute > 10:
                     pack_unit = "m²"  # Surface-based (toiture, façade, ITE...)
@@ -1129,14 +1483,17 @@ def process_ai_lots(
                     "total_ht": total_ht
                 })
         
-        # Enforce exact line count for THIS intervention block
+        # Enforce exact line count for THIS intervention block.
+        # A single-line lot (unknown-pack fallback) is padded total-neutrally:
+        # the detail lines are carved out of the main price, not added on top.
         base_tva = decide_tva_finale("", metier, client_type, project_nature)
         lot_intervention_lines = _pad_or_truncate_lines(
             lot_intervention_lines, 
             target_intervention, 
             f"Travaux et fournitures {metier}",
             base_tva,
-            metier
+            metier,
+            total_neutral=(len(lot_intervention_lines) == 1),
         )
         
         intervention_blocks.append({
@@ -1233,3 +1590,23 @@ def calculate_global_totals(lines: List[Dict[str, Any]]) -> Dict[str, Any]:
             for rate, values in by_rate.items()
         }
     }
+
+
+# Average HT value produced per crew-day, used for the duration estimate.
+_HT_PER_CREW_DAY: float = 700.0
+
+
+def estimate_duration_days(total_ht: float, blocks: Optional[List[Dict[str, Any]]] = None) -> int:
+    """Deterministic project-duration estimate (in days) from the devis value.
+
+    Replaces the hardcoded 30-day constant: ~700 € HT of works per crew-day,
+    plus one transition day per additional trade, clamped to [1, 90].
+    """
+    if not total_ht or total_ht <= 0:
+        return 1
+    n_interventions = 1
+    if blocks:
+        # blocks = [prep] + interventions + [finish]
+        n_interventions = max(1, len(blocks) - 2)
+    days = math.ceil(total_ht / _HT_PER_CREW_DAY) + (n_interventions - 1)
+    return int(clamp(days, 1, 90))
