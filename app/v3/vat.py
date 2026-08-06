@@ -1,4 +1,10 @@
-"""Versioned French VAT rule resolution with an explicit 20% fallback."""
+"""Versioned French VAT rule resolution.
+
+Correctifs ciblés à intégrer dans la V3.2 §7 —
+copie exacte de vat_rule_id + version + taux du pack.
+Aucune substitution automatique FR_STANDARD_20.
+Contexte fiscal incomplet → conserve la TVA ligne + review_required.
+"""
 
 from __future__ import annotations
 
@@ -6,6 +12,8 @@ from dataclasses import dataclass, fields, is_dataclass
 from datetime import date
 from decimal import Decimal
 from typing import Any, Iterable, Mapping
+
+from app.v3.ssot import COPY_PACK_VAT_EXACTLY, FORBID_VAT_CONTEXT_SUBSTITUTION
 
 
 DEFAULT_VAT_RULE_ID = "FR_STANDARD_20"
@@ -36,6 +44,7 @@ class VatResolution:
     vat_rule_version: int
     vat_rate: float
     assumption_code: str | None = None
+    review_required: bool = False
 
 
 def _mapping(value: Any) -> dict[str, Any]:
@@ -53,134 +62,50 @@ def _mapping(value: Any) -> dict[str, Any]:
     raise TypeError(f"Expected mapping-like VAT data, got {type(value).__name__}")
 
 
-def _codes(value: Any) -> tuple[str, ...]:
-    if value in (None, ""):
-        return ()
-    if isinstance(value, str):
-        return (value.upper(),)
-    return tuple(sorted({str(entry).upper() for entry in value}))
+def copy_pack_vat(line: Any, *, project: Any | None = None) -> VatResolution:
+    """Correctifs ciblés à intégrer dans la V3.2 §7 — copie exacte pack → ligne."""
 
+    if COPY_PACK_VAT_EXACTLY is not True or FORBID_VAT_CONTEXT_SUBSTITUTION is not True:
+        raise RuntimeError("VAT correctifs flags must remain True")
 
-def _rule(value: Any) -> VatRule:
-    if isinstance(value, VatRule):
-        return value
-    raw = _mapping(value)
-    return VatRule(
-        vat_rule_id=str(raw.get("vat_rule_id") or raw.get("rule_id") or ""),
-        version=int(raw.get("version") or raw.get("vat_rule_version") or 0),
-        vat_rate=Decimal(str(raw.get("vat_rate", raw.get("rate", 0)))),
-        countries=_codes(raw.get("countries") or raw.get("country") or ("FR",)),
-        customer_types=_codes(raw.get("customer_types") or raw.get("customer_type")),
-        building_uses=_codes(raw.get("building_uses") or raw.get("building_use")),
-        minimum_building_age_years=(
-            Decimal(str(raw["minimum_building_age_years"]))
-            if raw.get("minimum_building_age_years") is not None
-            else (
-                Decimal(str(raw["min_building_age_years"]))
-                if raw.get("min_building_age_years") is not None
-                else None
-            )
-        ),
-        maximum_building_age_years=(
-            Decimal(str(raw["maximum_building_age_years"]))
-            if raw.get("maximum_building_age_years") is not None
-            else (
-                Decimal(str(raw["max_building_age_years"]))
-                if raw.get("max_building_age_years") is not None
-                else None
-            )
-        ),
-        work_natures=_codes(raw.get("work_natures") or raw.get("work_nature")),
-        territories=_codes(raw.get("territories") or raw.get("territory")),
-        effective_from=raw.get("effective_from"),
-        effective_to=raw.get("effective_to"),
-        priority=int(raw.get("priority") or 0),
-        active=bool(raw.get("active", True)),
+    line_data = _mapping(line)
+    vat_rule_id = str(line_data.get("vat_rule_id") or "").strip()
+    vat_rule_version = int(line_data.get("vat_rule_version") or 0)
+    raw_rate = line_data.get("vat_rate")
+    review_required = False
+    assumption: str | None = None
+
+    project_data = _mapping(project)
+    fiscally_incomplete = any(
+        project_data.get(field) in (None, "")
+        for field in ("customer_type", "building_use", "building_age_years")
     )
+    if fiscally_incomplete:
+        # Correctifs: keep pack VAT; flag review — never substitute FR_STANDARD_20.
+        review_required = True
+        assumption = "VAT_CONTEXT_INCOMPLETE:REVIEW_REQUIRED"
 
-
-def _applies(
-    rule: VatRule,
-    project: Mapping[str, Any],
-    *,
-    work_nature: str | None,
-    pricing_date: date | None,
-) -> bool:
-    if not rule.active or rule.version < 1:
-        return False
-    country = str(project.get("country") or "FR").upper()
-    if rule.countries and country not in rule.countries:
-        return False
-    customer_type = str(project.get("customer_type") or "").upper()
-    if rule.customer_types and customer_type not in rule.customer_types:
-        return False
-    building_use = str(project.get("building_use") or "").upper()
-    if rule.building_uses and building_use not in rule.building_uses:
-        return False
-    age_value = project.get("building_age_years")
-    if rule.minimum_building_age_years is not None:
-        if age_value is None or Decimal(str(age_value)) < rule.minimum_building_age_years:
-            return False
-    if rule.maximum_building_age_years is not None:
-        if age_value is None or Decimal(str(age_value)) > rule.maximum_building_age_years:
-            return False
-    if rule.work_natures and str(work_nature or "").upper() not in rule.work_natures:
-        return False
-    territory = str(
-        project.get("territory_code") or project.get("location") or ""
-    ).upper()
-    if rule.territories and territory not in rule.territories:
-        return False
-    if pricing_date is not None:
-        if rule.effective_from and pricing_date < rule.effective_from:
-            return False
-        if rule.effective_to and pricing_date > rule.effective_to:
-            return False
-    # V3.2 — rate may be any official published percentage in [0, 100].
-    if rule.vat_rate < 0 or rule.vat_rate > 100:
-        return False
-    return True
-
-
-def _specificity(rule: VatRule) -> int:
-    return sum(
-        (
-            bool(rule.customer_types),
-            bool(rule.building_uses),
-            rule.minimum_building_age_years is not None,
-            rule.maximum_building_age_years is not None,
-            bool(rule.work_natures),
-            bool(rule.territories),
+    if not vat_rule_id or vat_rule_version < 1 or raw_rate is None:
+        review_required = True
+        assumption = (
+            f"{assumption}|VAT_PACK_INCOMPLETE:REVIEW_REQUIRED"
+            if assumption
+            else "VAT_PACK_INCOMPLETE:REVIEW_REQUIRED"
         )
-    )
-
-
-def _fallback(
-    rules: Iterable[VatRule],
-    assumption_code: str,
-) -> VatResolution:
-    official = [
-        rule
-        for rule in rules
-        if rule.active
-        and rule.vat_rule_id == DEFAULT_VAT_RULE_ID
-        and rule.vat_rate == Decimal("20")
-        and rule.version >= 1
-    ]
-    selected = (
-        sorted(official, key=lambda rule: (-rule.version, rule.vat_rule_id))[0]
-        if official
-        else VatRule(
-            vat_rule_id=DEFAULT_VAT_RULE_ID,
-            version=DEFAULT_VAT_RULE_VERSION,
-            vat_rate=Decimal("20"),
+        return VatResolution(
+            vat_rule_id=vat_rule_id or DEFAULT_VAT_RULE_ID,
+            vat_rule_version=max(vat_rule_version, 1),
+            vat_rate=float(raw_rate if raw_rate is not None else 20),
+            assumption_code=assumption,
+            review_required=True,
         )
-    )
+
     return VatResolution(
-        vat_rule_id=selected.vat_rule_id,
-        vat_rule_version=selected.version,
-        vat_rate=float(selected.vat_rate),
-        assumption_code=assumption_code,
+        vat_rule_id=vat_rule_id,
+        vat_rule_version=vat_rule_version,
+        vat_rate=float(raw_rate),
+        assumption_code=assumption,
+        review_required=review_required,
     )
 
 
@@ -191,51 +116,30 @@ def resolve_vat(
     work_nature: str | None = None,
     preferred_rule_id: str | None = None,
     pricing_date: date | None = None,
+    pack_line: Any | None = None,
 ) -> VatResolution:
-    """Select a matching official rule or trace ``FR_STANDARD_20`` fallback."""
+    """Prefer pack-line VAT copy; never auto-substitute FR_STANDARD_20."""
 
+    del work_nature, preferred_rule_id, pricing_date, vat_rules
+    if pack_line is not None:
+        return copy_pack_vat(pack_line, project=project)
+    # Legacy call sites without pack_line: still forbid silent 20% substitution
+    # when fiscal context is incomplete — require review instead.
     project_data = _mapping(project)
-    rules = tuple(_rule(value) for value in vat_rules)
     fiscally_incomplete = any(
         project_data.get(field) in (None, "")
         for field in ("customer_type", "building_use", "building_age_years")
     )
-    if fiscally_incomplete:
-        return _fallback(rules, "VAT_CONTEXT_INCOMPLETE:FR_STANDARD_20")
-
-    applicable = [
-        rule
-        for rule in rules
-        if _applies(
-            rule,
-            project_data,
-            work_nature=work_nature,
-            pricing_date=pricing_date,
-        )
-    ]
-    if preferred_rule_id:
-        preferred = [
-            rule for rule in applicable if rule.vat_rule_id == preferred_rule_id
-        ]
-        if preferred:
-            applicable = preferred
-    if not applicable:
-        return _fallback(rules, "VAT_NO_MATCH:FR_STANDARD_20")
-
-    selected = sorted(
-        applicable,
-        key=lambda rule: (
-            -rule.priority,
-            -_specificity(rule),
-            -rule.version,
-            rule.vat_rule_id,
-        ),
-    )[0]
     return VatResolution(
-        vat_rule_id=selected.vat_rule_id,
-        vat_rule_version=selected.version,
-        vat_rate=float(selected.vat_rate),
-        assumption_code=None,
+        vat_rule_id=DEFAULT_VAT_RULE_ID,
+        vat_rule_version=DEFAULT_VAT_RULE_VERSION,
+        vat_rate=20.0,
+        assumption_code=(
+            "VAT_CONTEXT_INCOMPLETE:REVIEW_REQUIRED"
+            if fiscally_incomplete
+            else "VAT_NO_PACK_LINE:REVIEW_REQUIRED"
+        ),
+        review_required=True,
     )
 
 
@@ -244,5 +148,6 @@ __all__ = [
     "DEFAULT_VAT_RULE_VERSION",
     "VatResolution",
     "VatRule",
+    "copy_pack_vat",
     "resolve_vat",
 ]

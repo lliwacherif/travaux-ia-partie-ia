@@ -45,6 +45,53 @@ _ACTION_GROUPS = (
 _STOPWORDS = frozenset(
     {"de", "du", "des", "la", "le", "les", "un", "une", "et", "en", "a", "au"}
 )
+_GENERIC_OBJECTS = frozenset(
+    {
+        "travaux decrits",
+        "travaux",
+        "ouvrage",
+        "prestation",
+        "demande",
+        "chantier",
+    }
+)
+_GENERIC_ACTIONS = frozenset(
+    {
+        "realiser",
+        "faire",
+        "effectuer",
+        "executer",
+        "prevoir",
+    }
+)
+_DOMAIN_KEYWORDS = frozenset(
+    {
+        "tranchee",
+        "terrassement",
+        "fouille",
+        "fourreau",
+        "fourreaux",
+        "sable",
+        "grillage",
+        "avertisseur",
+        "remblai",
+        "remblayage",
+        "regard",
+        "regards",
+        "canalisation",
+        "pvc",
+        "eau",
+        "eaux",
+        "usees",
+        "electricite",
+        "telecom",
+        "telecommunications",
+        "reseau",
+        "reseaux",
+        "assainissement",
+        "vrd",
+    }
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -179,6 +226,18 @@ def match_item_to_line(item: Any, line: Any) -> MatchResult:
         | _tokens(item_data.get("object"))
         | _tokens(item_data.get("material"))
     )
+    # Fallback demand items ("réaliser / travaux décrits") bind via excerpt overlap.
+    excerpt_tokens = _tokens(item_data.get("source_excerpt"))
+    line_tokens = (
+        _tokens(line_data.get("designation"))
+        | _tokens(object_value)
+        | _tokens(" ".join(tags))
+    )
+    domain_overlap = (excerpt_tokens | item_tokens) & line_tokens & _DOMAIN_KEYWORDS
+    if _norm(item_data.get("object")) in _GENERIC_OBJECTS and domain_overlap:
+        object_match = True
+    if _norm(item_data.get("action")) in _GENERIC_ACTIONS and domain_overlap:
+        action_match = True
     exclusion_tags = {
         _norm(value) for value in line_data.get("exclusion_tags") or ()
     }
@@ -186,7 +245,7 @@ def match_item_to_line(item: Any, line: Any) -> MatchResult:
         tag
         and (
             tag in {_norm(item_data.get("object")), _norm(item_data.get("material"))}
-            or _tokens(tag).issubset(item_tokens)
+            or _tokens(tag).issubset(item_tokens | excerpt_tokens)
         )
         for tag in exclusion_tags
     )

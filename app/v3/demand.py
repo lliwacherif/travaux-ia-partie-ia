@@ -316,6 +316,17 @@ def normalize_demand_matrix_with_metadata(
                     else None
                 ),
                 "source_excerpt": str(raw_item.get("source_excerpt") or "").strip(),
+                # Correctifs ciblés à intégrer dans la V3.2 — champs optionnels.
+                "intervention_id": raw_item.get("intervention_id"),
+                "action_code": raw_item.get("action_code"),
+                "work_type_code": raw_item.get("work_type_code"),
+                "object_family_code": raw_item.get("object_family_code"),
+                "location_code": raw_item.get("location_code"),
+                "system_code": raw_item.get("system_code"),
+                "material_family_code": raw_item.get("material_family_code"),
+                "variant_attributes": list(raw_item.get("variant_attributes") or []),
+                "explicit_fact_codes": list(raw_item.get("explicit_fact_codes") or []),
+                "measurement_facts": list(raw_item.get("measurement_facts") or []),
             }
         )
 

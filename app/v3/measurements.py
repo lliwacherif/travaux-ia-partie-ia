@@ -1,4 +1,9 @@
-"""Deterministic quantity and linear-measurement engines for V3 layer 6."""
+"""Deterministic quantity and linear-measurement engines for V3 layer 6.
+
+Correctifs ciblés à intégrer dans la V3.2 §5 —
+faits mesurés + liaison officielle (quantity_rule_id / share groups).
+Remplace l'usage exclusif de uniqueExplicitQuantity(items, unit).
+"""
 
 from __future__ import annotations
 
@@ -11,7 +16,7 @@ from .context import normalize_unit
 from .contracts import LinearMeasurementResolution
 
 
-LINEAR_FORMULA_VERSION = "2026-07-30.1"
+LINEAR_FORMULA_VERSION = "2026-07-31.1-correctifs"
 LINEAR_FORMULA_MODES: Mapping[str, frozenset[str]] = MappingProxyType(
     {
         "EXPLICIT": frozenset({"ML_EXPLICIT"}),
@@ -54,6 +59,11 @@ class QuantityResolution:
     formula_id: str | None = None
     input_dimension_ids: tuple[str, ...] = ()
     linear_measurement: LinearMeasurementResolution | None = None
+    # Correctifs ciblés à intégrer dans la V3.2 §5.
+    quantity_rule_id: str | None = None
+    binding_scope: str | None = None
+    share_group_id: str | None = None
+    bound_fact_ids: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -309,20 +319,49 @@ def _round_by_rule(
     return value.quantize(quantum, rounding=ROUND_HALF_UP)
 
 
-def _explicit_quantity(
+def _collect_measurement_facts(
     covered_items: Iterable[Any],
     unit: str,
-) -> Decimal | None:
-    values: list[Decimal] = []
+) -> tuple[tuple[str, Decimal], ...]:
+    """Correctifs ciblés à intégrer dans la V3.2 §5 — faits mesurés unitaires."""
+
+    facts: list[tuple[str, Decimal]] = []
     for item in _items(covered_items):
+        item_id = str(item.get("request_item_id") or "")
+        for index, raw_fact in enumerate(item.get("measurement_facts") or (), start=1):
+            fact = _mapping(raw_fact)
+            fact_unit = normalize_unit(fact.get("unit"))
+            if fact_unit == "M":
+                fact_unit = "ML"
+            if fact_unit != unit or fact.get("value") is None:
+                continue
+            fact_id = str(fact.get("fact_id") or f"FACT-{index:03d}")
+            facts.append((fact_id, Decimal(str(fact["value"]))))
         item_unit = normalize_unit(item.get("unit"))
         if item_unit == "M":
             item_unit = "ML"
         if item.get("quantity") is not None and item_unit == unit:
-            values.append(Decimal(str(item["quantity"])))
-    # More than one explicit quantity is not silently summed.  An official
-    # QTY_SUM_EXPLICIT rule is required for that behavior.
-    return values[0] if len(values) == 1 and values[0] > 0 else None
+            facts.append((f"EXPLICIT:{item_id}", Decimal(str(item["quantity"]))))
+    return tuple(facts)
+
+
+def _explicit_quantity(
+    covered_items: Iterable[Any],
+    unit: str,
+) -> tuple[Decimal, tuple[str, ...]] | None:
+    """Bind a single explicit measurement fact; never silently sum multiples."""
+
+    facts = _collect_measurement_facts(covered_items, unit)
+    if len(facts) == 1 and facts[0][1] > 0:
+        return facts[0][1], (facts[0][0],)
+    return None
+
+
+def _binding_meta(line: Mapping[str, Any]) -> tuple[str, str, str | None]:
+    rule = str(line.get("quantity_rule") or line.get("quantity_rule_id") or "LINE_DEFAULT")
+    scope = str(line.get("quantity_binding_scope") or "LINE").upper()
+    share = line.get("share_group_id")
+    return rule, scope, str(share) if share else None
 
 
 def _project_value(
@@ -411,8 +450,9 @@ def resolve_linear_measurement(
 
     explicit = _explicit_quantity(item_values, "ML")
     if explicit is not None:
+        value, _fact_ids = explicit
         rounded = _round_by_rule(
-            explicit,
+            value,
             int(line_data.get("quantity_precision", 3)),
             line_data.get("rounding_step"),
         )
@@ -578,6 +618,7 @@ def resolve_quantity(
             project,
             consumed_dimension_ids=consumed_dimension_ids,
         )
+        rule_id, binding_scope, share_group_id = _binding_meta(line_data)
         return QuantityResolution(
             value=float(_field(linear, "value_ml")),
             unit="ML",
@@ -586,11 +627,26 @@ def resolve_quantity(
             formula_id=_field(linear, "formula_id"),
             input_dimension_ids=tuple(_field(linear, "input_dimension_ids", ())),
             linear_measurement=linear,
+            quantity_rule_id=rule_id,
+            binding_scope=binding_scope,
+            share_group_id=share_group_id,
+            bound_fact_ids=tuple(_field(linear, "input_dimension_ids", ())),
         )
+
+    rule_id, binding_scope, share_group_id = _binding_meta(line_data)
 
     explicit = _explicit_quantity(item_values, unit)
     if explicit is not None:
-        return QuantityResolution(value=float(explicit), unit=unit, source="EXPLICIT")
+        value, fact_ids = explicit
+        return QuantityResolution(
+            value=float(value),
+            unit=unit,
+            source="EXPLICIT",
+            quantity_rule_id=rule_id,
+            binding_scope=binding_scope,
+            share_group_id=share_group_id,
+            bound_fact_ids=fact_ids,
+        )
 
     quantity_rule = str(line_data.get("quantity_rule") or "")
     formula_id = (
@@ -611,6 +667,10 @@ def resolve_quantity(
                     source="FORMULA",
                     formula_id=formula_id,
                     input_dimension_ids=calculated.dimension_ids,
+                    quantity_rule_id=rule_id or formula_id,
+                    binding_scope=binding_scope,
+                    share_group_id=share_group_id,
+                    bound_fact_ids=calculated.dimension_ids,
                 )
 
     context_value = _project_value(line, project, linear=False)
@@ -620,6 +680,9 @@ def resolve_quantity(
             unit=unit,
             source="PROJECT_CONTEXT",
             assumption_code=f"QTY_PROJECT_CONTEXT:{line_id}",
+            quantity_rule_id=rule_id,
+            binding_scope="PROJECT",
+            share_group_id=share_group_id,
         )
 
     default_value = Decimal(str(line_data.get("default_quantity") or "0"))
@@ -630,6 +693,9 @@ def resolve_quantity(
         unit=unit,
         source="PACK_DEFAULT",
         assumption_code=f"PACK_DEFAULT:{line_id}",
+        quantity_rule_id=rule_id,
+        binding_scope=binding_scope,
+        share_group_id=share_group_id,
     )
 
 

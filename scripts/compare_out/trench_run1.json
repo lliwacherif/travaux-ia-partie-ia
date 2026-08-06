@@ -1,0 +1,414 @@
+{
+  "result": {
+    "date": "2026-08-05T21:31:35.898169+00:00",
+    "validite": "2026-09-04T21:31:35.898169+00:00",
+    "duree": 14,
+    "montant_ttc": 10259.66,
+    "blocs": [
+      {
+        "title": "Mise en place du chantier",
+        "lots": [
+          {
+            "title": "Préparation",
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Mise en place des protections collectives et balisage du chantier",
+                "qte": 1,
+                "unit": "forfait",
+                "pu": 180,
+                "tva": 20.0,
+                "ht": 180,
+                "ttc": 216.0
+              },
+              {
+                "num": 2,
+                "description": "Implantation et balisage de la zone de chantier",
+                "qte": 1,
+                "unit": "forfait",
+                "pu": 250,
+                "tva": 20.0,
+                "ht": 250,
+                "ttc": 300.0
+              },
+              {
+                "num": 3,
+                "description": "Ensemble de prestations complémentaires — Mise en place, balisage et protection du chantier (4 postes regroupés)",
+                "qte": 1,
+                "unit": "forfait",
+                "pu": 532.0,
+                "tva": 20.0,
+                "ht": 532.0,
+                "ttc": 638.4
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Terrassement – VRD – Assainissement",
+        "lots": [
+          {
+            "title": "Travaux principaux",
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Décapage de la terre végétale sur la zone de tranchée",
+                "qte": 19.2,
+                "unit": "m²",
+                "pu": 4.5,
+                "tva": 20.0,
+                "ht": 86.4,
+                "ttc": 103.68
+              },
+              {
+                "num": 2,
+                "description": "Ouverture mécanique de tranchée largeur 40 cm profondeur 80 cm",
+                "qte": 32.0,
+                "unit": "ml",
+                "pu": 22,
+                "tva": 20.0,
+                "ht": 704.0,
+                "ttc": 844.8
+              },
+              {
+                "num": 3,
+                "description": "Evacuation des déblais en décharge agréée",
+                "qte": 11.2,
+                "unit": "m³",
+                "pu": 28,
+                "tva": 20.0,
+                "ht": 313.6,
+                "ttc": 376.32
+              },
+              {
+                "num": 4,
+                "description": "Dépose ponctuelle de revêtements existants (enrobé, pavés)",
+                "qte": 19.2,
+                "unit": "m²",
+                "pu": 18,
+                "tva": 20.0,
+                "ht": 345.6,
+                "ttc": 414.72
+              },
+              {
+                "num": 5,
+                "description": "Détection et protection des réseaux existants",
+                "qte": 32.0,
+                "unit": "ml",
+                "pu": 6,
+                "tva": 20.0,
+                "ht": 192.0,
+                "ttc": 230.4
+              },
+              {
+                "num": 6,
+                "description": "Mise en place de blindage de tranchée si nécessaire",
+                "qte": 32.0,
+                "unit": "ml",
+                "pu": 12,
+                "tva": 20.0,
+                "ht": 384.0,
+                "ttc": 460.8
+              },
+              {
+                "num": 7,
+                "description": "Réalisation d'accès provisoire pour engins et personnel",
+                "qte": 1,
+                "unit": "forfait",
+                "pu": 80,
+                "tva": 20.0,
+                "ht": 80,
+                "ttc": 96.0
+              },
+              {
+                "num": 8,
+                "description": "Fourniture et mise en place d'un lit de pose en sable 10 cm",
+                "qte": 32.0,
+                "unit": "ml",
+                "pu": 7.5,
+                "tva": 20.0,
+                "ht": 240.0,
+                "ttc": 288.0
+              },
+              {
+                "num": 9,
+                "description": "Fourniture et pose de fourreau PEHD Ø63 pour réseau électrique",
+                "qte": 32.0,
+                "unit": "ml",
+                "pu": 8,
+                "tva": 20.0,
+                "ht": 256.0,
+                "ttc": 307.2
+              },
+              {
+                "num": 10,
+                "description": "Fourniture et pose de fourreau PEHD Ø40 pour télécom",
+                "qte": 32.0,
+                "unit": "ml",
+                "pu": 6.5,
+                "tva": 20.0,
+                "ht": 208.0,
+                "ttc": 249.6
+              },
+              {
+                "num": 11,
+                "description": "Fourniture et pose de tube PVC Ø100 pour réseau eau",
+                "qte": 32.0,
+                "unit": "ml",
+                "pu": 10,
+                "tva": 20.0,
+                "ht": 320.0,
+                "ttc": 384.0
+              },
+              {
+                "num": 12,
+                "description": "Fourniture et pose de grillage avertisseur rouge (électricité)",
+                "qte": 32.0,
+                "unit": "ml",
+                "pu": 2.5,
+                "tva": 20.0,
+                "ht": 80.0,
+                "ttc": 96.0
+              },
+              {
+                "num": 13,
+                "description": "Fourniture et pose de grillage avertisseur bleu (eau)",
+                "qte": 32.0,
+                "unit": "ml",
+                "pu": 2.5,
+                "tva": 20.0,
+                "ht": 80.0,
+                "ttc": 96.0
+              },
+              {
+                "num": 14,
+                "description": "Fourniture et pose de grillage avertisseur vert (télécom)",
+                "qte": 32.0,
+                "unit": "ml",
+                "pu": 2.5,
+                "tva": 20.0,
+                "ht": 80.0,
+                "ttc": 96.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Terrassement – VRD – Assainissement",
+        "lots": [
+          {
+            "title": "Travaux principaux",
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Dépose des revêtements existants sur zone de tranchée",
+                "qte": 10.8,
+                "unit": "m²",
+                "pu": 12,
+                "tva": 20.0,
+                "ht": 129.6,
+                "ttc": 155.52
+              },
+              {
+                "num": 2,
+                "description": "Repérage et protection des réseaux existants",
+                "qte": 18.0,
+                "unit": "ml",
+                "pu": 8,
+                "tva": 20.0,
+                "ht": 144.0,
+                "ttc": 172.8
+              },
+              {
+                "num": 3,
+                "description": "Ouverture de tranchée en terrain meuble (largeur < 60 cm, profondeur < 1,2 m)",
+                "qte": 18.0,
+                "unit": "ml",
+                "pu": 28,
+                "tva": 20.0,
+                "ht": 504.0,
+                "ttc": 604.8
+              },
+              {
+                "num": 4,
+                "description": "Evacuation des déblais en décharge agréée",
+                "qte": 6.3,
+                "unit": "m³",
+                "pu": 32,
+                "tva": 20.0,
+                "ht": 201.6,
+                "ttc": 241.92
+              },
+              {
+                "num": 5,
+                "description": "Découpe ponctuelle de chaussée ou dalle béton",
+                "qte": 18.0,
+                "unit": "ml",
+                "pu": 18,
+                "tva": 20.0,
+                "ht": 324.0,
+                "ttc": 388.8
+              },
+              {
+                "num": 6,
+                "description": "Piquetage et réglage altimétrique de la tranchée",
+                "qte": 18.0,
+                "unit": "ml",
+                "pu": 6,
+                "tva": 20.0,
+                "ht": 108.0,
+                "ttc": 129.6
+              },
+              {
+                "num": 7,
+                "description": "Mise en place de blindage de tranchée si nécessaire",
+                "qte": 18.0,
+                "unit": "ml",
+                "pu": 15,
+                "tva": 20.0,
+                "ht": 270.0,
+                "ttc": 324.0
+              },
+              {
+                "num": 8,
+                "description": "Fourniture et mise en place d’un lit de pose en sable 0/4 (ép. 10 cm)",
+                "qte": 18.0,
+                "unit": "ml",
+                "pu": 7.5,
+                "tva": 20.0,
+                "ht": 135.0,
+                "ttc": 162.0
+              },
+              {
+                "num": 9,
+                "description": "Fourniture et pose de tuyau PVC assainissement EU Ø125 mm",
+                "qte": 18.0,
+                "unit": "ml",
+                "pu": 19,
+                "tva": 20.0,
+                "ht": 342.0,
+                "ttc": 410.4
+              },
+              {
+                "num": 10,
+                "description": "Fourniture et pose de tuyau PVC assainissement EP Ø125 mm",
+                "qte": 18.0,
+                "unit": "ml",
+                "pu": 18,
+                "tva": 20.0,
+                "ht": 324.0,
+                "ttc": 388.8
+              },
+              {
+                "num": 11,
+                "description": "Réalisation de pente conforme (1 à 2%) sur réseaux EU/EP",
+                "qte": 18.0,
+                "unit": "ml",
+                "pu": 4,
+                "tva": 20.0,
+                "ht": 72.0,
+                "ttc": 86.4
+              },
+              {
+                "num": 12,
+                "description": "Fourniture et pose de regards de visite PVC Ø315 mm",
+                "qte": 1,
+                "unit": "u",
+                "pu": 95,
+                "tva": 5.5,
+                "ht": 95,
+                "ttc": 100.22
+              },
+              {
+                "num": 13,
+                "description": "Raccordement des réseaux EU/EP aux ouvrages existants",
+                "qte": 1,
+                "unit": "u",
+                "pu": 60,
+                "tva": 20.0,
+                "ht": 60,
+                "ttc": 72.0
+              },
+              {
+                "num": 14,
+                "description": "Test d’étanchéité et d’écoulement des réseaux posés",
+                "qte": 1,
+                "unit": "forfait",
+                "pu": 110,
+                "tva": 20.0,
+                "ht": 110,
+                "ttc": 132.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Finitions et nettoyage",
+        "lots": [
+          {
+            "title": "Nettoyage",
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Remblaiement en couches successives avec compactage",
+                "qte": 32.0,
+                "unit": "ml",
+                "pu": 14,
+                "tva": 20.0,
+                "ht": 448.0,
+                "ttc": 537.6
+              },
+              {
+                "num": 2,
+                "description": "Réfection provisoire des revêtements de surface",
+                "qte": 19.2,
+                "unit": "m²",
+                "pu": 22,
+                "tva": 20.0,
+                "ht": 422.4,
+                "ttc": 506.88
+              },
+              {
+                "num": 3,
+                "description": "Ensemble de prestations complémentaires — Nettoyage fin de chantier et repli (4 postes regroupés)",
+                "qte": 1,
+                "unit": "forfait",
+                "pu": 540.0,
+                "tva": 20.0,
+                "ht": 540.0,
+                "ttc": 648.0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "title": "Travaux de réalisation de tranchées et canalisation d'eaux usées",
+  "error": null,
+  "progress": [
+    {
+      "step": 1,
+      "total": 4,
+      "label": "Analyse"
+    },
+    {
+      "step": 2,
+      "total": 4,
+      "label": "Generate"
+    },
+    {
+      "step": 3,
+      "total": 4,
+      "label": "Calculate"
+    },
+    {
+      "step": 4,
+      "total": 4,
+      "label": "Finalise"
+    }
+  ]
+}

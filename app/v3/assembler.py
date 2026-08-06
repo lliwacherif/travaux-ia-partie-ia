@@ -25,8 +25,10 @@ from .ssot import Flow, Phase, expected_geometry
 
 _MODE_SEVERITY = {
     GenerationMode.EXACT_PACK.value: 0,
-    GenerationMode.REPAIRED_PACK.value: 1,
+    # Correctifs ciblés à intégrer dans la V3.2 — reselect complete pack.
+    GenerationMode.RESELECTED_PUBLISHED_PACK.value: 1,
     GenerationMode.OFFICIAL_FALLBACK.value: 2,
+    GenerationMode.REPAIRED_PACK.value: 3,  # legacy / forbidden hybrid
 }
 
 

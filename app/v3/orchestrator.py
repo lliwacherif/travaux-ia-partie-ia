@@ -39,6 +39,13 @@ from app.v3.contracts import (
 )
 from app.v3.coverage import coverage_score
 from app.v3.demand import DemandNormalizationResult, normalize_demand_matrix_with_metadata
+from app.v3.eligibility import filter_eligible_candidates
+from app.v3.interventions import (
+    assign_intervention_ids,
+    assert_single_intervention_ownership,
+    enrich_normalized_codes,
+    interventions_from_matrix,
+)
 from app.v3.library import (
     LibrarySnapshotUnavailableError,
     ResolvedLibrarySnapshot,
@@ -62,12 +69,14 @@ from app.v3.selector import (
 )
 from app.v3.semantic import SemanticService
 from app.v3.ssot import MAX_REPAIR_ATTEMPTS, PipelineStage, REQUIRED_STAGES
+from app.v3.signatures import compute_pack_match_signature
 from app.v3.trace import ExecutionTracer, stable_hash
 from app.v3.validator import (
     DisplayGateError,
     repair_actions,
     validate_source_to_quote,
 )
+from app.v3.voice import resolve_pipeline_description
 
 
 def _candidate_document(pack: CatalogPack) -> str:
@@ -217,6 +226,19 @@ class V3QuoteEngine:
             input_value=pipeline_input,
             evidence={"contract": "NormalizedPipelineContext"},
         )
+        # Correctifs ciblés à intégrer dans la V3.2 §9 — voix → texte normalisé.
+        working_description, voice_normalized = resolve_pipeline_description(
+            description=context.description,
+            input_mode=str(
+                getattr(pipeline_input.input_mode, "value", pipeline_input.input_mode)
+            ),
+            voice_transcript=pipeline_input.voice_transcript,
+        )
+        if voice_normalized is not None and working_description != context.description:
+            from dataclasses import replace as _dc_replace
+
+            context = _dc_replace(context, description=working_description)
+            tracer.assumption_codes.append("VOICE_TRANSCRIPT_NORMALIZED")
         tracer.assumption_codes.extend(
             assumption.code for assumption in context.assumptions
         )
@@ -313,9 +335,15 @@ class V3QuoteEngine:
             evidence={"scope": "ITEM_SCOPED_NO_GLOBAL_PROPAGATION"},
         )
         matrix = normalized.matrix
+        # Correctifs ciblés à intégrer dans la V3.2 §1 — codes + interventions.
+        matrix = enrich_normalized_codes(matrix)
+        matrix = assign_intervention_ids(matrix)
+        assert_single_intervention_ownership(matrix)
         tracer.assumption_codes.extend(
             assumption.code for assumption in normalized.assumptions
         )
+        intervention_blocks = interventions_from_matrix(matrix)
+        primary_intervention = intervention_blocks[0]
 
         line_hits = await tracer.required_outcome(
             PipelineStage.LINE_SEARCH,
@@ -360,17 +388,59 @@ class V3QuoteEngine:
         tracer.parent_pack_candidates_count = len(candidates)
 
         dependencies = await self.repository.load_dependencies(arbitration)
-        repair_catalog = await self.repository.load_trade_lines(arbitration)
+        # Correctifs ciblés à intégrer dans la V3.2 §6 — no hybrid repair catalog;
+        # validator still needs the published pack lines as source-of-truth.
+        repair_catalog: list = []
         fallback_ids = await self.repository.fallback_pack_ids(arbitration)
+        # Correctifs ciblés à intégrer dans la V3.2 §3 — tous les packs du métier.
+        all_trade_pack_ids = await self.repository.load_all_trade_pack_ids(arbitration)
 
         packs: dict[str, CatalogPack] = {}
         for pack_id in {
             *(candidate.pack_id for candidate in candidates),
             *fallback_ids,
+            *all_trade_pack_ids,
         }:
             pack = await self.repository.load_pack(pack_id)
             if pack is not None:
                 packs[pack.pack_id] = pack
+        # Ensure every published trade pack appears as a scored candidate.
+        existing_ids = {candidate.pack_id for candidate in candidates}
+        for pack_id, pack in packs.items():
+            if pack_id in existing_ids:
+                continue
+            seed = PackCandidate(
+                pack_id=pack.pack_id,
+                pack_code=pack.pack_code,
+                pack_version=pack.version,
+                trade_code=pack.trade_code,
+                service_code=pack.service_code,
+                matched_line_ids=[],
+                matched_request_item_ids=[],
+                line_parent_score=0.0,
+                direct_pack_score=0.0,
+                lexical_score=0.0,
+                dense_score=0.0,
+                rrf_score=0.0,
+                rerank_score=0.0,
+                coverage_score=0.0,
+                object_exactness=0.0,
+                material_compatibility=0.0,
+                unit_compatibility=0.0,
+                context_compatibility=0.0,
+                exclusion_penalty=0.0,
+                extra_scope_penalty=0.0,
+                fallback_rank=(
+                    pack.fallback_rank
+                    if pack.fallback_rank is not None and pack.fallback_rank >= 1
+                    else None
+                ),
+                final_score=0.0,
+                intervention_id=primary_intervention.intervention_id,
+                pack_match_signature=pack.pack_match_signature
+                or compute_pack_match_signature(pack),
+            )
+            candidates.append(seed)
         fallback_pack = next(
             (packs[pack_id] for pack_id in fallback_ids if pack_id in packs),
             None,
@@ -393,6 +463,8 @@ class V3QuoteEngine:
             )
             updated = candidate.model_copy(
                 update={
+                    "pack_code": pack.pack_code,
+                    "pack_version": pack.version,
                     "coverage_score": coverage.score,
                     "extra_scope_penalty": min(
                         1.0,
@@ -402,6 +474,9 @@ class V3QuoteEngine:
                     "exclusion_penalty": (
                         1.0 if coverage.excluded_violated else 0.0
                     ),
+                    "intervention_id": primary_intervention.intervention_id,
+                    "pack_match_signature": pack.pack_match_signature
+                    or compute_pack_match_signature(pack),
                 }
             )
             scored_candidates.append(
@@ -409,6 +484,16 @@ class V3QuoteEngine:
                     update={"final_score": compute_final_score(updated)}
                 )
             )
+        # Correctifs ciblés à intégrer dans la V3.2 §4 — hard eligibility gate.
+        scored_candidates = list(
+            filter_eligible_candidates(
+                scored_candidates,
+                packs,
+                matrix,
+                trade_code=arbitration.primary_trade_code,
+                flow=arbitration.flow.value,
+            )
+        )
         if not scored_candidates:
             coverage = coverage_score(
                 matrix,
@@ -468,6 +553,7 @@ class V3QuoteEngine:
                 matrix,
                 packs,
                 repair_catalog,
+                intervention_id=primary_intervention.intervention_id,
                 trade_code=arbitration.primary_trade_code,
                 flow=arbitration.flow.value,
                 official_fallback=fallback_pack,
@@ -478,7 +564,11 @@ class V3QuoteEngine:
                 selection,
                 degraded,
                 selection.fallback_reason
-                or ("CONTROLLED_CORE_REPAIR" if degraded else None),
+                or (
+                    "RESELECT_COMPLETE_PACK"
+                    if selection.generation_mode == "RESELECTED_PUBLISHED_PACK"
+                    else None
+                ),
             )
 
         selection = await tracer.required_outcome(
@@ -511,8 +601,11 @@ class V3QuoteEngine:
         tracer.replaced_line_ids.extend(selection.replaced_line_ids)
         if selection.generation_mode == "OFFICIAL_FALLBACK":
             tracer.confidence = ConfidenceLevel.LOW
-        elif selection.generation_mode == "REPAIRED_PACK":
+        elif selection.generation_mode == "RESELECTED_PUBLISHED_PACK":
             tracer.confidence = ConfidenceLevel.MEDIUM
+        elif selection.generation_mode == "REPAIRED_PACK":
+            # Correctifs ciblés à intégrer dans la V3.2 — hybride ne doit plus apparaître.
+            tracer.confidence = ConfidenceLevel.LOW
 
         calculated: CalculatedSelection = await tracer.required(
             PipelineStage.CALCULATIONS,
@@ -563,6 +656,7 @@ class V3QuoteEngine:
                     selection.pack_id: calculated.lines,
                 },
                 review_required=bool(calculated.assumption_codes)
+                or getattr(calculated, "review_required", False)
                 or library.fallback_snapshot_used,
             ),
             input_value=calculated,
@@ -579,6 +673,7 @@ class V3QuoteEngine:
         catalog_packs = {
             pack_id: {
                 "pack_id": pack_id,
+                "pack_code": pack.pack_code,
                 "version": pack.version,
                 "library_version": library.library_version,
                 "shared_profile_id": pack.shared_profile_id,
@@ -586,6 +681,12 @@ class V3QuoteEngine:
             }
             for pack_id, pack in packs.items()
         }
+        # Source snapshot for display-gate identity checks (all loaded pack lines).
+        catalog_lines = [
+            line for pack in packs.values() for line in pack.lines
+        ]
+        if not catalog_lines and selected_pack is not None:
+            catalog_lines = list(selected_pack.lines)
 
         # V3.2 — VALIDATION_0 then up to MAX_REPAIR_ATTEMPTS revalidations.
         # Full deterministic repair of quote content is still authoritative via
@@ -595,7 +696,7 @@ class V3QuoteEngine:
             lambda: validate_source_to_quote(
                 parts,
                 matrix,
-                catalog_lines=repair_catalog,
+                catalog_lines=catalog_lines,
                 catalog_packs=catalog_packs,
                 price_records=price_records,
                 vat_rules=vat_rules,
@@ -631,7 +732,7 @@ class V3QuoteEngine:
                 lambda: validate_source_to_quote(
                     parts,
                     matrix,
-                    catalog_lines=repair_catalog,
+                    catalog_lines=catalog_lines,
                     catalog_packs=catalog_packs,
                     price_records=price_records,
                     vat_rules=vat_rules,
@@ -670,7 +771,7 @@ class V3QuoteEngine:
         final_validation = validate_source_to_quote(
             quote,
             matrix,
-            catalog_lines=repair_catalog,
+            catalog_lines=catalog_lines,
             catalog_packs=catalog_packs,
             price_records=price_records,
             vat_rules=vat_rules,

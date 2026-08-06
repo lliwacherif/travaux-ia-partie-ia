@@ -180,6 +180,64 @@ def _short(s: str, limit: int = 200) -> str:
     return s if len(s) <= limit else s[:limit] + "..."
 
 
+# ---------------------------------------------------------------------------
+# Forbidden generic line labels ("Autres travaux", "Divers", balancing…)
+#
+# The deterministic engine may still emit merge / padding labels that look
+# like catch-all amounts. Those labels are kept for the calculation path
+# (prices untouched) then rewritten by a GPT-4 sub-call just before the
+# devis is returned, so the client never sees "Autres / Divers / …".
+# ---------------------------------------------------------------------------
+_FORBIDDEN_LINE_PATTERNS: Final[tuple[re.Pattern[str], ...]] = (
+    # Catch-all merge / padding labels produced by the engine or legacy paths.
+    re.compile(r"(?i)^\s*autres?\b"),
+    re.compile(r"(?i)\bautres?\s+(travaux|mise|nettoyage|fournitures|prestations)\b"),
+    re.compile(r"(?i)\bdivers\b"),
+    re.compile(r"(?i)ajustement\s+forfaitaire"),
+    re.compile(r"(?i)travaux\s+compl[eé]mentaires"),
+    re.compile(r"(?i)prestations?\s+compl[eé]mentaires"),
+    re.compile(r"(?i)ensemble\s+de\s+prestations"),
+    re.compile(r"(?i)montant\s+d['']?[eé]quilibrage"),
+    re.compile(r"(?i)\b[eé]quilibrage\b"),
+)
+
+_line_rewrite_cache: dict[str, str] = {}
+
+
+def _is_forbidden_line_description(text: str | None) -> bool:
+    """Return True when a devis line label must be reformulated."""
+    if not text or not str(text).strip():
+        return False
+    return any(p.search(str(text)) for p in _FORBIDDEN_LINE_PATTERNS)
+
+
+def _local_rewrite_forbidden_label(text: str) -> str:
+    """Deterministic offline fallback when the GPT-4 rewrite call fails."""
+    cleaned = str(text).strip()
+    cleaned = cleaned.replace("–", "-").replace("—", "-").replace("−", "-")
+    cleaned = re.sub(
+        r"(?i)^\s*ensemble\s+de\s+prestations?\s+compl[eé]mentaires\s*[-:]?\s*",
+        "",
+        cleaned,
+    )
+    cleaned = re.sub(
+        r"(?i)^\s*autres?\s+(travaux\s+et\s+fournitures\s+|travaux\s+|)",
+        "",
+        cleaned,
+    )
+    cleaned = re.sub(r"(?i)\bet\s+finitions\b", "", cleaned)
+    cleaned = re.sub(r"(?i)\(\s*\d+\s*postes?\s+regroup[eé]s?\s*\)", "", cleaned)
+    cleaned = re.sub(r"(?i)\bdivers\b", "", cleaned)
+    cleaned = re.sub(r"\s*[-:]\s*", " ", cleaned)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip(" .,:;-/")
+    if not cleaned:
+        return "Travaux annexes du lot"
+    # Keep a concrete BTP feel without the forbidden vocabulary.
+    if cleaned.lower().startswith("travaux"):
+        return cleaned[0].upper() + cleaned[1:]
+    return f"Travaux annexes - {cleaned[0].upper() + cleaned[1:]}"
+
+
 def _normalise_request_type(value: Any) -> str:
     """Coerce the LLM's ``requestType`` to ``"travaux"`` or ``"depannage"``.
 
@@ -755,6 +813,18 @@ class AIService:
         "presence_penalty": 0,
         "stream": False,
     }
+    # Sub-model used only to rewrite forbidden generic labels
+    # ("Autres travaux", "Divers", "Ensemble de prestations complémentaires"…)
+    # into concrete BTP designations. Prices / quantities stay untouched.
+    _LINE_REWRITE_MODEL: Final[str] = "gpt-4"
+    _LINE_REWRITE_PARAMS: Final[dict[str, Any]] = {
+        "max_tokens": 400,
+        "temperature": 0,
+        "top_p": 1,
+        "presence_penalty": 0,
+        "stream": False,
+        "seed": 42,
+    }
     _CHAT_HISTORY_MAX_MESSAGES: Final[int] = 6
     _CHAT_HISTORY_MESSAGE_MAX_CHARS: Final[int] = 700
 
@@ -1205,6 +1275,118 @@ class AIService:
         content = response.choices[0].message.content
         return self._normalise_devis_title(content)
 
+    async def _rewrite_forbidden_line_labels(
+        self,
+        blocs: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        """Rewrite forbidden generic labels via GPT-4; keep prices/qty intact.
+
+        Detects lines whose description matches ``Autres`` / ``Divers`` /
+        ``prestations complémentaires`` / balancing wording, then asks GPT-4
+        to produce a concrete BTP designation. Failures fall back to a local
+        deterministic rewrite so the devis never ships the forbidden wording.
+        """
+        targets: list[tuple[dict[str, Any], str]] = []
+        for bloc in blocs:
+            for lot in bloc.get("lots", []) or []:
+                for ligne in lot.get("lignes", []) or []:
+                    desc = str(ligne.get("description") or "")
+                    if _is_forbidden_line_description(desc):
+                        targets.append((ligne, desc))
+
+        if not targets:
+            return blocs
+
+        # Serve already-rewritten phrases from the process cache first.
+        pending: list[tuple[dict[str, Any], str]] = []
+        for ligne, desc in targets:
+            cached = _line_rewrite_cache.get(desc)
+            if cached:
+                ligne["description"] = cached
+            else:
+                pending.append((ligne, desc))
+
+        if not pending:
+            return blocs
+
+        unique_descs = list(dict.fromkeys(desc for _, desc in pending))
+        numbered = "\n".join(
+            f"{idx}. {desc}" for idx, desc in enumerate(unique_descs, 1)
+        )
+        system_prompt = (
+            "Tu reformules des libellés de lignes de devis BTP en français. "
+            "Chaque libellé d'entrée est un libellé générique interdit "
+            "(Autres travaux, Divers, Ensemble de prestations complémentaires, "
+            "ajustement forfaitaire, montant d'équilibrage…). "
+            "Remplace-le par une désignation technique concrète, professionnelle "
+            "et spécifique au métier mentionné dans le libellé. "
+            "Interdictions absolues dans ta réponse: les mots Autres, Divers, "
+            "complémentaires, équilibrage, ajustement forfaitaire, ensemble de "
+            "prestations. "
+            "Ne change pas le sens métier. Pas de prix, pas de quantité, pas de "
+            "markdown, pas d'explication. "
+            "Réponds UNIQUEMENT par un JSON objet: "
+            "{\"rewrites\": [{\"i\": 1, \"label\": \"...\"}, ...]} "
+            "avec un item par libellé numéroté, dans le même ordre."
+        )
+        try:
+            response = await self._client.chat.completions.create(
+                model=self._LINE_REWRITE_MODEL,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {
+                        "role": "user",
+                        "content": (
+                            "Reformule ces libellés interdits:\n" + numbered
+                        ),
+                    },
+                ],
+                # gpt-4 does not support response_format=json_object; we still
+                # ask for pure JSON and parse it with the healer.
+                **self._LINE_REWRITE_PARAMS,
+            )
+            raw = (response.choices[0].message.content or "").strip()
+            parsed = clean_and_parse_json(raw)
+            rewrites = parsed.get("rewrites") if isinstance(parsed, dict) else None
+            mapping: dict[str, str] = {}
+            if isinstance(rewrites, list):
+                for item in rewrites:
+                    if not isinstance(item, dict):
+                        continue
+                    try:
+                        idx = int(item.get("i"))
+                    except (TypeError, ValueError):
+                        continue
+                    label = str(item.get("label") or "").strip().strip("\"'`")
+                    if 1 <= idx <= len(unique_descs) and label:
+                        # Reject if the model still produced forbidden wording.
+                        if _is_forbidden_line_description(label):
+                            label = _local_rewrite_forbidden_label(unique_descs[idx - 1])
+                        mapping[unique_descs[idx - 1]] = label
+            for original in unique_descs:
+                if original not in mapping:
+                    mapping[original] = _local_rewrite_forbidden_label(original)
+            logger.info(
+                "Rewrote %d forbidden line label(s) via GPT-4.", len(mapping)
+            )
+        except Exception:
+            logger.exception(
+                "GPT-4 line-label rewrite failed; using local fallback."
+            )
+            mapping = {
+                original: _local_rewrite_forbidden_label(original)
+                for original in unique_descs
+            }
+
+        for original, rewritten in mapping.items():
+            _line_rewrite_cache[original] = rewritten
+
+        for ligne, desc in pending:
+            ligne["description"] = mapping.get(
+                desc, _local_rewrite_forbidden_label(desc)
+            )
+        return blocs
+
     async def generate_quote_stream(
         self,
         user_text: str,
@@ -1462,6 +1644,11 @@ class AIService:
             metier_medians=metier_medians,
             packs_maps=(exact_map, pack_list)
         )
+
+        # Post-pass: rewrite forbidden generic labels ("Autres travaux",
+        # "Divers", "prestations complémentaires"…) via GPT-4. Prices,
+        # quantities and structure stay exactly as the engine produced them.
+        four_blocks = await self._rewrite_forbidden_line_labels(four_blocks)
         
         from datetime import datetime, timedelta, timezone
 

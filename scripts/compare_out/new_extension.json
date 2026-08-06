@@ -1,0 +1,264 @@
+{
+  "result": {
+    "date": "2026-08-05T21:07:30.602408+00:00",
+    "validite": "2026-09-04T21:07:30.602408+00:00",
+    "duree": 28,
+    "montant_ttc": 22941.66,
+    "blocs": [
+      {
+        "title": "Mise en place du chantier",
+        "lots": [
+          {
+            "title": "Préparation",
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Implantation et traçage au sol de l’ouvrage à réaliser",
+                "qte": 1,
+                "unit": "forfait",
+                "pu": 180,
+                "tva": 20.0,
+                "ht": 180,
+                "ttc": 216.0
+              },
+              {
+                "num": 2,
+                "description": "Livraison et mise en place des équipements d’étaiement",
+                "qte": 1,
+                "unit": "forfait",
+                "pu": 180,
+                "tva": 20.0,
+                "ht": 180,
+                "ttc": 216.0
+              },
+              {
+                "num": 3,
+                "description": "Ensemble de prestations complémentaires — Mise en place, balisage et protection du chantier (7 postes regroupés)",
+                "qte": 1,
+                "unit": "forfait",
+                "pu": 634.44,
+                "tva": 20.0,
+                "ht": 634.44,
+                "ttc": 761.33
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Maçonnerie – Gros œuvre",
+        "lots": [
+          {
+            "title": "Travaux principaux",
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Réalisation d’une fouille en rigole pour fondation (profondeur < 50 cm)",
+                "qte": 30.59,
+                "unit": "ml",
+                "pu": 12,
+                "tva": 20.0,
+                "ht": 367.08,
+                "ttc": 440.5
+              },
+              {
+                "num": 2,
+                "description": "Préparation et nivellement du support pour élévation",
+                "qte": 52.0,
+                "unit": "m²",
+                "pu": 5,
+                "tva": 20.0,
+                "ht": 260.0,
+                "ttc": 312.0
+              },
+              {
+                "num": 3,
+                "description": "Fourniture et pose de biobriques (épaisseur 20 à 30 cm)",
+                "qte": 52.0,
+                "unit": "m²",
+                "pu": 65,
+                "tva": 20.0,
+                "ht": 3380.0,
+                "ttc": 4056.0
+              },
+              {
+                "num": 4,
+                "description": "Fourniture et mise en œuvre de mortier colle adapté",
+                "qte": 52.0,
+                "unit": "m²",
+                "pu": 8,
+                "tva": 20.0,
+                "ht": 416.0,
+                "ttc": 499.2
+              },
+              {
+                "num": 5,
+                "description": "Pose des chaînages horizontaux (aciers et coffrage)",
+                "qte": 20.4,
+                "unit": "ml",
+                "pu": 18,
+                "tva": 20.0,
+                "ht": 367.2,
+                "ttc": 440.64
+              },
+              {
+                "num": 6,
+                "description": "Réalisation des joints verticaux et horizontaux",
+                "qte": 52.0,
+                "unit": "m²",
+                "pu": 6,
+                "tva": 20.0,
+                "ht": 312.0,
+                "ttc": 374.4
+              },
+              {
+                "num": 7,
+                "description": "Fourniture et coulage du béton pour chaînage horizontal",
+                "qte": 13.86,
+                "unit": "ml",
+                "pu": 18,
+                "tva": 20.0,
+                "ht": 249.48,
+                "ttc": 299.38
+              },
+              {
+                "num": 8,
+                "description": "Repérage et traçage de l’ouverture sur mur porteur",
+                "qte": 20.78,
+                "unit": "ml",
+                "pu": 25,
+                "tva": 20.0,
+                "ht": 519.5,
+                "ttc": 623.4
+              },
+              {
+                "num": 9,
+                "description": "Dépose des revêtements existants sur la zone d’intervention",
+                "qte": 24.0,
+                "unit": "m²",
+                "pu": 18,
+                "tva": 20.0,
+                "ht": 432.0,
+                "ttc": 518.4
+              },
+              {
+                "num": 10,
+                "description": "Mise en place de l’étaiement provisoire (poutrelles, étais)",
+                "qte": 20.78,
+                "unit": "ml",
+                "pu": 45,
+                "tva": 20.0,
+                "ht": 935.1,
+                "ttc": 1122.12
+              },
+              {
+                "num": 11,
+                "description": "Sciage et ouverture du mur porteur (béton, brique, pierre)",
+                "qte": 20.78,
+                "unit": "ml",
+                "pu": 220,
+                "tva": 20.0,
+                "ht": 4571.6,
+                "ttc": 5485.92
+              },
+              {
+                "num": 12,
+                "description": "Fourniture d’un linteau IPN/HEA/HEB adapté (acier S235)",
+                "qte": 2.0,
+                "unit": "ml",
+                "pu": 180,
+                "tva": 20.0,
+                "ht": 360.0,
+                "ttc": 432.0
+              },
+              {
+                "num": 13,
+                "description": "Injection de résine ou mortier pour consolidation des appuis",
+                "qte": 20.78,
+                "unit": "ml",
+                "pu": 42,
+                "tva": 20.0,
+                "ht": 872.76,
+                "ttc": 1047.31
+              },
+              {
+                "num": 14,
+                "description": "Ensemble de prestations complémentaires — Maçonnerie – Gros œuvre (29 postes regroupés)",
+                "qte": 1,
+                "unit": "forfait",
+                "pu": 2905.2,
+                "tva": 20.0,
+                "ht": 2905.2,
+                "ttc": 3486.24
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Finitions et nettoyage",
+        "lots": [
+          {
+            "title": "Nettoyage",
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Rebouchage et finition des tableaux (enduit, plâtre)",
+                "qte": 20.78,
+                "unit": "ml",
+                "pu": 38,
+                "tva": 20.0,
+                "ht": 789.64,
+                "ttc": 947.57
+              },
+              {
+                "num": 2,
+                "description": "Finitions des parements (lissage, ponçage, préparation peinture)",
+                "qte": 24.0,
+                "unit": "m²",
+                "pu": 22,
+                "tva": 20.0,
+                "ht": 528.0,
+                "ttc": 633.6
+              },
+              {
+                "num": 3,
+                "description": "Ensemble de prestations complémentaires — Nettoyage fin de chantier et repli (7 postes regroupés)",
+                "qte": 1,
+                "unit": "forfait",
+                "pu": 858.04,
+                "tva": 20.0,
+                "ht": 858.04,
+                "ttc": 1029.65
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "title": "Travaux de construction extension maison",
+  "error": null,
+  "progress": [
+    {
+      "step": 1,
+      "total": 4,
+      "label": "Analyse"
+    },
+    {
+      "step": 2,
+      "total": 4,
+      "label": "Generate"
+    },
+    {
+      "step": 3,
+      "total": 4,
+      "label": "Calculate"
+    },
+    {
+      "step": 4,
+      "total": 4,
+      "label": "Finalise"
+    }
+  ]
+}

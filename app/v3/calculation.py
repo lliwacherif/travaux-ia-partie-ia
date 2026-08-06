@@ -1,16 +1,18 @@
 """Layer 6 deterministic quantity, price and VAT application.
 
 V3.2 — QuoteLine carries source_entity_type and shared-profile provenance.
+Correctifs ciblés à intégrer dans la V3.2 — TVA recopiée du pack, binding qty,
+hashes source catalogue.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, fields, is_dataclass
-from decimal import Decimal
 from typing import Any, Mapping
 
 from app.v3.contracts import (
     DemandMatrix,
+    QuantityBindingTrace,
     QuantityUnit,
     QuoteLine,
     ResolutionSource,
@@ -20,8 +22,8 @@ from app.v3.ssot import Phase
 from app.v3.measurements import resolve_quantity
 from app.v3.pricing import calculate_line_amount, resolve_price
 from app.v3.selector import SelectionResult
-from app.v3.vat import VatRule as ResolvableVatRule
-from app.v3.vat import resolve_vat
+from app.v3.signatures import line_content_hash
+from app.v3.vat import copy_pack_vat
 
 
 @dataclass(frozen=True, slots=True)
@@ -30,6 +32,7 @@ class CalculatedSelection:
     lines: tuple[QuoteLine, ...]
     assumption_codes: tuple[str, ...]
     linear_formula_ids: tuple[str, ...]
+    review_required: bool = False
 
 
 def _mapping(value: Any) -> dict[str, Any]:
@@ -125,6 +128,7 @@ def calculate_selection(
     formulas: list[str] = []
     final_lines: list[QuoteLine] = []
     consumed_dimension_ids: set[str] = set()
+    review_required = False
     project_with_demand = {
         **dict(project),
         "global_context": matrix.global_context.model_dump(mode="python"),
@@ -159,33 +163,12 @@ def calculate_selection(
         price = resolve_price(line)
         amount = calculate_line_amount(quantity.value, price.unit_price_cents)
 
-        embedded_rate = float(line.get("vat_rate", 20))
-        preferred = ResolvableVatRule(
-            vat_rule_id=str(line.get("vat_rule_id") or "FR_STANDARD_20"),
-            version=int(line.get("vat_rule_version") or 1),
-            vat_rate=Decimal(str(embedded_rate)),
-            territories=tuple(
-                filter(
-                    None,
-                    (
-                        str(project.get("territory_code") or "").upper(),
-                    ),
-                )
-            ),
-        )
-        standard = ResolvableVatRule(
-            vat_rule_id="FR_STANDARD_20",
-            version=1,
-            vat_rate=Decimal("20"),
-            priority=-1000,
-        )
-        vat = resolve_vat(
-            project,
-            (preferred, standard),
-            preferred_rule_id=preferred.vat_rule_id,
-        )
+        # Correctifs ciblés à intégrer dans la V3.2 §7 — copie exacte TVA pack.
+        vat = copy_pack_vat(line, project=project)
         if vat.assumption_code:
             assumptions.append(vat.assumption_code)
+        if vat.review_required:
+            review_required = True
 
         (
             source_entity_type,
@@ -197,7 +180,17 @@ def calculate_selection(
             shared_profile_version,
         ) = _entity_provenance(line, pack_data)
 
+        content_hash = str(line.get("content_hash") or "") or line_content_hash(line)
         unit_raw = str(quantity.unit or line.get("unit") or "FORFAIT")
+        binding = None
+        if quantity.quantity_rule_id:
+            binding = QuantityBindingTrace(
+                quantity_rule_id=quantity.quantity_rule_id,
+                binding_scope=quantity.binding_scope or "LINE",  # type: ignore[arg-type]
+                share_group_id=quantity.share_group_id,
+                bound_fact_ids=list(quantity.bound_fact_ids),
+                resolution=ResolutionSource(quantity.source),
+            )
         final_lines.append(
             QuoteLine(
                 line_id=line_id,
@@ -224,6 +217,10 @@ def calculate_selection(
                 technical_dependency_ids=list(dependency_ids),
                 quantity_source=ResolutionSource(quantity.source),
                 linear_measurement=quantity.linear_measurement,
+                quantity_binding=binding,
+                source_catalog_row_id=line_id,
+                source_catalog_row_hash=content_hash,
+                line_content_hash=content_hash,
             )
         )
     return CalculatedSelection(
@@ -231,6 +228,7 @@ def calculate_selection(
         lines=tuple(final_lines),
         assumption_codes=tuple(sorted(set(assumptions))),
         linear_formula_ids=tuple(sorted(set(formulas))),
+        review_required=review_required,
     )
 
 

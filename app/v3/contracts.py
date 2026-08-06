@@ -2,6 +2,10 @@
 
 V3.2 — shared profiles, territory_code, library snapshot trace fields,
 PackCandidate scoring fields required, and source_entity_type on lines.
+
+Correctifs ciblés à intégrer dans la V3.2 — interventions, codes normalisés,
+faits mesurés, eligibility, signatures pack, packs immuables, TVA recopiée,
+entrée vocale. Aucune nouvelle couche IA.
 """
 
 from __future__ import annotations
@@ -16,6 +20,7 @@ from app.v3.ssot import (
     PIPELINE_VERSION,
     RERANK_MODEL,
     SEMANTIC_MODEL,
+    EligibilityStatus,
     Flow,
     LinearMeasurementMode,
     Phase,
@@ -76,11 +81,25 @@ class ProjectContext(StrictModel):
     location: str | None
 
 
+class InputMode(StrEnum):
+    """Correctifs ciblés à intégrer dans la V3.2 §9 — entrée texte ou vocale."""
+
+    TEXT = "TEXT"
+    VOICE = "VOICE"
+
+
+InputModeValue = Annotated[InputMode, Field(strict=False)]
+
+
 class PipelineInput(StrictModel):
     request_id: NonEmptyString
     description: Annotated[str, Field(min_length=3)]
     company: CompanyContext
     project: ProjectContext
+    # Correctifs ciblés à intégrer dans la V3.2 §9.
+    input_mode: InputModeValue = InputMode.TEXT
+    voice_transcript: str | None = None
+    voice_transcript_normalized: str | None = None
 
 
 class Urgency(StrEnum):
@@ -164,6 +183,18 @@ class DemandDimension(StrictModel):
     source_excerpt: NonEmptyString
 
 
+class MeasurementFact(StrictModel):
+    """Correctifs ciblés à intégrer dans la V3.2 §5 — fait mesuré atomique."""
+
+    fact_id: Annotated[str, Field(pattern=r"^FACT-[0-9]{3}$")]
+    kind: DimensionKindValue | Literal["EXPLICIT_QUANTITY"]
+    value: PositiveNumber
+    unit: DimensionUnitValue | QuantityUnitValue
+    source_excerpt: NonEmptyString
+    request_item_id: RequestItemId
+    share_group_id: str | None = None
+
+
 class DemandItem(StrictModel):
     request_item_id: RequestItemId
     action: NonEmptyString
@@ -177,6 +208,17 @@ class DemandItem(StrictModel):
     status: DemandStatusValue
     condition: str | None
     source_excerpt: NonEmptyString
+    # Correctifs ciblés à intégrer dans la V3.2 §1 — intervention + codes.
+    intervention_id: str | None = None
+    action_code: str | None = None
+    work_type_code: str | None = None
+    object_family_code: str | None = None
+    location_code: str | None = None
+    system_code: str | None = None
+    material_family_code: str | None = None
+    variant_attributes: list[str] = Field(default_factory=list)
+    explicit_fact_codes: list[str] = Field(default_factory=list)
+    measurement_facts: list[MeasurementFact] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def validate_condition(self) -> "DemandItem":
@@ -248,7 +290,11 @@ class LineSearchHit(StrictModel):
 
 
 class PackCandidate(StrictModel):
-    """V3.2 PackCandidate.v2 — all scoring / tie-breaker fields are required."""
+    """V3.2 PackCandidate.v2 — all scoring / tie-breaker fields are required.
+
+    Correctifs ciblés à intégrer dans la V3.2 §3–§4 — eligibility fields;
+    scores rank only and never eliminate by themselves.
+    """
 
     pack_id: NonEmptyString
     pack_code: NonEmptyString
@@ -272,12 +318,23 @@ class PackCandidate(StrictModel):
     extra_scope_penalty: Annotated[float, Field(ge=0, allow_inf_nan=False)]
     fallback_rank: Annotated[int, Field(ge=1)] | None
     final_score: Annotated[float, Field(allow_inf_nan=False)]
+    # Correctifs ciblés à intégrer dans la V3.2.
+    intervention_id: str | None = None
+    pack_match_signature: str | None = None
+    eligibility_status: Annotated[EligibilityStatus, Field(strict=False)] = (
+        EligibilityStatus.UNKNOWN
+    )
+    hard_exclusion_reasons: list[str] = Field(default_factory=list)
+    soft_mismatch_reasons: list[str] = Field(default_factory=list)
 
 
 class GenerationMode(StrEnum):
     EXACT_PACK = "EXACT_PACK"
-    REPAIRED_PACK = "REPAIRED_PACK"
+    # Correctifs ciblés à intégrer dans la V3.2 §6 — reselect complete pack only.
+    RESELECTED_PUBLISHED_PACK = "RESELECTED_PUBLISHED_PACK"
     OFFICIAL_FALLBACK = "OFFICIAL_FALLBACK"
+    # Deprecated hybrid mode — retained only so historical traces still parse.
+    REPAIRED_PACK = "REPAIRED_PACK"
 
 
 class PipelineStatus(StrEnum):
@@ -388,6 +445,21 @@ class ExecutionTrace(StrictModel):
     duration_ms: NonNegativeInt = 0
 
 
+class QuantityBindingTrace(StrictModel):
+    """Correctifs ciblés à intégrer dans la V3.2 §5 — liaison quantité officielle."""
+
+    quantity_rule_id: NonEmptyString
+    binding_scope: Literal[
+        "LINE",
+        "INTERVENTION",
+        "SHARE_GROUP",
+        "PROJECT",
+    ]
+    share_group_id: str | None = None
+    bound_fact_ids: list[str] = Field(default_factory=list)
+    resolution: ResolutionSourceValue
+
+
 class QuoteLine(StrictModel):
     line_id: NonEmptyString
     # V3.2 — distinguish pack CORE vs shared SETUP/FINISH lines.
@@ -417,6 +489,11 @@ class QuoteLine(StrictModel):
     technical_dependency_ids: list[str]
     quantity_source: ResolutionSourceValue
     linear_measurement: LinearMeasurementResolution | None
+    # Correctifs ciblés à intégrer dans la V3.2 §5 / §8.
+    quantity_binding: QuantityBindingTrace | None = None
+    source_catalog_row_id: str | None = None
+    source_catalog_row_hash: str | None = None
+    line_content_hash: str | None = None
 
     @model_validator(mode="after")
     def validate_justification_and_linear_trace(self) -> "QuoteLine":
@@ -519,11 +596,17 @@ class QuoteResult(StrictModel):
 
 
 class RepairAction(StrEnum):
-    RESELECT_PACK = "RESELECT_PACK"
-    REPLACE_OFFICIAL_LINE = "REPLACE_OFFICIAL_LINE"
-    RECOMPUTE_QUANTITY = "RECOMPUTE_QUANTITY"
-    RECOMPUTE_VAT = "RECOMPUTE_VAT"
+    """Correctifs ciblés à intégrer dans la V3.2 §6 / §8 — actions de réparation."""
+
+    RESELECT_COMPLETE_PACK = "RESELECT_COMPLETE_PACK"
+    RECOMPUTE_BOUND_QUANTITY = "RECOMPUTE_BOUND_QUANTITY"
+    RECOPY_SOURCE_SNAPSHOT = "RECOPY_SOURCE_SNAPSHOT"
     USE_OFFICIAL_FALLBACK = "USE_OFFICIAL_FALLBACK"
+    # Legacy aliases mapped by validator for older reports.
+    RESELECT_PACK = "RESELECT_COMPLETE_PACK"
+    REPLACE_OFFICIAL_LINE = "RESELECT_COMPLETE_PACK"
+    RECOMPUTE_QUANTITY = "RECOMPUTE_BOUND_QUANTITY"
+    RECOMPUTE_VAT = "RECOPY_SOURCE_SNAPSHOT"
 
 
 class ValidationIssue(StrictModel):

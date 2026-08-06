@@ -1,0 +1,138 @@
+{
+  "ok": true,
+  "ttc": 703.45,
+  "generation_mode": "EXACT_PACK",
+  "trade_blocks": [
+    {
+      "trade": "TERRASSEMENT_VRD",
+      "n": 14
+    }
+  ],
+  "n_setup": 3,
+  "n_finish": 3,
+  "pack_codes": [
+    "V3-TER-PACK-003"
+  ],
+  "lines": [
+    {
+      "phase": "SETUP",
+      "d": "Mise en place des protections collectives et balisage du chantier",
+      "q": 1.0,
+      "u": "FORFAIT"
+    },
+    {
+      "phase": "SETUP",
+      "d": "Installation de la base vie et signalisation temporaire",
+      "q": 1.0,
+      "u": "FORFAIT"
+    },
+    {
+      "phase": "SETUP",
+      "d": "Repérage et piquetage des réseaux existants",
+      "q": 1.0,
+      "u": "ML"
+    },
+    {
+      "phase": "CORE",
+      "d": "Décapage de la terre végétale sur la zone de tranchée",
+      "q": 1.0,
+      "u": "M2"
+    },
+    {
+      "phase": "CORE",
+      "d": "Ouverture mécanique de tranchée largeur 40 cm profondeur 80 cm",
+      "q": 1.0,
+      "u": "ML"
+    },
+    {
+      "phase": "CORE",
+      "d": "Evacuation des déblais en décharge agréée",
+      "q": 1.0,
+      "u": "M3"
+    },
+    {
+      "phase": "CORE",
+      "d": "Dépose ponctuelle de revêtements existants (enrobé, pavés)",
+      "q": 1.0,
+      "u": "M2"
+    },
+    {
+      "phase": "CORE",
+      "d": "Détection et protection des réseaux existants",
+      "q": 1.0,
+      "u": "ML"
+    },
+    {
+      "phase": "CORE",
+      "d": "Mise en place de blindage de tranchée si nécessaire",
+      "q": 1.0,
+      "u": "ML"
+    },
+    {
+      "phase": "CORE",
+      "d": "Réalisation d'accès provisoire pour engins et personnel",
+      "q": 1.0,
+      "u": "FORFAIT"
+    },
+    {
+      "phase": "CORE",
+      "d": "Fourniture et mise en place d'un lit de pose en sable 10 cm",
+      "q": 1.0,
+      "u": "ML"
+    },
+    {
+      "phase": "CORE",
+      "d": "Fourniture et pose de fourreau PEHD Ø63 pour réseau électrique",
+      "q": 1.0,
+      "u": "ML"
+    },
+    {
+      "phase": "CORE",
+      "d": "Fourniture et pose de fourreau PEHD Ø40 pour télécom",
+      "q": 1.0,
+      "u": "ML"
+    },
+    {
+      "phase": "CORE",
+      "d": "Fourniture et pose de tube PVC Ø100 pour réseau eau",
+      "q": 1.0,
+      "u": "ML"
+    },
+    {
+      "phase": "CORE",
+      "d": "Fourniture et pose de grillage avertisseur rouge (électricité)",
+      "q": 1.0,
+      "u": "ML"
+    },
+    {
+      "phase": "CORE",
+      "d": "Fourniture et pose de grillage avertisseur bleu (eau)",
+      "q": 1.0,
+      "u": "ML"
+    },
+    {
+      "phase": "CORE",
+      "d": "Fourniture et pose de grillage avertisseur vert (télécom)",
+      "q": 1.0,
+      "u": "ML"
+    },
+    {
+      "phase": "FINISH",
+      "d": "Remblaiement en couches successives avec compactage",
+      "q": 1.0,
+      "u": "ML"
+    },
+    {
+      "phase": "FINISH",
+      "d": "Réfection provisoire des revêtements de surface",
+      "q": 1.0,
+      "u": "M2"
+    },
+    {
+      "phase": "FINISH",
+      "d": "Nettoyage final du chantier et évacuation des déchets",
+      "q": 1.0,
+      "u": "FORFAIT"
+    }
+  ]
+}

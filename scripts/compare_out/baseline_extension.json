@@ -1,0 +1,264 @@
+{
+  "result": {
+    "date": "2026-08-05T20:44:43.734031+00:00",
+    "validite": "2026-09-04T20:44:43.734031+00:00",
+    "duree": 30,
+    "montant_ttc": 19455.73,
+    "blocs": [
+      {
+        "title": "Mise en place du chantier",
+        "lots": [
+          {
+            "title": "Préparation",
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Implantation et traçage de l’emplacement du mur porteur isolant",
+                "qte": 20.78,
+                "unit": "ml",
+                "pu": 8,
+                "tva": 5.5,
+                "ht": 166.24,
+                "ttc": 175.38
+              },
+              {
+                "num": 2,
+                "description": "Protection des zones de travail et accès chantier",
+                "qte": 1,
+                "unit": "forfait",
+                "pu": 120,
+                "tva": 20.0,
+                "ht": 120,
+                "ttc": 144.0
+              },
+              {
+                "num": 3,
+                "description": "Autres mise en place, balisage et protection du chantier et finitions",
+                "qte": 1,
+                "unit": "forfait",
+                "pu": 694.44,
+                "tva": 20.0,
+                "ht": 694.44,
+                "ttc": 833.33
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Maçonnerie – Gros œuvre",
+        "lots": [
+          {
+            "title": "Travaux principaux",
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Nettoyage et préparation des fondations existantes",
+                "qte": 20.78,
+                "unit": "ml",
+                "pu": 7,
+                "tva": 20.0,
+                "ht": 145.46,
+                "ttc": 174.55
+              },
+              {
+                "num": 2,
+                "description": "Dépose des éléments non porteurs gênants (plinthes, revêtements)",
+                "qte": 20.78,
+                "unit": "ml",
+                "pu": 6,
+                "tva": 20.0,
+                "ht": 124.68,
+                "ttc": 149.62
+              },
+              {
+                "num": 3,
+                "description": "Evacuation des gravats et déchets de démolition",
+                "qte": 2.88,
+                "unit": "m3",
+                "pu": 65,
+                "tva": 20.0,
+                "ht": 187.2,
+                "ttc": 224.64
+              },
+              {
+                "num": 4,
+                "description": "Ragréage ponctuel des fondations pour pose des blocs isolants",
+                "qte": 20.78,
+                "unit": "ml",
+                "pu": 12,
+                "tva": 5.5,
+                "ht": 249.36,
+                "ttc": 263.07
+              },
+              {
+                "num": 5,
+                "description": "Découpe et adaptation des réseaux traversant le mur",
+                "qte": 1,
+                "unit": "u",
+                "pu": 45,
+                "tva": 20.0,
+                "ht": 45,
+                "ttc": 54.0
+              },
+              {
+                "num": 6,
+                "description": "Mise en place de protections provisoires sur les zones adjacentes",
+                "qte": 1,
+                "unit": "forfait",
+                "pu": 60,
+                "tva": 20.0,
+                "ht": 60,
+                "ttc": 72.0
+              },
+              {
+                "num": 7,
+                "description": "Contrôle d’alignement et de niveau avant démarrage",
+                "qte": 20.78,
+                "unit": "ml",
+                "pu": 5,
+                "tva": 20.0,
+                "ht": 103.9,
+                "ttc": 124.68
+              },
+              {
+                "num": 8,
+                "description": "Fourniture et pose de blocs parpaing isolant haute performance (R≥1,2)",
+                "qte": 24.0,
+                "unit": "m²",
+                "pu": 65,
+                "tva": 5.5,
+                "ht": 1560.0,
+                "ttc": 1645.8
+              },
+              {
+                "num": 9,
+                "description": "Fourniture et pose de chaînages horizontaux isolants",
+                "qte": 13.86,
+                "unit": "ml",
+                "pu": 22,
+                "tva": 5.5,
+                "ht": 304.92,
+                "ttc": 321.69
+              },
+              {
+                "num": 10,
+                "description": "Fourniture et pose de chaînages verticaux isolants",
+                "qte": 1,
+                "unit": "u",
+                "pu": 38,
+                "tva": 5.5,
+                "ht": 38,
+                "ttc": 40.09
+              },
+              {
+                "num": 11,
+                "description": "Fourniture et pose de linteaux isolants compatibles",
+                "qte": 1,
+                "unit": "ml",
+                "pu": 55,
+                "tva": 5.5,
+                "ht": 55,
+                "ttc": 58.02
+              },
+              {
+                "num": 12,
+                "description": "Fourniture et pose de rupteurs de ponts thermiques",
+                "qte": 20.78,
+                "unit": "ml",
+                "pu": 18,
+                "tva": 20.0,
+                "ht": 374.04,
+                "ttc": 448.85
+              },
+              {
+                "num": 13,
+                "description": "Réalisation des joints verticaux et horizontaux (mortier isolant)",
+                "qte": 20.78,
+                "unit": "ml",
+                "pu": 4.5,
+                "tva": 5.5,
+                "ht": 93.51,
+                "ttc": 98.65
+              },
+              {
+                "num": 14,
+                "description": "Autres travaux et fournitures maçonnerie – gros œuvre et finitions",
+                "qte": 1,
+                "unit": "forfait",
+                "pu": 9885.64,
+                "tva": 20.0,
+                "ht": 9885.64,
+                "ttc": 11862.77
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Finitions et nettoyage",
+        "lots": [
+          {
+            "title": "Nettoyage",
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Reprise des raccords avec murs/plafonds existants",
+                "qte": 20.78,
+                "unit": "ml",
+                "pu": 14,
+                "tva": 20.0,
+                "ht": 290.92,
+                "ttc": 349.1
+              },
+              {
+                "num": 2,
+                "description": "Finitions des arêtes et angles du mur porteur isolant",
+                "qte": 20.78,
+                "unit": "ml",
+                "pu": 9,
+                "tva": 5.5,
+                "ht": 187.02,
+                "ttc": 197.31
+              },
+              {
+                "num": 3,
+                "description": "Autres nettoyage fin de chantier et repli et finitions",
+                "qte": 1,
+                "unit": "forfait",
+                "pu": 1848.48,
+                "tva": 20.0,
+                "ht": 1848.48,
+                "ttc": 2218.18
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "title": "Travaux de construction extension maison",
+  "error": null,
+  "progress": [
+    {
+      "step": 1,
+      "total": 4,
+      "label": "Analyse"
+    },
+    {
+      "step": 2,
+      "total": 4,
+      "label": "Generate"
+    },
+    {
+      "step": 3,
+      "total": 4,
+      "label": "Calculate"
+    },
+    {
+      "step": 4,
+      "total": 4,
+      "label": "Finalise"
+    }
+  ]
+}

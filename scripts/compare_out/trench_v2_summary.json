@@ -1,0 +1,358 @@
+{
+  "ttc": 6719.24,
+  "ht_sum": 6108.39,
+  "n_lines": 34,
+  "coverage": {
+    "trenchee/terrassement": true,
+    "lit de sable": true,
+    "fourreaux": true,
+    "grillage avertisseur": true,
+    "remblai": true,
+    "regards": false,
+    "EU PVC 18ml": true,
+    "32ml quantity present": true,
+    "18ml quantity present": false
+  },
+  "lines": [
+    {
+      "lot": "Préparation",
+      "description": "Mise en place des protections collectives et balisage du chantier",
+      "qte": 1.0,
+      "unit": "forfait",
+      "pu": 180.0,
+      "ht": 180.0,
+      "tva": 10.0,
+      "ttc": 198.0
+    },
+    {
+      "lot": "Préparation",
+      "description": "Installation de la base vie et signalisation temporaire",
+      "qte": 1.0,
+      "unit": "forfait",
+      "pu": 120.0,
+      "ht": 120.0,
+      "tva": 10.0,
+      "ttc": 132.0
+    },
+    {
+      "lot": "Préparation",
+      "description": "Repérage et piquetage des réseaux existants",
+      "qte": 28.87,
+      "unit": "ml",
+      "pu": 3.5,
+      "ht": 101.05,
+      "tva": 10.0,
+      "ttc": 111.16
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Décapage de la terre végétale sur la zone de tranchée",
+      "qte": 50.0,
+      "unit": "m²",
+      "pu": 4.5,
+      "ht": 225.0,
+      "tva": 10.0,
+      "ttc": 247.5
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Ouverture mécanique de tranchée largeur 40 cm profondeur 80 cm",
+      "qte": 28.87,
+      "unit": "ml",
+      "pu": 22.0,
+      "ht": 635.14,
+      "tva": 10.0,
+      "ttc": 698.65
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Evacuation des déblais en décharge agréée",
+      "qte": 6.0,
+      "unit": "m³",
+      "pu": 28.0,
+      "ht": 168.0,
+      "tva": 10.0,
+      "ttc": 184.8
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Dépose ponctuelle de revêtements existants (enrobé, pavés)",
+      "qte": 50.0,
+      "unit": "m²",
+      "pu": 18.0,
+      "ht": 900.0,
+      "tva": 10.0,
+      "ttc": 990.0
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Détection et protection des réseaux existants",
+      "qte": 28.87,
+      "unit": "ml",
+      "pu": 6.0,
+      "ht": 173.22,
+      "tva": 10.0,
+      "ttc": 190.54
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Mise en place de blindage de tranchée si nécessaire",
+      "qte": 28.87,
+      "unit": "ml",
+      "pu": 12.0,
+      "ht": 346.44,
+      "tva": 10.0,
+      "ttc": 381.08
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Réalisation d'accès provisoire pour engins et personnel",
+      "qte": 1.0,
+      "unit": "forfait",
+      "pu": 80.0,
+      "ht": 80.0,
+      "tva": 10.0,
+      "ttc": 88.0
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Fourniture et mise en place d'un lit de pose en sable 10 cm",
+      "qte": 28.87,
+      "unit": "ml",
+      "pu": 7.5,
+      "ht": 216.53,
+      "tva": 10.0,
+      "ttc": 238.18
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Fourniture et pose de fourreau PEHD Ø63 pour réseau électrique",
+      "qte": 28.87,
+      "unit": "ml",
+      "pu": 8.0,
+      "ht": 230.96,
+      "tva": 10.0,
+      "ttc": 254.06
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Fourniture et pose de fourreau PEHD Ø40 pour télécom",
+      "qte": 28.87,
+      "unit": "ml",
+      "pu": 6.5,
+      "ht": 187.66,
+      "tva": 10.0,
+      "ttc": 206.43
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Fourniture et pose de tube PVC Ø100 pour réseau eau",
+      "qte": 28.87,
+      "unit": "ml",
+      "pu": 10.0,
+      "ht": 288.7,
+      "tva": 10.0,
+      "ttc": 317.57
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Fourniture et pose de grillage avertisseur rouge (électricité)",
+      "qte": 28.87,
+      "unit": "ml",
+      "pu": 2.5,
+      "ht": 72.17,
+      "tva": 10.0,
+      "ttc": 79.39
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Fourniture et pose de grillage avertisseur bleu (eau)",
+      "qte": 28.87,
+      "unit": "ml",
+      "pu": 2.5,
+      "ht": 72.17,
+      "tva": 10.0,
+      "ttc": 79.39
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Fourniture et pose de grillage avertisseur vert (télécom)",
+      "qte": 28.87,
+      "unit": "ml",
+      "pu": 2.5,
+      "ht": 72.17,
+      "tva": 10.0,
+      "ttc": 79.39
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Fourniture et pose : Plb-canalisation eaux usees",
+      "qte": 1.0,
+      "unit": "forfait",
+      "pu": 120.0,
+      "ht": 120.0,
+      "tva": 10.0,
+      "ttc": 132.0
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Repérage et tracé des parcours de canalisations",
+      "qte": 1.0,
+      "unit": "forfait",
+      "pu": 25.0,
+      "ht": 25.0,
+      "tva": 10.0,
+      "ttc": 27.5
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Percements et saignées pour passages de tuyauteries",
+      "qte": 1.0,
+      "unit": "forfait",
+      "pu": 25.0,
+      "ht": 25.0,
+      "tva": 10.0,
+      "ttc": 27.5
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Fourniture et pose des colliers et supports de fixation",
+      "qte": 1.0,
+      "unit": "forfait",
+      "pu": 25.0,
+      "ht": 25.0,
+      "tva": 10.0,
+      "ttc": 27.5
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Découpes, ébavurages et préparation des tubes",
+      "qte": 1.0,
+      "unit": "forfait",
+      "pu": 25.0,
+      "ht": 25.0,
+      "tva": 10.0,
+      "ttc": 27.5
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Réalisation des assemblages (soudures, sertissages, collages)",
+      "qte": 1.0,
+      "unit": "forfait",
+      "pu": 25.0,
+      "ht": 25.0,
+      "tva": 10.0,
+      "ttc": 27.5
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Raccordement des réseaux d'alimentation (EF/EC)",
+      "qte": 1.0,
+      "unit": "forfait",
+      "pu": 25.0,
+      "ht": 25.0,
+      "tva": 10.0,
+      "ttc": 27.5
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Raccordement des réseaux d'évacuation (EU/EV)",
+      "qte": 1.0,
+      "unit": "forfait",
+      "pu": 25.0,
+      "ht": 25.0,
+      "tva": 10.0,
+      "ttc": 27.5
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Mise en eau et purge des canalisations",
+      "qte": 1.0,
+      "unit": "forfait",
+      "pu": 25.0,
+      "ht": 25.0,
+      "tva": 10.0,
+      "ttc": 27.5
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Tests de mise en pression et recherche de fuites",
+      "qte": 1.0,
+      "unit": "forfait",
+      "pu": 25.0,
+      "ht": 25.0,
+      "tva": 10.0,
+      "ttc": 27.5
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Contrôle des débits et des pentes d'écoulement",
+      "qte": 1.0,
+      "unit": "forfait",
+      "pu": 25.0,
+      "ht": 25.0,
+      "tva": 10.0,
+      "ttc": 27.5
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Isolation thermique ou acoustique ponctuelle des tubes",
+      "qte": 1.0,
+      "unit": "forfait",
+      "pu": 25.0,
+      "ht": 25.0,
+      "tva": 10.0,
+      "ttc": 27.5
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Rebouchage technique des traversées de cloisons",
+      "qte": 1.0,
+      "unit": "forfait",
+      "pu": 25.0,
+      "ht": 25.0,
+      "tva": 10.0,
+      "ttc": 27.5
+    },
+    {
+      "lot": "Travaux principaux",
+      "description": "Vérification de la conformité des raccordements",
+      "qte": 1.0,
+      "unit": "forfait",
+      "pu": 25.0,
+      "ht": 25.0,
+      "tva": 10.0,
+      "ttc": 27.5
+    },
+    {
+      "lot": "Nettoyage",
+      "description": "Remblaiement en couches successives avec compactage",
+      "qte": 28.87,
+      "unit": "ml",
+      "pu": 14.0,
+      "ht": 404.18,
+      "tva": 10.0,
+      "ttc": 444.6
+    },
+    {
+      "lot": "Nettoyage",
+      "description": "Réfection provisoire des revêtements de surface",
+      "qte": 50.0,
+      "unit": "m²",
+      "pu": 22.0,
+      "ht": 1100.0,
+      "tva": 10.0,
+      "ttc": 1210.0
+    },
+    {
+      "lot": "Nettoyage",
+      "description": "Nettoyage final du chantier et évacuation des déchets",
+      "qte": 1.0,
+      "unit": "forfait",
+      "pu": 90.0,
+      "ht": 90.0,
+      "tva": 10.0,
+      "ttc": 99.0
+    }
+  ]
+}

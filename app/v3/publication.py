@@ -91,6 +91,9 @@ class PackSnapshot:
     required_coverage: tuple[str, ...]
     fallback_rank: int | None
     lines: tuple[LineSnapshot, ...]
+    # Correctifs ciblés à intégrer dans la V3.2 §2.
+    pack_match_signature: str | None = None
+    version: int = 1
 
 
 @dataclass(frozen=True, slots=True)
@@ -197,6 +200,14 @@ def validate_publication(
         _issue(issues, "PACK_CODE_MISSING", "pack_code is required", pack)
     if not pack.trade_code.strip():
         _issue(issues, "TRADE_ID_MISSING", "trade_code is required", pack)
+    # Correctifs ciblés à intégrer dans la V3.2 §2 — signature obligatoire.
+    if not (pack.pack_match_signature or "").strip():
+        _issue(
+            issues,
+            "PACK_MATCH_SIGNATURE_REQUIRED",
+            "pack_match_signature is required before PUBLISHED",
+            pack,
+        )
 
     phase_counts = {
         phase: sum(1 for line in pack.lines if line.phase == phase)
@@ -449,7 +460,7 @@ def load_pack_snapshots(
         """
         SELECT pack_id, pack_code, flow, trade_code, service_code, title,
                status, embedding, embedding_model, exclusion_tags,
-               required_coverage, fallback_rank
+               required_coverage, fallback_rank, pack_match_signature, version
         FROM quote_packs
         WHERE library_version = :library_version
           AND (:all_codes OR pack_code IN :pack_codes)
@@ -521,6 +532,8 @@ def load_pack_snapshots(
                 required_coverage=tuple(values["required_coverage"] or ()),
                 fallback_rank=values["fallback_rank"],
                 lines=lines,
+                pack_match_signature=values.get("pack_match_signature"),
+                version=int(values.get("version") or 1),
             )
         )
     return tuple(packs)

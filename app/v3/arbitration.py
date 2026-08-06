@@ -66,6 +66,73 @@ class ArbitrationEvidence:
 R12Callback = Callable[[tuple[str, ...], ArbitrationEvidence], str | None]
 
 
+def _fold_hint(value: str) -> str:
+    return "".join(
+        ch for ch in value.casefold() if ch.isalnum() or ch.isspace()
+    ).strip()
+
+
+def _labels_by_code(trade_catalog: Any) -> dict[str, str]:
+    labels: dict[str, str] = {}
+    values: Iterable[Any]
+    if isinstance(trade_catalog, Mapping):
+        values = trade_catalog.values()
+    else:
+        values = trade_catalog or ()
+    for value in values:
+        raw = _mapping(value)
+        code = str(raw.get("trade_code") or raw.get("code") or "")
+        if code:
+            labels[code] = str(raw.get("label") or code)
+    return labels
+
+
+def _resolve_trade_hint(
+    hint: str | None,
+    options: tuple[TradeOption, ...] | list[TradeOption],
+    *,
+    labels_by_code: Mapping[str, str],
+) -> str | None:
+    """Map a free-text semantic trade hint onto a catalog trade_code."""
+
+    if not hint:
+        return None
+    raw = str(hint).strip()
+    if not raw:
+        return None
+    option_codes = {option.trade_code for option in options}
+    if raw in option_codes:
+        return raw
+    folded = _fold_hint(raw)
+    aliases = {
+        "terrassier": "TERRASSEMENT_VRD",
+        "terrassement": "TERRASSEMENT_VRD",
+        "vrd": "TERRASSEMENT_VRD",
+        "assainissement": "TERRASSEMENT_VRD",
+        "plombier": "PLOMBERIE_SANITAIRE",
+        "electricien": "ELECTRICITE_COURANTS_FORTS",
+        "cuisine": "CUISINE",
+        "charpentier": "CHARPENTE_BOIS",
+        "charpente": "CHARPENTE_BOIS",
+    }
+    aliased = aliases.get(folded)
+    if aliased in option_codes:
+        return aliased
+    for option in options:
+        label_fold = _fold_hint(labels_by_code.get(option.trade_code, ""))
+        if folded and (
+            folded in label_fold
+            or label_fold in folded
+            or any(
+                token and token in label_fold
+                for token in folded.split()
+                if len(token) > 4
+            )
+        ):
+            return option.trade_code
+    return None
+
+
 def _mapping(value: Any) -> dict[str, Any]:
     if value is None:
         return {}
@@ -225,15 +292,22 @@ def arbitrate_r1_r12(
         option.trade_code: Decimal("0") for option in options
     }
     option_by_code = {option.trade_code: option for option in options}
+    labels_by_code = _labels_by_code(trade_catalog)
 
     # R2: deterministic analyzer evidence.
     for code, analyzer_score in analyzer_trade_scores.items():
-        if code in scores:
-            scores[code] += Decimal(str(analyzer_score)) * Decimal("10")
+        resolved = (
+            _resolve_trade_hint(code, options, labels_by_code=labels_by_code) or code
+        )
+        if resolved in scores:
+            scores[resolved] += Decimal(str(analyzer_score)) * Decimal("10")
 
     # R3/R4: semantic hints are weak evidence and must exist in the hard-gated
     # catalog set before they receive any score.
-    primary_hint = str(plan_data.get("primary_trade_hint") or "").strip() or None
+    primary_hint_raw = str(plan_data.get("primary_trade_hint") or "").strip() or None
+    primary_hint = _resolve_trade_hint(
+        primary_hint_raw, options, labels_by_code=labels_by_code
+    )
     if primary_hint in scores:
         scores[primary_hint] += Decimal("7")
     for code in {
@@ -241,8 +315,9 @@ def arbitrate_r1_r12(
         for value in plan_data.get("secondary_trade_hints") or ()
         if str(value).strip()
     }:
-        if code in scores:
-            scores[code] += Decimal("2")
+        resolved = _resolve_trade_hint(code, options, labels_by_code=labels_by_code)
+        if resolved in scores:
+            scores[resolved] += Decimal("2")
 
     # R5/R6/R9: service ownership.  Only official catalog relationships count.
     semantic_service_hint = (

@@ -1,0 +1,6 @@
+INFO:     127.0.0.1:61894 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61899 - "POST /api/v1/devis/generate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61899 - "POST /api/v1/devis/generate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61908 - "POST /api/v1/devis/generate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61908 - "POST /api/v1/devis/generate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61908 - "POST /api/v1/devis/generate HTTP/1.1" 200 OK

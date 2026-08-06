@@ -1,0 +1,20 @@
+{
+  "result": null,
+  "title": null,
+  "error": {
+    "status": 400,
+    "detail": "La demande ne concerne pas des travaux de bâtiment."
+  },
+  "progress": [
+    {
+      "step": 1,
+      "total": 4,
+      "label": "Analyse"
+    },
+    {
+      "step": 2,
+      "total": 4,
+      "label": "Generate"
+    }
+  ]
+}

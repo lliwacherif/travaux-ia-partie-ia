@@ -638,3 +638,106 @@ class TestAiServiceHelpers:
         got["lots"][0]["metier"] = "MUTATED"
         assert _semantic_cache_get(key)["lots"][0]["metier"] == "Peinture"
         assert _semantic_cache_get(_semantic_cache_key("autre demande")) is None
+
+
+# ---------------------------------------------------------------------------
+# 10. Forbidden generic labels — detect + local rewrite fallback
+# ---------------------------------------------------------------------------
+class TestForbiddenLineRewrite:
+    def test_detector_catches_autres_divers_complementaires(self):
+        from app.services.ai_service import _is_forbidden_line_description
+
+        assert _is_forbidden_line_description(
+            "Autres travaux et fournitures climatisation – ventilation – vmc et finitions"
+        )
+        assert _is_forbidden_line_description(
+            "Ensemble de prestations complémentaires — Terrassement – VRD (15 postes regroupés)"
+        )
+        assert _is_forbidden_line_description("Divers travaux annexes")
+        assert _is_forbidden_line_description("Ajustement forfaitaire de finition")
+        assert _is_forbidden_line_description("Montant d'équilibrage du lot")
+        assert not _is_forbidden_line_description(
+            "Fourniture et pose de climatiseur mural monosplit"
+        )
+        assert not _is_forbidden_line_description(
+            "Remblaiement en couches successives avec compactage"
+        )
+
+    def test_local_rewrite_removes_forbidden_words(self):
+        from app.services.ai_service import (
+            _is_forbidden_line_description,
+            _local_rewrite_forbidden_label,
+        )
+
+        samples = [
+            "Autres travaux et fournitures climatisation – ventilation – vmc et finitions",
+            "Ensemble de prestations complémentaires — Terrassement – VRD – Assainissement (15 postes regroupés)",
+            "Autres mise en place, balisage et protection du chantier et finitions",
+            "Divers",
+        ]
+        for sample in samples:
+            rewritten = _local_rewrite_forbidden_label(sample)
+            assert rewritten.strip()
+            assert not _is_forbidden_line_description(rewritten), rewritten
+
+    def test_rewrite_pass_mutates_only_descriptions(self):
+        """Engine totals stay intact; only forbidden descriptions are replaced."""
+        import asyncio
+        from unittest.mock import AsyncMock, MagicMock
+
+        from app.services.ai_service import AIService, _line_rewrite_cache
+
+        _line_rewrite_cache.clear()
+        blocs = [
+            {
+                "title": "Climatisation – Ventilation – VMC",
+                "lots": [
+                    {
+                        "title": "Travaux principaux",
+                        "lignes": [
+                            {
+                                "num": 1,
+                                "description": "Pose split mural",
+                                "qte": 1,
+                                "unit": "u",
+                                "pu": 900,
+                                "tva": 10,
+                                "ht": 900,
+                                "ttc": 990,
+                            },
+                            {
+                                "num": 2,
+                                "description": (
+                                    "Autres travaux et fournitures climatisation "
+                                    "– ventilation – vmc et finitions"
+                                ),
+                                "qte": 1,
+                                "unit": "forfait",
+                                "pu": 500,
+                                "tva": 10,
+                                "ht": 500,
+                                "ttc": 550,
+                            },
+                        ],
+                    }
+                ],
+            }
+        ]
+
+        svc = AIService.__new__(AIService)
+        # Force the GPT path to fail so we exercise the local fallback without
+        # needing an API key — production still calls GPT-4 first.
+        svc._client = MagicMock()
+        svc._client.chat.completions.create = AsyncMock(
+            side_effect=RuntimeError("no network in unit test")
+        )
+
+        out = asyncio.run(svc._rewrite_forbidden_line_labels(blocs))
+        lines = out[0]["lots"][0]["lignes"]
+        assert lines[0]["description"] == "Pose split mural"
+        assert lines[0]["ht"] == 900
+        assert lines[1]["ht"] == 500
+        assert lines[1]["pu"] == 500
+        assert "Autres" not in lines[1]["description"]
+        assert "Divers" not in lines[1]["description"]
+        assert "complémentaires" not in lines[1]["description"].lower()

@@ -1,0 +1,11 @@
+{
+  "detail": {
+    "message": "V3 display gate rejected the quote.",
+    "errors": [
+      "NO_PUBLISHED_V3_TRADE_CATALOG"
+    ],
+    "allowed_repairs": [
+      "IMPORT_AND_PUBLISH_OFFICIAL_LIBRARY"
+    ]
+  }
+}

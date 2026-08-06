@@ -1,0 +1,2324 @@
+{
+  "devis": {
+    "date": "2026-08-06T10:25:13.253483+00:00",
+    "montant_ttc": 703.45,
+    "validite": "2026-09-05T10:25:13.253483+00:00",
+    "duree": 30,
+    "blocs": [
+      {
+        "title": "Mise en place du chantier",
+        "lots": [
+          {
+            "title": "Préparation",
+            "ligne_ids": [
+              "544f5592-2b4d-5140-9874-73308c40c3f4",
+              "eba41508-9ae9-52f5-9987-58cc9115c565",
+              "1bd21e34-d8d4-5bec-9dc7-4e45a050339a"
+            ],
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Mise en place des protections collectives et balisage du chantier",
+                "qte": 1.0,
+                "unit": "FORFAIT",
+                "pu": 180.0,
+                "tva": 10.0,
+                "ht": 180.0,
+                "ttc": 198.0,
+                "line_id": "544f5592-2b4d-5140-9874-73308c40c3f4",
+                "pack_id": null,
+                "source_entity_type": "SHARED_PROFILE",
+                "shared_profile_id": "legacy-profile-afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "price_id": "4e17af1b-69b5-58b5-95f1-34d597db48aa",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:SETUP:00"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": null
+              },
+              {
+                "num": 2,
+                "description": "Installation de la base vie et signalisation temporaire",
+                "qte": 1.0,
+                "unit": "FORFAIT",
+                "pu": 120.0,
+                "tva": 10.0,
+                "ht": 120.0,
+                "ttc": 132.0,
+                "line_id": "eba41508-9ae9-52f5-9987-58cc9115c565",
+                "pack_id": null,
+                "source_entity_type": "SHARED_PROFILE",
+                "shared_profile_id": "legacy-profile-afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "price_id": "539f425b-6fce-5d9e-a35d-081d5709aaa0",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:SETUP:01"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": null
+              },
+              {
+                "num": 3,
+                "description": "Repérage et piquetage des réseaux existants",
+                "qte": 1.0,
+                "unit": "ML",
+                "pu": 3.5,
+                "tva": 10.0,
+                "ht": 3.5,
+                "ttc": 3.85,
+                "line_id": "1bd21e34-d8d4-5bec-9dc7-4e45a050339a",
+                "pack_id": null,
+                "source_entity_type": "SHARED_PROFILE",
+                "shared_profile_id": "legacy-profile-afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "price_id": "4407e7bf-c04c-5842-afe3-12f5b142744d",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:SETUP:02"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": {
+                  "line_id": "1bd21e34-d8d4-5bec-9dc7-4e45a050339a",
+                  "request_item_ids": [],
+                  "mode": "EXPLICIT",
+                  "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                  "input_dimension_ids": [],
+                  "value_ml": 1.0,
+                  "source": "PACK_DEFAULT",
+                  "assumption_code": "ML_PACK_DEFAULT:1bd21e34-d8d4-5bec-9dc7-4e45a050339a|ML_FORMULA_NOT_REGISTERED:1bd21e34-d8d4-5bec-9dc7-4e45a050339a"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Terrassement Vrd",
+        "lots": [
+          {
+            "title": "Travaux principaux",
+            "ligne_ids": [
+              "68b7b7f8-3844-58b0-87d5-8fb8b30ac475",
+              "0b3581bc-29b8-5fa8-a464-773a3654fbe7",
+              "f4d95539-8b8c-58ea-8a35-51fc58f96bd9",
+              "d59b0feb-501b-5178-8f41-cfcea2428942",
+              "cb32c01d-705b-5290-ad6a-d8b5e348ff6a",
+              "0fc18e6d-d548-5e61-a448-2e6dc6425d16",
+              "62bce90b-511d-5b8d-9b5e-e40dcba5cc68",
+              "449bd2e2-6176-59ed-b9fb-a9c0b05286a0",
+              "7d6991c0-1a29-5467-9cfd-05523b2b2222",
+              "0ff741e2-6d55-501e-92d3-7ccca90c2ddc",
+              "2f8a0be3-defb-5a86-a2a0-b56f1d19b0a2",
+              "d2f3ed57-bb50-5156-8ebf-3e89347285ee",
+              "b8d976e5-4457-57b2-bf96-6e9ae64a6e10",
+              "af0cb8aa-8e2d-5615-8de7-1751a19e25cb"
+            ],
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Décapage de la terre végétale sur la zone de tranchée",
+                "qte": 1.0,
+                "unit": "M2",
+                "pu": 4.5,
+                "tva": 10.0,
+                "ht": 4.5,
+                "ttc": 4.95,
+                "line_id": "68b7b7f8-3844-58b0-87d5-8fb8b30ac475",
+                "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "source_entity_type": "PACK",
+                "shared_profile_id": null,
+                "price_id": "89f3523b-98b7-5f3d-901d-0f59adcea829",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:CORE:00"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": null
+              },
+              {
+                "num": 2,
+                "description": "Ouverture mécanique de tranchée largeur 40 cm profondeur 80 cm",
+                "qte": 1.0,
+                "unit": "ML",
+                "pu": 22.0,
+                "tva": 10.0,
+                "ht": 22.0,
+                "ttc": 24.2,
+                "line_id": "0b3581bc-29b8-5fa8-a464-773a3654fbe7",
+                "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "source_entity_type": "PACK",
+                "shared_profile_id": null,
+                "price_id": "326a7492-065f-5ed0-9a05-5b382bab214a",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:CORE:01"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": {
+                  "line_id": "0b3581bc-29b8-5fa8-a464-773a3654fbe7",
+                  "request_item_ids": [],
+                  "mode": "EXPLICIT",
+                  "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                  "input_dimension_ids": [],
+                  "value_ml": 1.0,
+                  "source": "PACK_DEFAULT",
+                  "assumption_code": "ML_PACK_DEFAULT:0b3581bc-29b8-5fa8-a464-773a3654fbe7|ML_FORMULA_NOT_REGISTERED:0b3581bc-29b8-5fa8-a464-773a3654fbe7"
+                }
+              },
+              {
+                "num": 3,
+                "description": "Evacuation des déblais en décharge agréée",
+                "qte": 1.0,
+                "unit": "M3",
+                "pu": 28.0,
+                "tva": 10.0,
+                "ht": 28.0,
+                "ttc": 30.8,
+                "line_id": "f4d95539-8b8c-58ea-8a35-51fc58f96bd9",
+                "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "source_entity_type": "PACK",
+                "shared_profile_id": null,
+                "price_id": "8e0ba7dd-b9a3-5be6-b35e-8594275ae447",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:CORE:02"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": null
+              },
+              {
+                "num": 4,
+                "description": "Dépose ponctuelle de revêtements existants (enrobé, pavés)",
+                "qte": 1.0,
+                "unit": "M2",
+                "pu": 18.0,
+                "tva": 10.0,
+                "ht": 18.0,
+                "ttc": 19.8,
+                "line_id": "d59b0feb-501b-5178-8f41-cfcea2428942",
+                "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "source_entity_type": "PACK",
+                "shared_profile_id": null,
+                "price_id": "815080ff-9a79-52cb-8192-0afea67a07eb",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:CORE:03"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": null
+              },
+              {
+                "num": 5,
+                "description": "Détection et protection des réseaux existants",
+                "qte": 1.0,
+                "unit": "ML",
+                "pu": 6.0,
+                "tva": 10.0,
+                "ht": 6.0,
+                "ttc": 6.6,
+                "line_id": "cb32c01d-705b-5290-ad6a-d8b5e348ff6a",
+                "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "source_entity_type": "PACK",
+                "shared_profile_id": null,
+                "price_id": "3d14c6be-ae3f-5f3c-8e9a-2e2a4e1acdfb",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:CORE:04"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": {
+                  "line_id": "cb32c01d-705b-5290-ad6a-d8b5e348ff6a",
+                  "request_item_ids": [],
+                  "mode": "EXPLICIT",
+                  "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                  "input_dimension_ids": [],
+                  "value_ml": 1.0,
+                  "source": "PACK_DEFAULT",
+                  "assumption_code": "ML_PACK_DEFAULT:cb32c01d-705b-5290-ad6a-d8b5e348ff6a|ML_FORMULA_NOT_REGISTERED:cb32c01d-705b-5290-ad6a-d8b5e348ff6a"
+                }
+              },
+              {
+                "num": 6,
+                "description": "Mise en place de blindage de tranchée si nécessaire",
+                "qte": 1.0,
+                "unit": "ML",
+                "pu": 12.0,
+                "tva": 10.0,
+                "ht": 12.0,
+                "ttc": 13.2,
+                "line_id": "0fc18e6d-d548-5e61-a448-2e6dc6425d16",
+                "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "source_entity_type": "PACK",
+                "shared_profile_id": null,
+                "price_id": "501cd1e2-0898-5eb5-951f-1edd2e78226b",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:CORE:05"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": {
+                  "line_id": "0fc18e6d-d548-5e61-a448-2e6dc6425d16",
+                  "request_item_ids": [],
+                  "mode": "EXPLICIT",
+                  "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                  "input_dimension_ids": [],
+                  "value_ml": 1.0,
+                  "source": "PACK_DEFAULT",
+                  "assumption_code": "ML_PACK_DEFAULT:0fc18e6d-d548-5e61-a448-2e6dc6425d16|ML_FORMULA_NOT_REGISTERED:0fc18e6d-d548-5e61-a448-2e6dc6425d16"
+                }
+              },
+              {
+                "num": 7,
+                "description": "Réalisation d'accès provisoire pour engins et personnel",
+                "qte": 1.0,
+                "unit": "FORFAIT",
+                "pu": 80.0,
+                "tva": 10.0,
+                "ht": 80.0,
+                "ttc": 88.0,
+                "line_id": "62bce90b-511d-5b8d-9b5e-e40dcba5cc68",
+                "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "source_entity_type": "PACK",
+                "shared_profile_id": null,
+                "price_id": "baa7c956-3dfb-587b-9dfe-728d8c4d5c79",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:CORE:06"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": null
+              },
+              {
+                "num": 8,
+                "description": "Fourniture et mise en place d'un lit de pose en sable 10 cm",
+                "qte": 1.0,
+                "unit": "ML",
+                "pu": 7.5,
+                "tva": 10.0,
+                "ht": 7.5,
+                "ttc": 8.25,
+                "line_id": "449bd2e2-6176-59ed-b9fb-a9c0b05286a0",
+                "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "source_entity_type": "PACK",
+                "shared_profile_id": null,
+                "price_id": "0a7d219a-6f0c-5491-b186-e95db48a2171",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:CORE:07"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": {
+                  "line_id": "449bd2e2-6176-59ed-b9fb-a9c0b05286a0",
+                  "request_item_ids": [],
+                  "mode": "EXPLICIT",
+                  "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                  "input_dimension_ids": [],
+                  "value_ml": 1.0,
+                  "source": "PACK_DEFAULT",
+                  "assumption_code": "ML_PACK_DEFAULT:449bd2e2-6176-59ed-b9fb-a9c0b05286a0|ML_FORMULA_NOT_REGISTERED:449bd2e2-6176-59ed-b9fb-a9c0b05286a0"
+                }
+              },
+              {
+                "num": 9,
+                "description": "Fourniture et pose de fourreau PEHD Ø63 pour réseau électrique",
+                "qte": 1.0,
+                "unit": "ML",
+                "pu": 8.0,
+                "tva": 10.0,
+                "ht": 8.0,
+                "ttc": 8.8,
+                "line_id": "7d6991c0-1a29-5467-9cfd-05523b2b2222",
+                "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "source_entity_type": "PACK",
+                "shared_profile_id": null,
+                "price_id": "3010b579-4f27-5618-bdd7-2b986dad62aa",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:CORE:08"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": {
+                  "line_id": "7d6991c0-1a29-5467-9cfd-05523b2b2222",
+                  "request_item_ids": [],
+                  "mode": "EXPLICIT",
+                  "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                  "input_dimension_ids": [],
+                  "value_ml": 1.0,
+                  "source": "PACK_DEFAULT",
+                  "assumption_code": "ML_PACK_DEFAULT:7d6991c0-1a29-5467-9cfd-05523b2b2222|ML_FORMULA_NOT_REGISTERED:7d6991c0-1a29-5467-9cfd-05523b2b2222"
+                }
+              },
+              {
+                "num": 10,
+                "description": "Fourniture et pose de fourreau PEHD Ø40 pour télécom",
+                "qte": 1.0,
+                "unit": "ML",
+                "pu": 6.5,
+                "tva": 10.0,
+                "ht": 6.5,
+                "ttc": 7.15,
+                "line_id": "0ff741e2-6d55-501e-92d3-7ccca90c2ddc",
+                "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "source_entity_type": "PACK",
+                "shared_profile_id": null,
+                "price_id": "2e5b5e88-79a1-5501-a7b4-0f5d29e2ec90",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [
+                  "ITEM-001"
+                ],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:CORE:09"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": {
+                  "line_id": "0ff741e2-6d55-501e-92d3-7ccca90c2ddc",
+                  "request_item_ids": [
+                    "ITEM-001"
+                  ],
+                  "mode": "EXPLICIT",
+                  "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                  "input_dimension_ids": [],
+                  "value_ml": 1.0,
+                  "source": "PACK_DEFAULT",
+                  "assumption_code": "ML_PACK_DEFAULT:0ff741e2-6d55-501e-92d3-7ccca90c2ddc|ML_FORMULA_NOT_REGISTERED:0ff741e2-6d55-501e-92d3-7ccca90c2ddc"
+                }
+              },
+              {
+                "num": 11,
+                "description": "Fourniture et pose de tube PVC Ø100 pour réseau eau",
+                "qte": 1.0,
+                "unit": "ML",
+                "pu": 10.0,
+                "tva": 10.0,
+                "ht": 10.0,
+                "ttc": 11.0,
+                "line_id": "2f8a0be3-defb-5a86-a2a0-b56f1d19b0a2",
+                "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "source_entity_type": "PACK",
+                "shared_profile_id": null,
+                "price_id": "f1145a9b-db23-571a-bcd6-b1d5049c0677",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:CORE:10"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": {
+                  "line_id": "2f8a0be3-defb-5a86-a2a0-b56f1d19b0a2",
+                  "request_item_ids": [],
+                  "mode": "EXPLICIT",
+                  "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                  "input_dimension_ids": [],
+                  "value_ml": 1.0,
+                  "source": "PACK_DEFAULT",
+                  "assumption_code": "ML_PACK_DEFAULT:2f8a0be3-defb-5a86-a2a0-b56f1d19b0a2|ML_FORMULA_NOT_REGISTERED:2f8a0be3-defb-5a86-a2a0-b56f1d19b0a2"
+                }
+              },
+              {
+                "num": 12,
+                "description": "Fourniture et pose de grillage avertisseur rouge (électricité)",
+                "qte": 1.0,
+                "unit": "ML",
+                "pu": 2.5,
+                "tva": 10.0,
+                "ht": 2.5,
+                "ttc": 2.75,
+                "line_id": "d2f3ed57-bb50-5156-8ebf-3e89347285ee",
+                "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "source_entity_type": "PACK",
+                "shared_profile_id": null,
+                "price_id": "174b1221-6cdb-531f-a990-6bdf5d709a60",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:CORE:11"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": {
+                  "line_id": "d2f3ed57-bb50-5156-8ebf-3e89347285ee",
+                  "request_item_ids": [],
+                  "mode": "EXPLICIT",
+                  "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                  "input_dimension_ids": [],
+                  "value_ml": 1.0,
+                  "source": "PACK_DEFAULT",
+                  "assumption_code": "ML_PACK_DEFAULT:d2f3ed57-bb50-5156-8ebf-3e89347285ee|ML_FORMULA_NOT_REGISTERED:d2f3ed57-bb50-5156-8ebf-3e89347285ee"
+                }
+              },
+              {
+                "num": 13,
+                "description": "Fourniture et pose de grillage avertisseur bleu (eau)",
+                "qte": 1.0,
+                "unit": "ML",
+                "pu": 2.5,
+                "tva": 10.0,
+                "ht": 2.5,
+                "ttc": 2.75,
+                "line_id": "b8d976e5-4457-57b2-bf96-6e9ae64a6e10",
+                "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "source_entity_type": "PACK",
+                "shared_profile_id": null,
+                "price_id": "f5065056-04bb-5cc9-b175-559aa1d4a100",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:CORE:12"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": {
+                  "line_id": "b8d976e5-4457-57b2-bf96-6e9ae64a6e10",
+                  "request_item_ids": [],
+                  "mode": "EXPLICIT",
+                  "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                  "input_dimension_ids": [],
+                  "value_ml": 1.0,
+                  "source": "PACK_DEFAULT",
+                  "assumption_code": "ML_PACK_DEFAULT:b8d976e5-4457-57b2-bf96-6e9ae64a6e10|ML_FORMULA_NOT_REGISTERED:b8d976e5-4457-57b2-bf96-6e9ae64a6e10"
+                }
+              },
+              {
+                "num": 14,
+                "description": "Fourniture et pose de grillage avertisseur vert (télécom)",
+                "qte": 1.0,
+                "unit": "ML",
+                "pu": 2.5,
+                "tva": 10.0,
+                "ht": 2.5,
+                "ttc": 2.75,
+                "line_id": "af0cb8aa-8e2d-5615-8de7-1751a19e25cb",
+                "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "source_entity_type": "PACK",
+                "shared_profile_id": null,
+                "price_id": "362fa262-ee18-5d33-a776-f153caf1d2df",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:CORE:13"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": {
+                  "line_id": "af0cb8aa-8e2d-5615-8de7-1751a19e25cb",
+                  "request_item_ids": [],
+                  "mode": "EXPLICIT",
+                  "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                  "input_dimension_ids": [],
+                  "value_ml": 1.0,
+                  "source": "PACK_DEFAULT",
+                  "assumption_code": "ML_PACK_DEFAULT:af0cb8aa-8e2d-5615-8de7-1751a19e25cb|ML_FORMULA_NOT_REGISTERED:af0cb8aa-8e2d-5615-8de7-1751a19e25cb"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Finitions et nettoyage",
+        "lots": [
+          {
+            "title": "Nettoyage",
+            "ligne_ids": [
+              "2c59f5e2-12c2-5101-81c9-d4ce859878a6",
+              "de2b9cc6-0e51-5116-a7e3-85cfabfc5483",
+              "fcf79620-5754-5edb-b8c5-68c9a7271f71"
+            ],
+            "lignes": [
+              {
+                "num": 1,
+                "description": "Remblaiement en couches successives avec compactage",
+                "qte": 1.0,
+                "unit": "ML",
+                "pu": 14.0,
+                "tva": 10.0,
+                "ht": 14.0,
+                "ttc": 15.4,
+                "line_id": "2c59f5e2-12c2-5101-81c9-d4ce859878a6",
+                "pack_id": null,
+                "source_entity_type": "SHARED_PROFILE",
+                "shared_profile_id": "legacy-profile-afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "price_id": "7b73a4a4-2c94-5669-82f2-cdde1f88dcd3",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:FINISH:00"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": {
+                  "line_id": "2c59f5e2-12c2-5101-81c9-d4ce859878a6",
+                  "request_item_ids": [],
+                  "mode": "EXPLICIT",
+                  "formula_id": "V2_EXPLICIT_LENGTH_V1",
+                  "input_dimension_ids": [],
+                  "value_ml": 1.0,
+                  "source": "PACK_DEFAULT",
+                  "assumption_code": "ML_PACK_DEFAULT:2c59f5e2-12c2-5101-81c9-d4ce859878a6|ML_FORMULA_NOT_REGISTERED:2c59f5e2-12c2-5101-81c9-d4ce859878a6"
+                }
+              },
+              {
+                "num": 2,
+                "description": "Réfection provisoire des revêtements de surface",
+                "qte": 1.0,
+                "unit": "M2",
+                "pu": 22.0,
+                "tva": 10.0,
+                "ht": 22.0,
+                "ttc": 24.2,
+                "line_id": "de2b9cc6-0e51-5116-a7e3-85cfabfc5483",
+                "pack_id": null,
+                "source_entity_type": "SHARED_PROFILE",
+                "shared_profile_id": "legacy-profile-afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "price_id": "40f7b77b-9fcb-51dd-a81b-e198ea649ee0",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:FINISH:01"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": null
+              },
+              {
+                "num": 3,
+                "description": "Nettoyage final du chantier et évacuation des déchets",
+                "qte": 1.0,
+                "unit": "FORFAIT",
+                "pu": 90.0,
+                "tva": 10.0,
+                "ht": 90.0,
+                "ttc": 99.0,
+                "line_id": "fcf79620-5754-5edb-b8c5-68c9a7271f71",
+                "pack_id": null,
+                "source_entity_type": "SHARED_PROFILE",
+                "shared_profile_id": "legacy-profile-afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+                "price_id": "ee55669d-0560-5d82-9155-7c8a1c77f5ad",
+                "price_version": 1,
+                "vat_rule_id": "FR_CATALOG_10",
+                "vat_rule_version": 1,
+                "covered_request_item_ids": [],
+                "technical_dependency_ids": [
+                  "DEP:V3-TER-PACK-003:FINISH:02"
+                ],
+                "quantity_source": "PACK_DEFAULT",
+                "linear_measurement": null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "quote_id": "8f7389ec-e328-425b-932f-4c00c876774c",
+    "flow": "TRAVAUX",
+    "generation_mode": "EXACT_PACK",
+    "review_required": true,
+    "totals": {
+      "ht_cents": 63950,
+      "vat_cents": 6395,
+      "ttc_cents": 70345
+    },
+    "trace": {
+      "ssot_version": "2026-07-31.1-correctifs",
+      "library_version": "LIB-V3.2-2026-07-31.1",
+      "library_snapshot_id": "965aa0a2-44e9-5bce-9daa-96507ebabb88",
+      "fallback_snapshot_used": false,
+      "territory_code": "FR-MET",
+      "prompt_hash": "sha256:d04946c5161aa92513497500261cf2755267cbe3ad3f5536b48053952a94986b",
+      "config_hash": "sha256:d71bb55ff01730e7393d74872e24640896b851c2be37ef78ed490b01b2c9b976",
+      "arbitrage_applied": false,
+      "pipeline_status": "COMPLETE_DEGRADED_AUTHORIZED",
+      "display_gate_passed": true,
+      "pipeline_version": "V3.2",
+      "semantic_model": "gpt-4o-2024-11-20",
+      "embedding_model": "text-embedding-3-small",
+      "reranker_model": "rerank-v4.0-pro",
+      "cache_hit": false,
+      "stage_completion_rate": 1.0,
+      "stage_executions": [
+        {
+          "stage": "0_CONTEXT",
+          "status": "PRIMARY",
+          "duration_ms": 0,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:7a5349db3bb486626d8d16600fff3a8cfd8ee4369b6669bbe1a063ac8a5aade8",
+          "output_hash": "sha256:106ef4d06a6c9edf63ec996aa12ff90896f737884a16c00a9bc6ca233a23bbca",
+          "evidence": {
+            "contract": "NormalizedPipelineContext"
+          }
+        },
+        {
+          "stage": "0B_LIBRARY_SNAPSHOT",
+          "status": "PRIMARY",
+          "duration_ms": 29,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:8803940dfc8867b2b2689b451f9d5ca9bb201b1294cd3c597a75a1277505d09e",
+          "output_hash": "sha256:9afa6f2b00b1a529a65652894d2862a91d345307d3e927782c6bd382aea48e64",
+          "evidence": {}
+        },
+        {
+          "stage": "1_PLAN",
+          "status": "PRIMARY",
+          "duration_ms": 1369,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:7a5349db3bb486626d8d16600fff3a8cfd8ee4369b6669bbe1a063ac8a5aade8",
+          "output_hash": "sha256:416a385142293b248f111da514dc70705a35b9a210c56d767dc3ca9a2402a4a6",
+          "evidence": {
+            "contract": "SemanticPlan"
+          }
+        },
+        {
+          "stage": "2_ANALYSIS",
+          "status": "PRIMARY",
+          "duration_ms": 4,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:c622f63f2c4dbf4c15ab61f36530a944a7a5c2c909486e0e0c669596cb37efbf",
+          "output_hash": "sha256:84d3dc96a75d78724866d2623a0862f02212bb61237f3e3046eca2e564b7294f",
+          "evidence": {
+            "analyzer": "DETERMINISTIC"
+          }
+        },
+        {
+          "stage": "2BIS_ARBITRATION",
+          "status": "PRIMARY",
+          "duration_ms": 17,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:98ecf95cf00a2353f18f5cc8d8ef26af817e6dfdec91e3f836f59e1833abcb04",
+          "output_hash": "sha256:36e852887e48c223f892b23c2a2fe408b372c5791cf4c4fbbb030a11cccf51dd",
+          "evidence": {
+            "catalog_size": 30
+          }
+        },
+        {
+          "stage": "3_EXTRACTION",
+          "status": "DEGRADED_AUTHORIZED",
+          "duration_ms": 635,
+          "fallback_reason": "BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'demand_matrix_v1': In context=(), 'required' is required to be supplied and to be an array including every key in properties. Missing 'intervention_id'.\", 'type': 'invalid_request_error', 'param': 'response_format', 'code': None}}",
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:c93aad9877f7fb3ade5cce49168a14b8f904024bf7edceddb0e5a67e8b2fccf2",
+          "output_hash": "sha256:7ba9f8f2cdbe127445dc55c2a3b0a602ff8ee8c80061ea4ebe8c72731cd37fce",
+          "evidence": {
+            "contract": "DemandMatrix"
+          }
+        },
+        {
+          "stage": "3BIS_NORMALIZATION",
+          "status": "PRIMARY",
+          "duration_ms": 0,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:a3e6f388192c9c6dc4380cdeac7dafcde7fe4ddbe914abd26cd6f87928a141f8",
+          "output_hash": "sha256:437e6ef19c0879711e821fc2b5b8ae42948c5f7e97dc9fa6746ce13e0765da59",
+          "evidence": {
+            "scope": "ITEM_SCOPED_NO_GLOBAL_PROPAGATION"
+          }
+        },
+        {
+          "stage": "4A_LINE_SEARCH",
+          "status": "PRIMARY",
+          "duration_ms": 1040,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 20,
+          "input_hash": "sha256:3a0c0170a4d27eef6f9d46365d1f992e0e924fd70dcb0691046c253d3ead7dc7",
+          "output_hash": "sha256:2ae1d4587f5acde2163f8625c819dbeabc2c1dd02ea2726a63d33383a7881625",
+          "evidence": {
+            "strategy": "LEXICAL_DENSE_RRF"
+          }
+        },
+        {
+          "stage": "4B_PARENT_AGGREGATION",
+          "status": "PRIMARY",
+          "duration_ms": 0,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 3,
+          "input_hash": "sha256:2ae1d4587f5acde2163f8625c819dbeabc2c1dd02ea2726a63d33383a7881625",
+          "output_hash": "sha256:ac0f676c079c40a2c9c789ea7596eb97359e6ad39a72ed76b00e9c78a62687f4",
+          "evidence": {
+            "strategy": "LINE_TO_PARENT"
+          }
+        },
+        {
+          "stage": "4C_DIRECT_PACK_SEARCH",
+          "status": "PRIMARY",
+          "duration_ms": 224,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 11,
+          "input_hash": "sha256:0b7c27c79e14aeb9e2075588f345be5dd9d7ad097f17bdc04e79596d9f533038",
+          "output_hash": "sha256:1211cd8f593a1f1e20fc23883b1f2ce2783bad9075b239e33d11e3bad0d3c710",
+          "evidence": {
+            "strategy": "COMPLETE_PACK_SEARCH"
+          }
+        },
+        {
+          "stage": "4D_CANDIDATE_UNION",
+          "status": "PRIMARY",
+          "duration_ms": 0,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 11,
+          "input_hash": "sha256:c4adbc0a61f32f2d734b5a6b8731b40de39b14f3dffa9003119af5a887c5f0b2",
+          "output_hash": "sha256:284523398107adf0ac094b6c2c0ec189925cc187630fe389423bbbcc8d0f34c2",
+          "evidence": {
+            "strategy": "STABLE_UNION"
+          }
+        },
+        {
+          "stage": "4BIS_RERANK",
+          "status": "DEGRADED_AUTHORIZED",
+          "duration_ms": 0,
+          "fallback_reason": "COHERE_API_KEY_MISSING",
+          "input_count": 0,
+          "output_count": 11,
+          "input_hash": "sha256:8283f6f63c11b5c82c241fa684afe3ec8402334d6d02ea96418b7c398c5895e8",
+          "output_hash": "sha256:8283f6f63c11b5c82c241fa684afe3ec8402334d6d02ea96418b7c398c5895e8",
+          "evidence": {
+            "model": "rerank-v4.0-pro"
+          }
+        },
+        {
+          "stage": "5_SELECTION",
+          "status": "PRIMARY",
+          "duration_ms": 15,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:25cfac2aecadbf6dc0fe38f54e151a22cdcf679a8e9e9720f63522a6eb826000",
+          "output_hash": "sha256:3bf0078295413e29ef4b07d95f32eb42df824f2ea6f33de4923d385fc596c464",
+          "evidence": {
+            "selector": "ONE_PACK_PER_INTERVENTION"
+          }
+        },
+        {
+          "stage": "6_CALCULATIONS",
+          "status": "PRIMARY",
+          "duration_ms": 4,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 20,
+          "input_hash": "sha256:3bf0078295413e29ef4b07d95f32eb42df824f2ea6f33de4923d385fc596c464",
+          "output_hash": "sha256:bee2dd7a1e8fd10c6d793f2d8cb9fcca8ac5a638953db6fba3e2906960789aa9",
+          "evidence": {
+            "arithmetic": "INTEGER_CENTS"
+          }
+        },
+        {
+          "stage": "7_ASSEMBLY",
+          "status": "PRIMARY",
+          "duration_ms": 2,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:bee2dd7a1e8fd10c6d793f2d8cb9fcca8ac5a638953db6fba3e2906960789aa9",
+          "output_hash": "sha256:64336e0cdaeef4bd518bc7c000a6d43df9a95ace637eb06d6c0ed2e804cff938",
+          "evidence": {
+            "geometry": "V3.2_SHARED_PROFILE_SSOT_EXACT"
+          }
+        },
+        {
+          "stage": "8_VALIDATION",
+          "status": "PRIMARY",
+          "duration_ms": 9,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:64336e0cdaeef4bd518bc7c000a6d43df9a95ace637eb06d6c0ed2e804cff938",
+          "output_hash": "sha256:b146a216d59bc5d4dd55d2c62d16e200d7f64f999c3adad23c0706c921e36efb",
+          "evidence": {
+            "validator": "INDEPENDENT_SOURCE_TO_QUOTE",
+            "attempt": 0,
+            "label": "8_VALIDATION_0"
+          }
+        },
+        {
+          "stage": "9_OBSERVABILITY",
+          "status": "PRIMARY",
+          "duration_ms": 0,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 5,
+          "input_hash": "sha256:e5086de8fa9632d899106fe203f770e8491cc94e0a1355bdf7a3214e1ee0d656",
+          "output_hash": "sha256:32405133364e36ebb1b967f3f0cfad1a4b740e0fb7d15c3134a3a11367becf88",
+          "evidence": {
+            "persistence": "PREPARED"
+          }
+        }
+      ],
+      "line_search_hits_count": 20,
+      "parent_pack_candidates_count": 11,
+      "reranked_pack_count": 11,
+      "selected_packs": [
+        {
+          "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+          "pack_code": "V3-TER-PACK-003",
+          "pack_version": 1
+        }
+      ],
+      "shared_profile": {
+        "profile_id": "legacy-profile-afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+        "profile_code": "LEGACY-V3-TER-PACK-003",
+        "profile_version": 1
+      },
+      "price_versions": [
+        {
+          "price_id": "4e17af1b-69b5-58b5-95f1-34d597db48aa",
+          "price_version": 1
+        },
+        {
+          "price_id": "539f425b-6fce-5d9e-a35d-081d5709aaa0",
+          "price_version": 1
+        },
+        {
+          "price_id": "4407e7bf-c04c-5842-afe3-12f5b142744d",
+          "price_version": 1
+        },
+        {
+          "price_id": "89f3523b-98b7-5f3d-901d-0f59adcea829",
+          "price_version": 1
+        },
+        {
+          "price_id": "326a7492-065f-5ed0-9a05-5b382bab214a",
+          "price_version": 1
+        },
+        {
+          "price_id": "8e0ba7dd-b9a3-5be6-b35e-8594275ae447",
+          "price_version": 1
+        },
+        {
+          "price_id": "815080ff-9a79-52cb-8192-0afea67a07eb",
+          "price_version": 1
+        },
+        {
+          "price_id": "3d14c6be-ae3f-5f3c-8e9a-2e2a4e1acdfb",
+          "price_version": 1
+        },
+        {
+          "price_id": "501cd1e2-0898-5eb5-951f-1edd2e78226b",
+          "price_version": 1
+        },
+        {
+          "price_id": "baa7c956-3dfb-587b-9dfe-728d8c4d5c79",
+          "price_version": 1
+        },
+        {
+          "price_id": "0a7d219a-6f0c-5491-b186-e95db48a2171",
+          "price_version": 1
+        },
+        {
+          "price_id": "3010b579-4f27-5618-bdd7-2b986dad62aa",
+          "price_version": 1
+        },
+        {
+          "price_id": "2e5b5e88-79a1-5501-a7b4-0f5d29e2ec90",
+          "price_version": 1
+        },
+        {
+          "price_id": "f1145a9b-db23-571a-bcd6-b1d5049c0677",
+          "price_version": 1
+        },
+        {
+          "price_id": "174b1221-6cdb-531f-a990-6bdf5d709a60",
+          "price_version": 1
+        },
+        {
+          "price_id": "f5065056-04bb-5cc9-b175-559aa1d4a100",
+          "price_version": 1
+        },
+        {
+          "price_id": "362fa262-ee18-5d33-a776-f153caf1d2df",
+          "price_version": 1
+        },
+        {
+          "price_id": "7b73a4a4-2c94-5669-82f2-cdde1f88dcd3",
+          "price_version": 1
+        },
+        {
+          "price_id": "40f7b77b-9fcb-51dd-a81b-e198ea649ee0",
+          "price_version": 1
+        },
+        {
+          "price_id": "ee55669d-0560-5d82-9155-7c8a1c77f5ad",
+          "price_version": 1
+        }
+      ],
+      "vat_rule_versions": [
+        {
+          "vat_rule_id": "FR_CATALOG_10",
+          "vat_rule_version": 1
+        }
+      ],
+      "selected_pack_ids": [
+        "afb66b54-002a-56a8-b06f-cc7f361eb2eb"
+      ],
+      "replaced_line_ids": [],
+      "assumption_codes": [
+        "ML_PACK_DEFAULT:0b3581bc-29b8-5fa8-a464-773a3654fbe7|ML_FORMULA_NOT_REGISTERED:0b3581bc-29b8-5fa8-a464-773a3654fbe7",
+        "ML_PACK_DEFAULT:0fc18e6d-d548-5e61-a448-2e6dc6425d16|ML_FORMULA_NOT_REGISTERED:0fc18e6d-d548-5e61-a448-2e6dc6425d16",
+        "ML_PACK_DEFAULT:0ff741e2-6d55-501e-92d3-7ccca90c2ddc|ML_FORMULA_NOT_REGISTERED:0ff741e2-6d55-501e-92d3-7ccca90c2ddc",
+        "ML_PACK_DEFAULT:1bd21e34-d8d4-5bec-9dc7-4e45a050339a|ML_FORMULA_NOT_REGISTERED:1bd21e34-d8d4-5bec-9dc7-4e45a050339a",
+        "ML_PACK_DEFAULT:2c59f5e2-12c2-5101-81c9-d4ce859878a6|ML_FORMULA_NOT_REGISTERED:2c59f5e2-12c2-5101-81c9-d4ce859878a6",
+        "ML_PACK_DEFAULT:2f8a0be3-defb-5a86-a2a0-b56f1d19b0a2|ML_FORMULA_NOT_REGISTERED:2f8a0be3-defb-5a86-a2a0-b56f1d19b0a2",
+        "ML_PACK_DEFAULT:449bd2e2-6176-59ed-b9fb-a9c0b05286a0|ML_FORMULA_NOT_REGISTERED:449bd2e2-6176-59ed-b9fb-a9c0b05286a0",
+        "ML_PACK_DEFAULT:7d6991c0-1a29-5467-9cfd-05523b2b2222|ML_FORMULA_NOT_REGISTERED:7d6991c0-1a29-5467-9cfd-05523b2b2222",
+        "ML_PACK_DEFAULT:af0cb8aa-8e2d-5615-8de7-1751a19e25cb|ML_FORMULA_NOT_REGISTERED:af0cb8aa-8e2d-5615-8de7-1751a19e25cb",
+        "ML_PACK_DEFAULT:b8d976e5-4457-57b2-bf96-6e9ae64a6e10|ML_FORMULA_NOT_REGISTERED:b8d976e5-4457-57b2-bf96-6e9ae64a6e10",
+        "ML_PACK_DEFAULT:cb32c01d-705b-5290-ad6a-d8b5e348ff6a|ML_FORMULA_NOT_REGISTERED:cb32c01d-705b-5290-ad6a-d8b5e348ff6a",
+        "ML_PACK_DEFAULT:d2f3ed57-bb50-5156-8ebf-3e89347285ee|ML_FORMULA_NOT_REGISTERED:d2f3ed57-bb50-5156-8ebf-3e89347285ee",
+        "PACK_DEFAULT:544f5592-2b4d-5140-9874-73308c40c3f4",
+        "PACK_DEFAULT:62bce90b-511d-5b8d-9b5e-e40dcba5cc68",
+        "PACK_DEFAULT:68b7b7f8-3844-58b0-87d5-8fb8b30ac475",
+        "PACK_DEFAULT:d59b0feb-501b-5178-8f41-cfcea2428942",
+        "PACK_DEFAULT:de2b9cc6-0e51-5116-a7e3-85cfabfc5483",
+        "PACK_DEFAULT:eba41508-9ae9-52f5-9987-58cc9115c565",
+        "PACK_DEFAULT:f4d95539-8b8c-58ea-8a35-51fc58f96bd9",
+        "PACK_DEFAULT:fcf79620-5754-5edb-b8c5-68c9a7271f71",
+        "VAT_CONTEXT_INCOMPLETE:REVIEW_REQUIRED"
+      ],
+      "linear_measurements_count": 12,
+      "linear_formula_ids": [
+        "V2_EXPLICIT_LENGTH_V1"
+      ],
+      "confidence": "MEDIUM",
+      "document_emitted": true,
+      "duration_ms": 3676
+    }
+  },
+  "quote": {
+    "quote_id": "8f7389ec-e328-425b-932f-4c00c876774c",
+    "flow": "TRAVAUX",
+    "generation_mode": "EXACT_PACK",
+    "review_required": true,
+    "shared_profile_id": "legacy-profile-afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+    "shared_profile_code": "LEGACY-V3-TER-PACK-003",
+    "shared_profile_version": 1,
+    "setup_lines": [
+      {
+        "line_id": "544f5592-2b4d-5140-9874-73308c40c3f4",
+        "source_entity_type": "SHARED_PROFILE",
+        "pack_id": null,
+        "pack_code": null,
+        "pack_version": null,
+        "shared_profile_id": "legacy-profile-afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+        "shared_profile_code": "LEGACY-V3-TER-PACK-003",
+        "shared_profile_version": 1,
+        "phase": "SETUP",
+        "slot_index": 0,
+        "designation": "Mise en place des protections collectives et balisage du chantier",
+        "quantity": 1.0,
+        "unit": "FORFAIT",
+        "price_id": "4e17af1b-69b5-58b5-95f1-34d597db48aa",
+        "price_version": 1,
+        "unit_price_cents": 18000,
+        "vat_rule_id": "FR_CATALOG_10",
+        "vat_rule_version": 1,
+        "vat_rate": 10.0,
+        "total_ht_cents": 18000,
+        "covered_request_item_ids": [],
+        "technical_dependency_ids": [
+          "DEP:V3-TER-PACK-003:SETUP:00"
+        ],
+        "quantity_source": "PACK_DEFAULT",
+        "linear_measurement": null,
+        "quantity_binding": {
+          "quantity_rule_id": "PACK_DEFAULT",
+          "binding_scope": "LINE",
+          "share_group_id": null,
+          "bound_fact_ids": [],
+          "resolution": "PACK_DEFAULT"
+        },
+        "source_catalog_row_id": "544f5592-2b4d-5140-9874-73308c40c3f4",
+        "source_catalog_row_hash": "75721c5fa949ed03b4e04bbd4879be9c455797f6561d8277c870978092337165",
+        "line_content_hash": "75721c5fa949ed03b4e04bbd4879be9c455797f6561d8277c870978092337165"
+      },
+      {
+        "line_id": "eba41508-9ae9-52f5-9987-58cc9115c565",
+        "source_entity_type": "SHARED_PROFILE",
+        "pack_id": null,
+        "pack_code": null,
+        "pack_version": null,
+        "shared_profile_id": "legacy-profile-afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+        "shared_profile_code": "LEGACY-V3-TER-PACK-003",
+        "shared_profile_version": 1,
+        "phase": "SETUP",
+        "slot_index": 1,
+        "designation": "Installation de la base vie et signalisation temporaire",
+        "quantity": 1.0,
+        "unit": "FORFAIT",
+        "price_id": "539f425b-6fce-5d9e-a35d-081d5709aaa0",
+        "price_version": 1,
+        "unit_price_cents": 12000,
+        "vat_rule_id": "FR_CATALOG_10",
+        "vat_rule_version": 1,
+        "vat_rate": 10.0,
+        "total_ht_cents": 12000,
+        "covered_request_item_ids": [],
+        "technical_dependency_ids": [
+          "DEP:V3-TER-PACK-003:SETUP:01"
+        ],
+        "quantity_source": "PACK_DEFAULT",
+        "linear_measurement": null,
+        "quantity_binding": {
+          "quantity_rule_id": "PACK_DEFAULT",
+          "binding_scope": "LINE",
+          "share_group_id": null,
+          "bound_fact_ids": [],
+          "resolution": "PACK_DEFAULT"
+        },
+        "source_catalog_row_id": "eba41508-9ae9-52f5-9987-58cc9115c565",
+        "source_catalog_row_hash": "333e177dbaf5d73e5d52f30860174bffa3a89a9c191a02aaf943b6231f514c01",
+        "line_content_hash": "333e177dbaf5d73e5d52f30860174bffa3a89a9c191a02aaf943b6231f514c01"
+      },
+      {
+        "line_id": "1bd21e34-d8d4-5bec-9dc7-4e45a050339a",
+        "source_entity_type": "SHARED_PROFILE",
+        "pack_id": null,
+        "pack_code": null,
+        "pack_version": null,
+        "shared_profile_id": "legacy-profile-afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+        "shared_profile_code": "LEGACY-V3-TER-PACK-003",
+        "shared_profile_version": 1,
+        "phase": "SETUP",
+        "slot_index": 2,
+        "designation": "Repérage et piquetage des réseaux existants",
+        "quantity": 1.0,
+        "unit": "ML",
+        "price_id": "4407e7bf-c04c-5842-afe3-12f5b142744d",
+        "price_version": 1,
+        "unit_price_cents": 350,
+        "vat_rule_id": "FR_CATALOG_10",
+        "vat_rule_version": 1,
+        "vat_rate": 10.0,
+        "total_ht_cents": 350,
+        "covered_request_item_ids": [],
+        "technical_dependency_ids": [
+          "DEP:V3-TER-PACK-003:SETUP:02"
+        ],
+        "quantity_source": "PACK_DEFAULT",
+        "linear_measurement": {
+          "line_id": "1bd21e34-d8d4-5bec-9dc7-4e45a050339a",
+          "request_item_ids": [],
+          "mode": "EXPLICIT",
+          "formula_id": "V2_EXPLICIT_LENGTH_V1",
+          "input_dimension_ids": [],
+          "value_ml": 1.0,
+          "source": "PACK_DEFAULT",
+          "assumption_code": "ML_PACK_DEFAULT:1bd21e34-d8d4-5bec-9dc7-4e45a050339a|ML_FORMULA_NOT_REGISTERED:1bd21e34-d8d4-5bec-9dc7-4e45a050339a"
+        },
+        "quantity_binding": {
+          "quantity_rule_id": "PACK_DEFAULT",
+          "binding_scope": "LINE",
+          "share_group_id": null,
+          "bound_fact_ids": [],
+          "resolution": "PACK_DEFAULT"
+        },
+        "source_catalog_row_id": "1bd21e34-d8d4-5bec-9dc7-4e45a050339a",
+        "source_catalog_row_hash": "9e44e9012cf6931ade07c03faf52c3830213d29bc586093e27280b71f2535530",
+        "line_content_hash": "9e44e9012cf6931ade07c03faf52c3830213d29bc586093e27280b71f2535530"
+      }
+    ],
+    "trade_blocks": [
+      {
+        "intervention_id": "INTERVENTION-001",
+        "trade_code": "TERRASSEMENT_VRD",
+        "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+        "pack_code": "V3-TER-PACK-003",
+        "pack_version": 1,
+        "lines": [
+          {
+            "line_id": "68b7b7f8-3844-58b0-87d5-8fb8b30ac475",
+            "source_entity_type": "PACK",
+            "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+            "pack_code": "V3-TER-PACK-003",
+            "pack_version": 1,
+            "shared_profile_id": null,
+            "shared_profile_code": null,
+            "shared_profile_version": null,
+            "phase": "CORE",
+            "slot_index": 0,
+            "designation": "Décapage de la terre végétale sur la zone de tranchée",
+            "quantity": 1.0,
+            "unit": "M2",
+            "price_id": "89f3523b-98b7-5f3d-901d-0f59adcea829",
+            "price_version": 1,
+            "unit_price_cents": 450,
+            "vat_rule_id": "FR_CATALOG_10",
+            "vat_rule_version": 1,
+            "vat_rate": 10.0,
+            "total_ht_cents": 450,
+            "covered_request_item_ids": [],
+            "technical_dependency_ids": [
+              "DEP:V3-TER-PACK-003:CORE:00"
+            ],
+            "quantity_source": "PACK_DEFAULT",
+            "linear_measurement": null,
+            "quantity_binding": {
+              "quantity_rule_id": "PROJECT:global_area_m2",
+              "binding_scope": "LINE",
+              "share_group_id": null,
+              "bound_fact_ids": [],
+              "resolution": "PACK_DEFAULT"
+            },
+            "source_catalog_row_id": "68b7b7f8-3844-58b0-87d5-8fb8b30ac475",
+            "source_catalog_row_hash": "6a1e85451ed51b5bced914806692fda0785a6bca723fc2e300f4441a4ef57f96",
+            "line_content_hash": "6a1e85451ed51b5bced914806692fda0785a6bca723fc2e300f4441a4ef57f96"
+          },
+          {
+            "line_id": "0b3581bc-29b8-5fa8-a464-773a3654fbe7",
+            "source_entity_type": "PACK",
+            "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+            "pack_code": "V3-TER-PACK-003",
+            "pack_version": 1,
+            "shared_profile_id": null,
+            "shared_profile_code": null,
+            "shared_profile_version": null,
+            "phase": "CORE",
+            "slot_index": 1,
+            "designation": "Ouverture mécanique de tranchée largeur 40 cm profondeur 80 cm",
+            "quantity": 1.0,
+            "unit": "ML",
+            "price_id": "326a7492-065f-5ed0-9a05-5b382bab214a",
+            "price_version": 1,
+            "unit_price_cents": 2200,
+            "vat_rule_id": "FR_CATALOG_10",
+            "vat_rule_version": 1,
+            "vat_rate": 10.0,
+            "total_ht_cents": 2200,
+            "covered_request_item_ids": [],
+            "technical_dependency_ids": [
+              "DEP:V3-TER-PACK-003:CORE:01"
+            ],
+            "quantity_source": "PACK_DEFAULT",
+            "linear_measurement": {
+              "line_id": "0b3581bc-29b8-5fa8-a464-773a3654fbe7",
+              "request_item_ids": [],
+              "mode": "EXPLICIT",
+              "formula_id": "V2_EXPLICIT_LENGTH_V1",
+              "input_dimension_ids": [],
+              "value_ml": 1.0,
+              "source": "PACK_DEFAULT",
+              "assumption_code": "ML_PACK_DEFAULT:0b3581bc-29b8-5fa8-a464-773a3654fbe7|ML_FORMULA_NOT_REGISTERED:0b3581bc-29b8-5fa8-a464-773a3654fbe7"
+            },
+            "quantity_binding": {
+              "quantity_rule_id": "PACK_DEFAULT",
+              "binding_scope": "LINE",
+              "share_group_id": null,
+              "bound_fact_ids": [],
+              "resolution": "PACK_DEFAULT"
+            },
+            "source_catalog_row_id": "0b3581bc-29b8-5fa8-a464-773a3654fbe7",
+            "source_catalog_row_hash": "5e1dff74c5362921751ef0eeeeef65d129e273a702dad39213d821d2faa67aae",
+            "line_content_hash": "5e1dff74c5362921751ef0eeeeef65d129e273a702dad39213d821d2faa67aae"
+          },
+          {
+            "line_id": "f4d95539-8b8c-58ea-8a35-51fc58f96bd9",
+            "source_entity_type": "PACK",
+            "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+            "pack_code": "V3-TER-PACK-003",
+            "pack_version": 1,
+            "shared_profile_id": null,
+            "shared_profile_code": null,
+            "shared_profile_version": null,
+            "phase": "CORE",
+            "slot_index": 2,
+            "designation": "Evacuation des déblais en décharge agréée",
+            "quantity": 1.0,
+            "unit": "M3",
+            "price_id": "8e0ba7dd-b9a3-5be6-b35e-8594275ae447",
+            "price_version": 1,
+            "unit_price_cents": 2800,
+            "vat_rule_id": "FR_CATALOG_10",
+            "vat_rule_version": 1,
+            "vat_rate": 10.0,
+            "total_ht_cents": 2800,
+            "covered_request_item_ids": [],
+            "technical_dependency_ids": [
+              "DEP:V3-TER-PACK-003:CORE:02"
+            ],
+            "quantity_source": "PACK_DEFAULT",
+            "linear_measurement": null,
+            "quantity_binding": {
+              "quantity_rule_id": "PACK_DEFAULT",
+              "binding_scope": "LINE",
+              "share_group_id": null,
+              "bound_fact_ids": [],
+              "resolution": "PACK_DEFAULT"
+            },
+            "source_catalog_row_id": "f4d95539-8b8c-58ea-8a35-51fc58f96bd9",
+            "source_catalog_row_hash": "6219827bfc2d199d2b0e068539cf74848359fa6be55a63f86c4f16c65f236b23",
+            "line_content_hash": "6219827bfc2d199d2b0e068539cf74848359fa6be55a63f86c4f16c65f236b23"
+          },
+          {
+            "line_id": "d59b0feb-501b-5178-8f41-cfcea2428942",
+            "source_entity_type": "PACK",
+            "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+            "pack_code": "V3-TER-PACK-003",
+            "pack_version": 1,
+            "shared_profile_id": null,
+            "shared_profile_code": null,
+            "shared_profile_version": null,
+            "phase": "CORE",
+            "slot_index": 3,
+            "designation": "Dépose ponctuelle de revêtements existants (enrobé, pavés)",
+            "quantity": 1.0,
+            "unit": "M2",
+            "price_id": "815080ff-9a79-52cb-8192-0afea67a07eb",
+            "price_version": 1,
+            "unit_price_cents": 1800,
+            "vat_rule_id": "FR_CATALOG_10",
+            "vat_rule_version": 1,
+            "vat_rate": 10.0,
+            "total_ht_cents": 1800,
+            "covered_request_item_ids": [],
+            "technical_dependency_ids": [
+              "DEP:V3-TER-PACK-003:CORE:03"
+            ],
+            "quantity_source": "PACK_DEFAULT",
+            "linear_measurement": null,
+            "quantity_binding": {
+              "quantity_rule_id": "PROJECT:global_area_m2",
+              "binding_scope": "LINE",
+              "share_group_id": null,
+              "bound_fact_ids": [],
+              "resolution": "PACK_DEFAULT"
+            },
+            "source_catalog_row_id": "d59b0feb-501b-5178-8f41-cfcea2428942",
+            "source_catalog_row_hash": "e40bdd0e4bfc8fe234d203d7906a7fdebc6249a3adb4f6adf7c45cf4d78edcb8",
+            "line_content_hash": "e40bdd0e4bfc8fe234d203d7906a7fdebc6249a3adb4f6adf7c45cf4d78edcb8"
+          },
+          {
+            "line_id": "cb32c01d-705b-5290-ad6a-d8b5e348ff6a",
+            "source_entity_type": "PACK",
+            "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+            "pack_code": "V3-TER-PACK-003",
+            "pack_version": 1,
+            "shared_profile_id": null,
+            "shared_profile_code": null,
+            "shared_profile_version": null,
+            "phase": "CORE",
+            "slot_index": 4,
+            "designation": "Détection et protection des réseaux existants",
+            "quantity": 1.0,
+            "unit": "ML",
+            "price_id": "3d14c6be-ae3f-5f3c-8e9a-2e2a4e1acdfb",
+            "price_version": 1,
+            "unit_price_cents": 600,
+            "vat_rule_id": "FR_CATALOG_10",
+            "vat_rule_version": 1,
+            "vat_rate": 10.0,
+            "total_ht_cents": 600,
+            "covered_request_item_ids": [],
+            "technical_dependency_ids": [
+              "DEP:V3-TER-PACK-003:CORE:04"
+            ],
+            "quantity_source": "PACK_DEFAULT",
+            "linear_measurement": {
+              "line_id": "cb32c01d-705b-5290-ad6a-d8b5e348ff6a",
+              "request_item_ids": [],
+              "mode": "EXPLICIT",
+              "formula_id": "V2_EXPLICIT_LENGTH_V1",
+              "input_dimension_ids": [],
+              "value_ml": 1.0,
+              "source": "PACK_DEFAULT",
+              "assumption_code": "ML_PACK_DEFAULT:cb32c01d-705b-5290-ad6a-d8b5e348ff6a|ML_FORMULA_NOT_REGISTERED:cb32c01d-705b-5290-ad6a-d8b5e348ff6a"
+            },
+            "quantity_binding": {
+              "quantity_rule_id": "PACK_DEFAULT",
+              "binding_scope": "LINE",
+              "share_group_id": null,
+              "bound_fact_ids": [],
+              "resolution": "PACK_DEFAULT"
+            },
+            "source_catalog_row_id": "cb32c01d-705b-5290-ad6a-d8b5e348ff6a",
+            "source_catalog_row_hash": "3553cff2fb562d3b972308a13ced1489b3e632f3d677ae36aa0d1dce5e7a6e67",
+            "line_content_hash": "3553cff2fb562d3b972308a13ced1489b3e632f3d677ae36aa0d1dce5e7a6e67"
+          },
+          {
+            "line_id": "0fc18e6d-d548-5e61-a448-2e6dc6425d16",
+            "source_entity_type": "PACK",
+            "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+            "pack_code": "V3-TER-PACK-003",
+            "pack_version": 1,
+            "shared_profile_id": null,
+            "shared_profile_code": null,
+            "shared_profile_version": null,
+            "phase": "CORE",
+            "slot_index": 5,
+            "designation": "Mise en place de blindage de tranchée si nécessaire",
+            "quantity": 1.0,
+            "unit": "ML",
+            "price_id": "501cd1e2-0898-5eb5-951f-1edd2e78226b",
+            "price_version": 1,
+            "unit_price_cents": 1200,
+            "vat_rule_id": "FR_CATALOG_10",
+            "vat_rule_version": 1,
+            "vat_rate": 10.0,
+            "total_ht_cents": 1200,
+            "covered_request_item_ids": [],
+            "technical_dependency_ids": [
+              "DEP:V3-TER-PACK-003:CORE:05"
+            ],
+            "quantity_source": "PACK_DEFAULT",
+            "linear_measurement": {
+              "line_id": "0fc18e6d-d548-5e61-a448-2e6dc6425d16",
+              "request_item_ids": [],
+              "mode": "EXPLICIT",
+              "formula_id": "V2_EXPLICIT_LENGTH_V1",
+              "input_dimension_ids": [],
+              "value_ml": 1.0,
+              "source": "PACK_DEFAULT",
+              "assumption_code": "ML_PACK_DEFAULT:0fc18e6d-d548-5e61-a448-2e6dc6425d16|ML_FORMULA_NOT_REGISTERED:0fc18e6d-d548-5e61-a448-2e6dc6425d16"
+            },
+            "quantity_binding": {
+              "quantity_rule_id": "PACK_DEFAULT",
+              "binding_scope": "LINE",
+              "share_group_id": null,
+              "bound_fact_ids": [],
+              "resolution": "PACK_DEFAULT"
+            },
+            "source_catalog_row_id": "0fc18e6d-d548-5e61-a448-2e6dc6425d16",
+            "source_catalog_row_hash": "601a3af9c7f3d6603876f30f61834a358e15d2bed153d5eef057c5810456c1e5",
+            "line_content_hash": "601a3af9c7f3d6603876f30f61834a358e15d2bed153d5eef057c5810456c1e5"
+          },
+          {
+            "line_id": "62bce90b-511d-5b8d-9b5e-e40dcba5cc68",
+            "source_entity_type": "PACK",
+            "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+            "pack_code": "V3-TER-PACK-003",
+            "pack_version": 1,
+            "shared_profile_id": null,
+            "shared_profile_code": null,
+            "shared_profile_version": null,
+            "phase": "CORE",
+            "slot_index": 6,
+            "designation": "Réalisation d'accès provisoire pour engins et personnel",
+            "quantity": 1.0,
+            "unit": "FORFAIT",
+            "price_id": "baa7c956-3dfb-587b-9dfe-728d8c4d5c79",
+            "price_version": 1,
+            "unit_price_cents": 8000,
+            "vat_rule_id": "FR_CATALOG_10",
+            "vat_rule_version": 1,
+            "vat_rate": 10.0,
+            "total_ht_cents": 8000,
+            "covered_request_item_ids": [],
+            "technical_dependency_ids": [
+              "DEP:V3-TER-PACK-003:CORE:06"
+            ],
+            "quantity_source": "PACK_DEFAULT",
+            "linear_measurement": null,
+            "quantity_binding": {
+              "quantity_rule_id": "PACK_DEFAULT",
+              "binding_scope": "LINE",
+              "share_group_id": null,
+              "bound_fact_ids": [],
+              "resolution": "PACK_DEFAULT"
+            },
+            "source_catalog_row_id": "62bce90b-511d-5b8d-9b5e-e40dcba5cc68",
+            "source_catalog_row_hash": "acfb01750ab04beb8a9e8622702583009bec7d9fa18c67500d0465efe2529bf6",
+            "line_content_hash": "acfb01750ab04beb8a9e8622702583009bec7d9fa18c67500d0465efe2529bf6"
+          },
+          {
+            "line_id": "449bd2e2-6176-59ed-b9fb-a9c0b05286a0",
+            "source_entity_type": "PACK",
+            "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+            "pack_code": "V3-TER-PACK-003",
+            "pack_version": 1,
+            "shared_profile_id": null,
+            "shared_profile_code": null,
+            "shared_profile_version": null,
+            "phase": "CORE",
+            "slot_index": 7,
+            "designation": "Fourniture et mise en place d'un lit de pose en sable 10 cm",
+            "quantity": 1.0,
+            "unit": "ML",
+            "price_id": "0a7d219a-6f0c-5491-b186-e95db48a2171",
+            "price_version": 1,
+            "unit_price_cents": 750,
+            "vat_rule_id": "FR_CATALOG_10",
+            "vat_rule_version": 1,
+            "vat_rate": 10.0,
+            "total_ht_cents": 750,
+            "covered_request_item_ids": [],
+            "technical_dependency_ids": [
+              "DEP:V3-TER-PACK-003:CORE:07"
+            ],
+            "quantity_source": "PACK_DEFAULT",
+            "linear_measurement": {
+              "line_id": "449bd2e2-6176-59ed-b9fb-a9c0b05286a0",
+              "request_item_ids": [],
+              "mode": "EXPLICIT",
+              "formula_id": "V2_EXPLICIT_LENGTH_V1",
+              "input_dimension_ids": [],
+              "value_ml": 1.0,
+              "source": "PACK_DEFAULT",
+              "assumption_code": "ML_PACK_DEFAULT:449bd2e2-6176-59ed-b9fb-a9c0b05286a0|ML_FORMULA_NOT_REGISTERED:449bd2e2-6176-59ed-b9fb-a9c0b05286a0"
+            },
+            "quantity_binding": {
+              "quantity_rule_id": "PACK_DEFAULT",
+              "binding_scope": "LINE",
+              "share_group_id": null,
+              "bound_fact_ids": [],
+              "resolution": "PACK_DEFAULT"
+            },
+            "source_catalog_row_id": "449bd2e2-6176-59ed-b9fb-a9c0b05286a0",
+            "source_catalog_row_hash": "ed30f3cae89f3011a4747862ca2e147e4a2e9f510508f1bfda7227a789fd38ec",
+            "line_content_hash": "ed30f3cae89f3011a4747862ca2e147e4a2e9f510508f1bfda7227a789fd38ec"
+          },
+          {
+            "line_id": "7d6991c0-1a29-5467-9cfd-05523b2b2222",
+            "source_entity_type": "PACK",
+            "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+            "pack_code": "V3-TER-PACK-003",
+            "pack_version": 1,
+            "shared_profile_id": null,
+            "shared_profile_code": null,
+            "shared_profile_version": null,
+            "phase": "CORE",
+            "slot_index": 8,
+            "designation": "Fourniture et pose de fourreau PEHD Ø63 pour réseau électrique",
+            "quantity": 1.0,
+            "unit": "ML",
+            "price_id": "3010b579-4f27-5618-bdd7-2b986dad62aa",
+            "price_version": 1,
+            "unit_price_cents": 800,
+            "vat_rule_id": "FR_CATALOG_10",
+            "vat_rule_version": 1,
+            "vat_rate": 10.0,
+            "total_ht_cents": 800,
+            "covered_request_item_ids": [],
+            "technical_dependency_ids": [
+              "DEP:V3-TER-PACK-003:CORE:08"
+            ],
+            "quantity_source": "PACK_DEFAULT",
+            "linear_measurement": {
+              "line_id": "7d6991c0-1a29-5467-9cfd-05523b2b2222",
+              "request_item_ids": [],
+              "mode": "EXPLICIT",
+              "formula_id": "V2_EXPLICIT_LENGTH_V1",
+              "input_dimension_ids": [],
+              "value_ml": 1.0,
+              "source": "PACK_DEFAULT",
+              "assumption_code": "ML_PACK_DEFAULT:7d6991c0-1a29-5467-9cfd-05523b2b2222|ML_FORMULA_NOT_REGISTERED:7d6991c0-1a29-5467-9cfd-05523b2b2222"
+            },
+            "quantity_binding": {
+              "quantity_rule_id": "PACK_DEFAULT",
+              "binding_scope": "LINE",
+              "share_group_id": null,
+              "bound_fact_ids": [],
+              "resolution": "PACK_DEFAULT"
+            },
+            "source_catalog_row_id": "7d6991c0-1a29-5467-9cfd-05523b2b2222",
+            "source_catalog_row_hash": "d22b834fbcf4b5353f18711cf9df272384d28a10f1a27c2b8efc38ca8344f053",
+            "line_content_hash": "d22b834fbcf4b5353f18711cf9df272384d28a10f1a27c2b8efc38ca8344f053"
+          },
+          {
+            "line_id": "0ff741e2-6d55-501e-92d3-7ccca90c2ddc",
+            "source_entity_type": "PACK",
+            "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+            "pack_code": "V3-TER-PACK-003",
+            "pack_version": 1,
+            "shared_profile_id": null,
+            "shared_profile_code": null,
+            "shared_profile_version": null,
+            "phase": "CORE",
+            "slot_index": 9,
+            "designation": "Fourniture et pose de fourreau PEHD Ø40 pour télécom",
+            "quantity": 1.0,
+            "unit": "ML",
+            "price_id": "2e5b5e88-79a1-5501-a7b4-0f5d29e2ec90",
+            "price_version": 1,
+            "unit_price_cents": 650,
+            "vat_rule_id": "FR_CATALOG_10",
+            "vat_rule_version": 1,
+            "vat_rate": 10.0,
+            "total_ht_cents": 650,
+            "covered_request_item_ids": [
+              "ITEM-001"
+            ],
+            "technical_dependency_ids": [
+              "DEP:V3-TER-PACK-003:CORE:09"
+            ],
+            "quantity_source": "PACK_DEFAULT",
+            "linear_measurement": {
+              "line_id": "0ff741e2-6d55-501e-92d3-7ccca90c2ddc",
+              "request_item_ids": [
+                "ITEM-001"
+              ],
+              "mode": "EXPLICIT",
+              "formula_id": "V2_EXPLICIT_LENGTH_V1",
+              "input_dimension_ids": [],
+              "value_ml": 1.0,
+              "source": "PACK_DEFAULT",
+              "assumption_code": "ML_PACK_DEFAULT:0ff741e2-6d55-501e-92d3-7ccca90c2ddc|ML_FORMULA_NOT_REGISTERED:0ff741e2-6d55-501e-92d3-7ccca90c2ddc"
+            },
+            "quantity_binding": {
+              "quantity_rule_id": "PACK_DEFAULT",
+              "binding_scope": "LINE",
+              "share_group_id": null,
+              "bound_fact_ids": [],
+              "resolution": "PACK_DEFAULT"
+            },
+            "source_catalog_row_id": "0ff741e2-6d55-501e-92d3-7ccca90c2ddc",
+            "source_catalog_row_hash": "b499e394acd524160a69927eee8cd74ef3158057d834a170f15f022165f7ad40",
+            "line_content_hash": "b499e394acd524160a69927eee8cd74ef3158057d834a170f15f022165f7ad40"
+          },
+          {
+            "line_id": "2f8a0be3-defb-5a86-a2a0-b56f1d19b0a2",
+            "source_entity_type": "PACK",
+            "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+            "pack_code": "V3-TER-PACK-003",
+            "pack_version": 1,
+            "shared_profile_id": null,
+            "shared_profile_code": null,
+            "shared_profile_version": null,
+            "phase": "CORE",
+            "slot_index": 10,
+            "designation": "Fourniture et pose de tube PVC Ø100 pour réseau eau",
+            "quantity": 1.0,
+            "unit": "ML",
+            "price_id": "f1145a9b-db23-571a-bcd6-b1d5049c0677",
+            "price_version": 1,
+            "unit_price_cents": 1000,
+            "vat_rule_id": "FR_CATALOG_10",
+            "vat_rule_version": 1,
+            "vat_rate": 10.0,
+            "total_ht_cents": 1000,
+            "covered_request_item_ids": [],
+            "technical_dependency_ids": [
+              "DEP:V3-TER-PACK-003:CORE:10"
+            ],
+            "quantity_source": "PACK_DEFAULT",
+            "linear_measurement": {
+              "line_id": "2f8a0be3-defb-5a86-a2a0-b56f1d19b0a2",
+              "request_item_ids": [],
+              "mode": "EXPLICIT",
+              "formula_id": "V2_EXPLICIT_LENGTH_V1",
+              "input_dimension_ids": [],
+              "value_ml": 1.0,
+              "source": "PACK_DEFAULT",
+              "assumption_code": "ML_PACK_DEFAULT:2f8a0be3-defb-5a86-a2a0-b56f1d19b0a2|ML_FORMULA_NOT_REGISTERED:2f8a0be3-defb-5a86-a2a0-b56f1d19b0a2"
+            },
+            "quantity_binding": {
+              "quantity_rule_id": "PACK_DEFAULT",
+              "binding_scope": "LINE",
+              "share_group_id": null,
+              "bound_fact_ids": [],
+              "resolution": "PACK_DEFAULT"
+            },
+            "source_catalog_row_id": "2f8a0be3-defb-5a86-a2a0-b56f1d19b0a2",
+            "source_catalog_row_hash": "76e906c44541478ba7c35005f9f83e73596a1a4519a7836f0e567841dc765968",
+            "line_content_hash": "76e906c44541478ba7c35005f9f83e73596a1a4519a7836f0e567841dc765968"
+          },
+          {
+            "line_id": "d2f3ed57-bb50-5156-8ebf-3e89347285ee",
+            "source_entity_type": "PACK",
+            "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+            "pack_code": "V3-TER-PACK-003",
+            "pack_version": 1,
+            "shared_profile_id": null,
+            "shared_profile_code": null,
+            "shared_profile_version": null,
+            "phase": "CORE",
+            "slot_index": 11,
+            "designation": "Fourniture et pose de grillage avertisseur rouge (électricité)",
+            "quantity": 1.0,
+            "unit": "ML",
+            "price_id": "174b1221-6cdb-531f-a990-6bdf5d709a60",
+            "price_version": 1,
+            "unit_price_cents": 250,
+            "vat_rule_id": "FR_CATALOG_10",
+            "vat_rule_version": 1,
+            "vat_rate": 10.0,
+            "total_ht_cents": 250,
+            "covered_request_item_ids": [],
+            "technical_dependency_ids": [
+              "DEP:V3-TER-PACK-003:CORE:11"
+            ],
+            "quantity_source": "PACK_DEFAULT",
+            "linear_measurement": {
+              "line_id": "d2f3ed57-bb50-5156-8ebf-3e89347285ee",
+              "request_item_ids": [],
+              "mode": "EXPLICIT",
+              "formula_id": "V2_EXPLICIT_LENGTH_V1",
+              "input_dimension_ids": [],
+              "value_ml": 1.0,
+              "source": "PACK_DEFAULT",
+              "assumption_code": "ML_PACK_DEFAULT:d2f3ed57-bb50-5156-8ebf-3e89347285ee|ML_FORMULA_NOT_REGISTERED:d2f3ed57-bb50-5156-8ebf-3e89347285ee"
+            },
+            "quantity_binding": {
+              "quantity_rule_id": "PACK_DEFAULT",
+              "binding_scope": "LINE",
+              "share_group_id": null,
+              "bound_fact_ids": [],
+              "resolution": "PACK_DEFAULT"
+            },
+            "source_catalog_row_id": "d2f3ed57-bb50-5156-8ebf-3e89347285ee",
+            "source_catalog_row_hash": "aa7213f365cc661a1a3c92aefa62c9c481bc88760b77ce30a1138106beb29b89",
+            "line_content_hash": "aa7213f365cc661a1a3c92aefa62c9c481bc88760b77ce30a1138106beb29b89"
+          },
+          {
+            "line_id": "b8d976e5-4457-57b2-bf96-6e9ae64a6e10",
+            "source_entity_type": "PACK",
+            "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+            "pack_code": "V3-TER-PACK-003",
+            "pack_version": 1,
+            "shared_profile_id": null,
+            "shared_profile_code": null,
+            "shared_profile_version": null,
+            "phase": "CORE",
+            "slot_index": 12,
+            "designation": "Fourniture et pose de grillage avertisseur bleu (eau)",
+            "quantity": 1.0,
+            "unit": "ML",
+            "price_id": "f5065056-04bb-5cc9-b175-559aa1d4a100",
+            "price_version": 1,
+            "unit_price_cents": 250,
+            "vat_rule_id": "FR_CATALOG_10",
+            "vat_rule_version": 1,
+            "vat_rate": 10.0,
+            "total_ht_cents": 250,
+            "covered_request_item_ids": [],
+            "technical_dependency_ids": [
+              "DEP:V3-TER-PACK-003:CORE:12"
+            ],
+            "quantity_source": "PACK_DEFAULT",
+            "linear_measurement": {
+              "line_id": "b8d976e5-4457-57b2-bf96-6e9ae64a6e10",
+              "request_item_ids": [],
+              "mode": "EXPLICIT",
+              "formula_id": "V2_EXPLICIT_LENGTH_V1",
+              "input_dimension_ids": [],
+              "value_ml": 1.0,
+              "source": "PACK_DEFAULT",
+              "assumption_code": "ML_PACK_DEFAULT:b8d976e5-4457-57b2-bf96-6e9ae64a6e10|ML_FORMULA_NOT_REGISTERED:b8d976e5-4457-57b2-bf96-6e9ae64a6e10"
+            },
+            "quantity_binding": {
+              "quantity_rule_id": "PACK_DEFAULT",
+              "binding_scope": "LINE",
+              "share_group_id": null,
+              "bound_fact_ids": [],
+              "resolution": "PACK_DEFAULT"
+            },
+            "source_catalog_row_id": "b8d976e5-4457-57b2-bf96-6e9ae64a6e10",
+            "source_catalog_row_hash": "926dfa513226e3157a28ae42808f0451aa32d9df6b9d8bc3872a6190e05c4a00",
+            "line_content_hash": "926dfa513226e3157a28ae42808f0451aa32d9df6b9d8bc3872a6190e05c4a00"
+          },
+          {
+            "line_id": "af0cb8aa-8e2d-5615-8de7-1751a19e25cb",
+            "source_entity_type": "PACK",
+            "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+            "pack_code": "V3-TER-PACK-003",
+            "pack_version": 1,
+            "shared_profile_id": null,
+            "shared_profile_code": null,
+            "shared_profile_version": null,
+            "phase": "CORE",
+            "slot_index": 13,
+            "designation": "Fourniture et pose de grillage avertisseur vert (télécom)",
+            "quantity": 1.0,
+            "unit": "ML",
+            "price_id": "362fa262-ee18-5d33-a776-f153caf1d2df",
+            "price_version": 1,
+            "unit_price_cents": 250,
+            "vat_rule_id": "FR_CATALOG_10",
+            "vat_rule_version": 1,
+            "vat_rate": 10.0,
+            "total_ht_cents": 250,
+            "covered_request_item_ids": [],
+            "technical_dependency_ids": [
+              "DEP:V3-TER-PACK-003:CORE:13"
+            ],
+            "quantity_source": "PACK_DEFAULT",
+            "linear_measurement": {
+              "line_id": "af0cb8aa-8e2d-5615-8de7-1751a19e25cb",
+              "request_item_ids": [],
+              "mode": "EXPLICIT",
+              "formula_id": "V2_EXPLICIT_LENGTH_V1",
+              "input_dimension_ids": [],
+              "value_ml": 1.0,
+              "source": "PACK_DEFAULT",
+              "assumption_code": "ML_PACK_DEFAULT:af0cb8aa-8e2d-5615-8de7-1751a19e25cb|ML_FORMULA_NOT_REGISTERED:af0cb8aa-8e2d-5615-8de7-1751a19e25cb"
+            },
+            "quantity_binding": {
+              "quantity_rule_id": "PACK_DEFAULT",
+              "binding_scope": "LINE",
+              "share_group_id": null,
+              "bound_fact_ids": [],
+              "resolution": "PACK_DEFAULT"
+            },
+            "source_catalog_row_id": "af0cb8aa-8e2d-5615-8de7-1751a19e25cb",
+            "source_catalog_row_hash": "1247016c7aa8e6f9b8edd0aac74a7763dcec0f4ba4bf4bb82fd96c95346e900d",
+            "line_content_hash": "1247016c7aa8e6f9b8edd0aac74a7763dcec0f4ba4bf4bb82fd96c95346e900d"
+          }
+        ]
+      }
+    ],
+    "finish_lines": [
+      {
+        "line_id": "2c59f5e2-12c2-5101-81c9-d4ce859878a6",
+        "source_entity_type": "SHARED_PROFILE",
+        "pack_id": null,
+        "pack_code": null,
+        "pack_version": null,
+        "shared_profile_id": "legacy-profile-afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+        "shared_profile_code": "LEGACY-V3-TER-PACK-003",
+        "shared_profile_version": 1,
+        "phase": "FINISH",
+        "slot_index": 0,
+        "designation": "Remblaiement en couches successives avec compactage",
+        "quantity": 1.0,
+        "unit": "ML",
+        "price_id": "7b73a4a4-2c94-5669-82f2-cdde1f88dcd3",
+        "price_version": 1,
+        "unit_price_cents": 1400,
+        "vat_rule_id": "FR_CATALOG_10",
+        "vat_rule_version": 1,
+        "vat_rate": 10.0,
+        "total_ht_cents": 1400,
+        "covered_request_item_ids": [],
+        "technical_dependency_ids": [
+          "DEP:V3-TER-PACK-003:FINISH:00"
+        ],
+        "quantity_source": "PACK_DEFAULT",
+        "linear_measurement": {
+          "line_id": "2c59f5e2-12c2-5101-81c9-d4ce859878a6",
+          "request_item_ids": [],
+          "mode": "EXPLICIT",
+          "formula_id": "V2_EXPLICIT_LENGTH_V1",
+          "input_dimension_ids": [],
+          "value_ml": 1.0,
+          "source": "PACK_DEFAULT",
+          "assumption_code": "ML_PACK_DEFAULT:2c59f5e2-12c2-5101-81c9-d4ce859878a6|ML_FORMULA_NOT_REGISTERED:2c59f5e2-12c2-5101-81c9-d4ce859878a6"
+        },
+        "quantity_binding": {
+          "quantity_rule_id": "PACK_DEFAULT",
+          "binding_scope": "LINE",
+          "share_group_id": null,
+          "bound_fact_ids": [],
+          "resolution": "PACK_DEFAULT"
+        },
+        "source_catalog_row_id": "2c59f5e2-12c2-5101-81c9-d4ce859878a6",
+        "source_catalog_row_hash": "0873fa86233786bdfc2b8896c3e0eff4cf4d44952b55a243ddb45a29ace25b95",
+        "line_content_hash": "0873fa86233786bdfc2b8896c3e0eff4cf4d44952b55a243ddb45a29ace25b95"
+      },
+      {
+        "line_id": "de2b9cc6-0e51-5116-a7e3-85cfabfc5483",
+        "source_entity_type": "SHARED_PROFILE",
+        "pack_id": null,
+        "pack_code": null,
+        "pack_version": null,
+        "shared_profile_id": "legacy-profile-afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+        "shared_profile_code": "LEGACY-V3-TER-PACK-003",
+        "shared_profile_version": 1,
+        "phase": "FINISH",
+        "slot_index": 1,
+        "designation": "Réfection provisoire des revêtements de surface",
+        "quantity": 1.0,
+        "unit": "M2",
+        "price_id": "40f7b77b-9fcb-51dd-a81b-e198ea649ee0",
+        "price_version": 1,
+        "unit_price_cents": 2200,
+        "vat_rule_id": "FR_CATALOG_10",
+        "vat_rule_version": 1,
+        "vat_rate": 10.0,
+        "total_ht_cents": 2200,
+        "covered_request_item_ids": [],
+        "technical_dependency_ids": [
+          "DEP:V3-TER-PACK-003:FINISH:01"
+        ],
+        "quantity_source": "PACK_DEFAULT",
+        "linear_measurement": null,
+        "quantity_binding": {
+          "quantity_rule_id": "PROJECT:global_area_m2",
+          "binding_scope": "LINE",
+          "share_group_id": null,
+          "bound_fact_ids": [],
+          "resolution": "PACK_DEFAULT"
+        },
+        "source_catalog_row_id": "de2b9cc6-0e51-5116-a7e3-85cfabfc5483",
+        "source_catalog_row_hash": "d9fa0acb8fa115ca64a40ad96978090986083851101b05e3369d5d1220e5d285",
+        "line_content_hash": "d9fa0acb8fa115ca64a40ad96978090986083851101b05e3369d5d1220e5d285"
+      },
+      {
+        "line_id": "fcf79620-5754-5edb-b8c5-68c9a7271f71",
+        "source_entity_type": "SHARED_PROFILE",
+        "pack_id": null,
+        "pack_code": null,
+        "pack_version": null,
+        "shared_profile_id": "legacy-profile-afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+        "shared_profile_code": "LEGACY-V3-TER-PACK-003",
+        "shared_profile_version": 1,
+        "phase": "FINISH",
+        "slot_index": 2,
+        "designation": "Nettoyage final du chantier et évacuation des déchets",
+        "quantity": 1.0,
+        "unit": "FORFAIT",
+        "price_id": "ee55669d-0560-5d82-9155-7c8a1c77f5ad",
+        "price_version": 1,
+        "unit_price_cents": 9000,
+        "vat_rule_id": "FR_CATALOG_10",
+        "vat_rule_version": 1,
+        "vat_rate": 10.0,
+        "total_ht_cents": 9000,
+        "covered_request_item_ids": [],
+        "technical_dependency_ids": [
+          "DEP:V3-TER-PACK-003:FINISH:02"
+        ],
+        "quantity_source": "PACK_DEFAULT",
+        "linear_measurement": null,
+        "quantity_binding": {
+          "quantity_rule_id": "PACK_DEFAULT",
+          "binding_scope": "LINE",
+          "share_group_id": null,
+          "bound_fact_ids": [],
+          "resolution": "PACK_DEFAULT"
+        },
+        "source_catalog_row_id": "fcf79620-5754-5edb-b8c5-68c9a7271f71",
+        "source_catalog_row_hash": "3c7cd916564971662aefb61b746efd3d7f24640fabf5a4e3bb7fad60fe749107",
+        "line_content_hash": "3c7cd916564971662aefb61b746efd3d7f24640fabf5a4e3bb7fad60fe749107"
+      }
+    ],
+    "totals": {
+      "ht_cents": 63950,
+      "vat_cents": 6395,
+      "ttc_cents": 70345
+    },
+    "trace": {
+      "ssot_version": "2026-07-31.1-correctifs",
+      "library_version": "LIB-V3.2-2026-07-31.1",
+      "library_snapshot_id": "965aa0a2-44e9-5bce-9daa-96507ebabb88",
+      "fallback_snapshot_used": false,
+      "territory_code": "FR-MET",
+      "prompt_hash": "sha256:d04946c5161aa92513497500261cf2755267cbe3ad3f5536b48053952a94986b",
+      "config_hash": "sha256:d71bb55ff01730e7393d74872e24640896b851c2be37ef78ed490b01b2c9b976",
+      "arbitrage_applied": false,
+      "pipeline_status": "COMPLETE_DEGRADED_AUTHORIZED",
+      "display_gate_passed": true,
+      "pipeline_version": "V3.2",
+      "semantic_model": "gpt-4o-2024-11-20",
+      "embedding_model": "text-embedding-3-small",
+      "reranker_model": "rerank-v4.0-pro",
+      "cache_hit": false,
+      "stage_completion_rate": 1.0,
+      "stage_executions": [
+        {
+          "stage": "0_CONTEXT",
+          "status": "PRIMARY",
+          "duration_ms": 0,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:7a5349db3bb486626d8d16600fff3a8cfd8ee4369b6669bbe1a063ac8a5aade8",
+          "output_hash": "sha256:106ef4d06a6c9edf63ec996aa12ff90896f737884a16c00a9bc6ca233a23bbca",
+          "evidence": {
+            "contract": "NormalizedPipelineContext"
+          }
+        },
+        {
+          "stage": "0B_LIBRARY_SNAPSHOT",
+          "status": "PRIMARY",
+          "duration_ms": 29,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:8803940dfc8867b2b2689b451f9d5ca9bb201b1294cd3c597a75a1277505d09e",
+          "output_hash": "sha256:9afa6f2b00b1a529a65652894d2862a91d345307d3e927782c6bd382aea48e64",
+          "evidence": {}
+        },
+        {
+          "stage": "1_PLAN",
+          "status": "PRIMARY",
+          "duration_ms": 1369,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:7a5349db3bb486626d8d16600fff3a8cfd8ee4369b6669bbe1a063ac8a5aade8",
+          "output_hash": "sha256:416a385142293b248f111da514dc70705a35b9a210c56d767dc3ca9a2402a4a6",
+          "evidence": {
+            "contract": "SemanticPlan"
+          }
+        },
+        {
+          "stage": "2_ANALYSIS",
+          "status": "PRIMARY",
+          "duration_ms": 4,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:c622f63f2c4dbf4c15ab61f36530a944a7a5c2c909486e0e0c669596cb37efbf",
+          "output_hash": "sha256:84d3dc96a75d78724866d2623a0862f02212bb61237f3e3046eca2e564b7294f",
+          "evidence": {
+            "analyzer": "DETERMINISTIC"
+          }
+        },
+        {
+          "stage": "2BIS_ARBITRATION",
+          "status": "PRIMARY",
+          "duration_ms": 17,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:98ecf95cf00a2353f18f5cc8d8ef26af817e6dfdec91e3f836f59e1833abcb04",
+          "output_hash": "sha256:36e852887e48c223f892b23c2a2fe408b372c5791cf4c4fbbb030a11cccf51dd",
+          "evidence": {
+            "catalog_size": 30
+          }
+        },
+        {
+          "stage": "3_EXTRACTION",
+          "status": "DEGRADED_AUTHORIZED",
+          "duration_ms": 635,
+          "fallback_reason": "BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'demand_matrix_v1': In context=(), 'required' is required to be supplied and to be an array including every key in properties. Missing 'intervention_id'.\", 'type': 'invalid_request_error', 'param': 'response_format', 'code': None}}",
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:c93aad9877f7fb3ade5cce49168a14b8f904024bf7edceddb0e5a67e8b2fccf2",
+          "output_hash": "sha256:7ba9f8f2cdbe127445dc55c2a3b0a602ff8ee8c80061ea4ebe8c72731cd37fce",
+          "evidence": {
+            "contract": "DemandMatrix"
+          }
+        },
+        {
+          "stage": "3BIS_NORMALIZATION",
+          "status": "PRIMARY",
+          "duration_ms": 0,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:a3e6f388192c9c6dc4380cdeac7dafcde7fe4ddbe914abd26cd6f87928a141f8",
+          "output_hash": "sha256:437e6ef19c0879711e821fc2b5b8ae42948c5f7e97dc9fa6746ce13e0765da59",
+          "evidence": {
+            "scope": "ITEM_SCOPED_NO_GLOBAL_PROPAGATION"
+          }
+        },
+        {
+          "stage": "4A_LINE_SEARCH",
+          "status": "PRIMARY",
+          "duration_ms": 1040,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 20,
+          "input_hash": "sha256:3a0c0170a4d27eef6f9d46365d1f992e0e924fd70dcb0691046c253d3ead7dc7",
+          "output_hash": "sha256:2ae1d4587f5acde2163f8625c819dbeabc2c1dd02ea2726a63d33383a7881625",
+          "evidence": {
+            "strategy": "LEXICAL_DENSE_RRF"
+          }
+        },
+        {
+          "stage": "4B_PARENT_AGGREGATION",
+          "status": "PRIMARY",
+          "duration_ms": 0,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 3,
+          "input_hash": "sha256:2ae1d4587f5acde2163f8625c819dbeabc2c1dd02ea2726a63d33383a7881625",
+          "output_hash": "sha256:ac0f676c079c40a2c9c789ea7596eb97359e6ad39a72ed76b00e9c78a62687f4",
+          "evidence": {
+            "strategy": "LINE_TO_PARENT"
+          }
+        },
+        {
+          "stage": "4C_DIRECT_PACK_SEARCH",
+          "status": "PRIMARY",
+          "duration_ms": 224,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 11,
+          "input_hash": "sha256:0b7c27c79e14aeb9e2075588f345be5dd9d7ad097f17bdc04e79596d9f533038",
+          "output_hash": "sha256:1211cd8f593a1f1e20fc23883b1f2ce2783bad9075b239e33d11e3bad0d3c710",
+          "evidence": {
+            "strategy": "COMPLETE_PACK_SEARCH"
+          }
+        },
+        {
+          "stage": "4D_CANDIDATE_UNION",
+          "status": "PRIMARY",
+          "duration_ms": 0,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 11,
+          "input_hash": "sha256:c4adbc0a61f32f2d734b5a6b8731b40de39b14f3dffa9003119af5a887c5f0b2",
+          "output_hash": "sha256:284523398107adf0ac094b6c2c0ec189925cc187630fe389423bbbcc8d0f34c2",
+          "evidence": {
+            "strategy": "STABLE_UNION"
+          }
+        },
+        {
+          "stage": "4BIS_RERANK",
+          "status": "DEGRADED_AUTHORIZED",
+          "duration_ms": 0,
+          "fallback_reason": "COHERE_API_KEY_MISSING",
+          "input_count": 0,
+          "output_count": 11,
+          "input_hash": "sha256:8283f6f63c11b5c82c241fa684afe3ec8402334d6d02ea96418b7c398c5895e8",
+          "output_hash": "sha256:8283f6f63c11b5c82c241fa684afe3ec8402334d6d02ea96418b7c398c5895e8",
+          "evidence": {
+            "model": "rerank-v4.0-pro"
+          }
+        },
+        {
+          "stage": "5_SELECTION",
+          "status": "PRIMARY",
+          "duration_ms": 15,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:25cfac2aecadbf6dc0fe38f54e151a22cdcf679a8e9e9720f63522a6eb826000",
+          "output_hash": "sha256:3bf0078295413e29ef4b07d95f32eb42df824f2ea6f33de4923d385fc596c464",
+          "evidence": {
+            "selector": "ONE_PACK_PER_INTERVENTION"
+          }
+        },
+        {
+          "stage": "6_CALCULATIONS",
+          "status": "PRIMARY",
+          "duration_ms": 4,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 20,
+          "input_hash": "sha256:3bf0078295413e29ef4b07d95f32eb42df824f2ea6f33de4923d385fc596c464",
+          "output_hash": "sha256:bee2dd7a1e8fd10c6d793f2d8cb9fcca8ac5a638953db6fba3e2906960789aa9",
+          "evidence": {
+            "arithmetic": "INTEGER_CENTS"
+          }
+        },
+        {
+          "stage": "7_ASSEMBLY",
+          "status": "PRIMARY",
+          "duration_ms": 2,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:bee2dd7a1e8fd10c6d793f2d8cb9fcca8ac5a638953db6fba3e2906960789aa9",
+          "output_hash": "sha256:64336e0cdaeef4bd518bc7c000a6d43df9a95ace637eb06d6c0ed2e804cff938",
+          "evidence": {
+            "geometry": "V3.2_SHARED_PROFILE_SSOT_EXACT"
+          }
+        },
+        {
+          "stage": "8_VALIDATION",
+          "status": "PRIMARY",
+          "duration_ms": 9,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 1,
+          "input_hash": "sha256:64336e0cdaeef4bd518bc7c000a6d43df9a95ace637eb06d6c0ed2e804cff938",
+          "output_hash": "sha256:b146a216d59bc5d4dd55d2c62d16e200d7f64f999c3adad23c0706c921e36efb",
+          "evidence": {
+            "validator": "INDEPENDENT_SOURCE_TO_QUOTE",
+            "attempt": 0,
+            "label": "8_VALIDATION_0"
+          }
+        },
+        {
+          "stage": "9_OBSERVABILITY",
+          "status": "PRIMARY",
+          "duration_ms": 0,
+          "fallback_reason": null,
+          "input_count": 0,
+          "output_count": 5,
+          "input_hash": "sha256:e5086de8fa9632d899106fe203f770e8491cc94e0a1355bdf7a3214e1ee0d656",
+          "output_hash": "sha256:32405133364e36ebb1b967f3f0cfad1a4b740e0fb7d15c3134a3a11367becf88",
+          "evidence": {
+            "persistence": "PREPARED"
+          }
+        }
+      ],
+      "line_search_hits_count": 20,
+      "parent_pack_candidates_count": 11,
+      "reranked_pack_count": 11,
+      "selected_packs": [
+        {
+          "pack_id": "afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+          "pack_code": "V3-TER-PACK-003",
+          "pack_version": 1
+        }
+      ],
+      "shared_profile": {
+        "profile_id": "legacy-profile-afb66b54-002a-56a8-b06f-cc7f361eb2eb",
+        "profile_code": "LEGACY-V3-TER-PACK-003",
+        "profile_version": 1
+      },
+      "price_versions": [
+        {
+          "price_id": "4e17af1b-69b5-58b5-95f1-34d597db48aa",
+          "price_version": 1
+        },
+        {
+          "price_id": "539f425b-6fce-5d9e-a35d-081d5709aaa0",
+          "price_version": 1
+        },
+        {
+          "price_id": "4407e7bf-c04c-5842-afe3-12f5b142744d",
+          "price_version": 1
+        },
+        {
+          "price_id": "89f3523b-98b7-5f3d-901d-0f59adcea829",
+          "price_version": 1
+        },
+        {
+          "price_id": "326a7492-065f-5ed0-9a05-5b382bab214a",
+          "price_version": 1
+        },
+        {
+          "price_id": "8e0ba7dd-b9a3-5be6-b35e-8594275ae447",
+          "price_version": 1
+        },
+        {
+          "price_id": "815080ff-9a79-52cb-8192-0afea67a07eb",
+          "price_version": 1
+        },
+        {
+          "price_id": "3d14c6be-ae3f-5f3c-8e9a-2e2a4e1acdfb",
+          "price_version": 1
+        },
+        {
+          "price_id": "501cd1e2-0898-5eb5-951f-1edd2e78226b",
+          "price_version": 1
+        },
+        {
+          "price_id": "baa7c956-3dfb-587b-9dfe-728d8c4d5c79",
+          "price_version": 1
+        },
+        {
+          "price_id": "0a7d219a-6f0c-5491-b186-e95db48a2171",
+          "price_version": 1
+        },
+        {
+          "price_id": "3010b579-4f27-5618-bdd7-2b986dad62aa",
+          "price_version": 1
+        },
+        {
+          "price_id": "2e5b5e88-79a1-5501-a7b4-0f5d29e2ec90",
+          "price_version": 1
+        },
+        {
+          "price_id": "f1145a9b-db23-571a-bcd6-b1d5049c0677",
+          "price_version": 1
+        },
+        {
+          "price_id": "174b1221-6cdb-531f-a990-6bdf5d709a60",
+          "price_version": 1
+        },
+        {
+          "price_id": "f5065056-04bb-5cc9-b175-559aa1d4a100",
+          "price_version": 1
+        },
+        {
+          "price_id": "362fa262-ee18-5d33-a776-f153caf1d2df",
+          "price_version": 1
+        },
+        {
+          "price_id": "7b73a4a4-2c94-5669-82f2-cdde1f88dcd3",
+          "price_version": 1
+        },
+        {
+          "price_id": "40f7b77b-9fcb-51dd-a81b-e198ea649ee0",
+          "price_version": 1
+        },
+        {
+          "price_id": "ee55669d-0560-5d82-9155-7c8a1c77f5ad",
+          "price_version": 1
+        }
+      ],
+      "vat_rule_versions": [
+        {
+          "vat_rule_id": "FR_CATALOG_10",
+          "vat_rule_version": 1
+        }
+      ],
+      "selected_pack_ids": [
+        "afb66b54-002a-56a8-b06f-cc7f361eb2eb"
+      ],
+      "replaced_line_ids": [],
+      "assumption_codes": [
+        "ML_PACK_DEFAULT:0b3581bc-29b8-5fa8-a464-773a3654fbe7|ML_FORMULA_NOT_REGISTERED:0b3581bc-29b8-5fa8-a464-773a3654fbe7",
+        "ML_PACK_DEFAULT:0fc18e6d-d548-5e61-a448-2e6dc6425d16|ML_FORMULA_NOT_REGISTERED:0fc18e6d-d548-5e61-a448-2e6dc6425d16",
+        "ML_PACK_DEFAULT:0ff741e2-6d55-501e-92d3-7ccca90c2ddc|ML_FORMULA_NOT_REGISTERED:0ff741e2-6d55-501e-92d3-7ccca90c2ddc",
+        "ML_PACK_DEFAULT:1bd21e34-d8d4-5bec-9dc7-4e45a050339a|ML_FORMULA_NOT_REGISTERED:1bd21e34-d8d4-5bec-9dc7-4e45a050339a",
+        "ML_PACK_DEFAULT:2c59f5e2-12c2-5101-81c9-d4ce859878a6|ML_FORMULA_NOT_REGISTERED:2c59f5e2-12c2-5101-81c9-d4ce859878a6",
+        "ML_PACK_DEFAULT:2f8a0be3-defb-5a86-a2a0-b56f1d19b0a2|ML_FORMULA_NOT_REGISTERED:2f8a0be3-defb-5a86-a2a0-b56f1d19b0a2",
+        "ML_PACK_DEFAULT:449bd2e2-6176-59ed-b9fb-a9c0b05286a0|ML_FORMULA_NOT_REGISTERED:449bd2e2-6176-59ed-b9fb-a9c0b05286a0",
+        "ML_PACK_DEFAULT:7d6991c0-1a29-5467-9cfd-05523b2b2222|ML_FORMULA_NOT_REGISTERED:7d6991c0-1a29-5467-9cfd-05523b2b2222",
+        "ML_PACK_DEFAULT:af0cb8aa-8e2d-5615-8de7-1751a19e25cb|ML_FORMULA_NOT_REGISTERED:af0cb8aa-8e2d-5615-8de7-1751a19e25cb",
+        "ML_PACK_DEFAULT:b8d976e5-4457-57b2-bf96-6e9ae64a6e10|ML_FORMULA_NOT_REGISTERED:b8d976e5-4457-57b2-bf96-6e9ae64a6e10",
+        "ML_PACK_DEFAULT:cb32c01d-705b-5290-ad6a-d8b5e348ff6a|ML_FORMULA_NOT_REGISTERED:cb32c01d-705b-5290-ad6a-d8b5e348ff6a",
+        "ML_PACK_DEFAULT:d2f3ed57-bb50-5156-8ebf-3e89347285ee|ML_FORMULA_NOT_REGISTERED:d2f3ed57-bb50-5156-8ebf-3e89347285ee",
+        "PACK_DEFAULT:544f5592-2b4d-5140-9874-73308c40c3f4",
+        "PACK_DEFAULT:62bce90b-511d-5b8d-9b5e-e40dcba5cc68",
+        "PACK_DEFAULT:68b7b7f8-3844-58b0-87d5-8fb8b30ac475",
+        "PACK_DEFAULT:d59b0feb-501b-5178-8f41-cfcea2428942",
+        "PACK_DEFAULT:de2b9cc6-0e51-5116-a7e3-85cfabfc5483",
+        "PACK_DEFAULT:eba41508-9ae9-52f5-9987-58cc9115c565",
+        "PACK_DEFAULT:f4d95539-8b8c-58ea-8a35-51fc58f96bd9",
+        "PACK_DEFAULT:fcf79620-5754-5edb-b8c5-68c9a7271f71",
+        "VAT_CONTEXT_INCOMPLETE:REVIEW_REQUIRED"
+      ],
+      "linear_measurements_count": 12,
+      "linear_formula_ids": [
+        "V2_EXPLICIT_LENGTH_V1"
+      ],
+      "confidence": "MEDIUM",
+      "document_emitted": true,
+      "duration_ms": 3676
+    }
+  }
+}

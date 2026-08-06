@@ -31,7 +31,6 @@ def stable_candidate_order(
         ),
     )
 
-
 class PackReranker:
     """Cohere reranker that can never create or mutate catalog content."""
 

@@ -1,0 +1,834 @@
+{
+  "prompt": "Isolation mur 8m sur 2m et changement toiture 8m2",
+  "base": "http://127.0.0.1:8001",
+  "v2": {
+    "status_code": 200,
+    "duration_ms": 1588,
+    "montant_ttc": 23472.91,
+    "n_lines": 34,
+    "error": null,
+    "response": {
+      "date": "2026-07-31T12:48:43.998293Z",
+      "montant_ttc": 23472.91,
+      "validite": "2026-08-30T12:48:43.998293Z",
+      "duree": 30,
+      "blocs": [
+        {
+          "title": "Mise en place du chantier",
+          "lots": [
+            {
+              "title": "Préparation",
+              "ligne_ids": null,
+              "lignes": [
+                {
+                  "num": 1,
+                  "description": "Protection des zones de passage et mise en place des bâches de protection",
+                  "qte": 8.0,
+                  "unit": "m²",
+                  "pu": 2.5,
+                  "tva": 5.5,
+                  "ht": 20.0,
+                  "ttc": 21.1
+                },
+                {
+                  "num": 2,
+                  "description": "Installation de l’aire de stockage des matériaux et outillage",
+                  "qte": 8.0,
+                  "unit": "m²",
+                  "pu": 1.8,
+                  "tva": 5.5,
+                  "ht": 14.4,
+                  "ttc": 15.19
+                },
+                {
+                  "num": 3,
+                  "description": "Mise en place des dispositifs de sécurité et signalisation du chantier",
+                  "qte": 8.0,
+                  "unit": "m²",
+                  "pu": 1.2,
+                  "tva": 5.5,
+                  "ht": 9.6,
+                  "ttc": 10.13
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Isolation intérieure",
+          "lots": [
+            {
+              "title": "Travaux principaux",
+              "ligne_ids": null,
+              "lignes": [
+                {
+                  "num": 1,
+                  "description": "Dépose des revêtements muraux existants (papier peint, lambris, etc.)",
+                  "qte": 8.0,
+                  "unit": "m²",
+                  "pu": 6.0,
+                  "tva": 5.5,
+                  "ht": 48.0,
+                  "ttc": 50.64
+                },
+                {
+                  "num": 2,
+                  "description": "Dépose des plinthes et accessoires muraux",
+                  "qte": 8.0,
+                  "unit": "ml",
+                  "pu": 3.5,
+                  "tva": 5.5,
+                  "ht": 28.0,
+                  "ttc": 29.54
+                },
+                {
+                  "num": 3,
+                  "description": "Démontage des prises et interrupteurs muraux",
+                  "qte": 1.0,
+                  "unit": "u",
+                  "pu": 4.0,
+                  "tva": 5.5,
+                  "ht": 4.0,
+                  "ttc": 4.22
+                },
+                {
+                  "num": 4,
+                  "description": "Evacuation des gravats et déchets en décharge agréée",
+                  "qte": 0.96,
+                  "unit": "m³",
+                  "pu": 45.0,
+                  "tva": 5.5,
+                  "ht": 43.2,
+                  "ttc": 45.58
+                },
+                {
+                  "num": 5,
+                  "description": "Nettoyage et préparation des supports muraux",
+                  "qte": 8.0,
+                  "unit": "m²",
+                  "pu": 2.0,
+                  "tva": 5.5,
+                  "ht": 16.0,
+                  "ttc": 16.88
+                },
+                {
+                  "num": 6,
+                  "description": "Traitement ponctuel des murs contre l’humidité ou moisissures",
+                  "qte": 8.0,
+                  "unit": "m²",
+                  "pu": 7.0,
+                  "tva": 5.5,
+                  "ht": 56.0,
+                  "ttc": 59.08
+                },
+                {
+                  "num": 7,
+                  "description": "Dépose des anciennes ossatures métalliques si existantes",
+                  "qte": 8.0,
+                  "unit": "m²",
+                  "pu": 5.0,
+                  "tva": 5.5,
+                  "ht": 40.0,
+                  "ttc": 42.2
+                },
+                {
+                  "num": 8,
+                  "description": "Fourniture et pose de rails et montants métalliques pour ossature",
+                  "qte": 8.0,
+                  "unit": "m²",
+                  "pu": 13.0,
+                  "tva": 5.5,
+                  "ht": 104.0,
+                  "ttc": 109.72
+                },
+                {
+                  "num": 9,
+                  "description": "Fourniture et pose d’isolant laine minérale (épaisseur 100 mm, lambda 0,035)",
+                  "qte": 8.0,
+                  "unit": "m²",
+                  "pu": 18.0,
+                  "tva": 5.5,
+                  "ht": 144.0,
+                  "ttc": 151.92
+                },
+                {
+                  "num": 10,
+                  "description": "Fourniture et pose d’isolant laine de bois (épaisseur 100 mm, lambda 0,038)",
+                  "qte": 8.0,
+                  "unit": "m²",
+                  "pu": 22.0,
+                  "tva": 5.5,
+                  "ht": 176.0,
+                  "ttc": 185.68
+                },
+                {
+                  "num": 11,
+                  "description": "Fourniture et pose de pare-vapeur adapté à l’isolant",
+                  "qte": 8.0,
+                  "unit": "m²",
+                  "pu": 4.5,
+                  "tva": 5.5,
+                  "ht": 36.0,
+                  "ttc": 37.98
+                },
+                {
+                  "num": 12,
+                  "description": "Fourniture et pose de plaques de plâtre BA13 sur ossature",
+                  "qte": 8.0,
+                  "unit": "m²",
+                  "pu": 12.0,
+                  "tva": 5.5,
+                  "ht": 96.0,
+                  "ttc": 101.28
+                },
+                {
+                  "num": 13,
+                  "description": "Fourniture et pose de bandes à joints pour plaques de plâtre",
+                  "qte": 8.0,
+                  "unit": "ml",
+                  "pu": 2.5,
+                  "tva": 5.5,
+                  "ht": 20.0,
+                  "ttc": 21.1
+                },
+                {
+                  "num": 14,
+                  "description": "Fourniture et application d’enduit de finition sur joints et têtes de vis",
+                  "qte": 8.0,
+                  "unit": "m²",
+                  "pu": 4.0,
+                  "tva": 5.5,
+                  "ht": 32.0,
+                  "ttc": 33.76
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Couverture – Toiture – Zinguerie",
+          "lots": [
+            {
+              "title": "Travaux principaux",
+              "ligne_ids": null,
+              "lignes": [
+                {
+                  "num": 1,
+                  "description": "Fourniture et pose : Toiture renovation",
+                  "qte": 8.0,
+                  "unit": "u",
+                  "pu": 1560.0,
+                  "tva": 5.5,
+                  "ht": 12480.0,
+                  "ttc": 13166.4
+                },
+                {
+                  "num": 2,
+                  "description": "Mise en sécurité spécifique des éléments de l'ouvrage",
+                  "qte": 8.0,
+                  "unit": "forfait",
+                  "pu": 85.0,
+                  "tva": 5.5,
+                  "ht": 680.0,
+                  "ttc": 717.4
+                },
+                {
+                  "num": 3,
+                  "description": "Repérage, traçage et implantation des ouvrages",
+                  "qte": 8.0,
+                  "unit": "forfait",
+                  "pu": 85.0,
+                  "tva": 5.5,
+                  "ht": 680.0,
+                  "ttc": 717.4
+                },
+                {
+                  "num": 4,
+                  "description": "Préparation technique de la zone de travail",
+                  "qte": 8.0,
+                  "unit": "forfait",
+                  "pu": 85.0,
+                  "tva": 5.5,
+                  "ht": 680.0,
+                  "ttc": 717.4
+                },
+                {
+                  "num": 5,
+                  "description": "Manutention et répartition des matériaux à pied d'œuvre",
+                  "qte": 8.0,
+                  "unit": "forfait",
+                  "pu": 85.0,
+                  "tva": 5.5,
+                  "ht": 680.0,
+                  "ttc": 717.4
+                },
+                {
+                  "num": 6,
+                  "description": "Ajustement et calibrage des éléments d'assemblage",
+                  "qte": 8.0,
+                  "unit": "forfait",
+                  "pu": 85.0,
+                  "tva": 5.5,
+                  "ht": 680.0,
+                  "ttc": 717.4
+                },
+                {
+                  "num": 7,
+                  "description": "Fourniture et pose des petits consommables techniques",
+                  "qte": 8.0,
+                  "unit": "forfait",
+                  "pu": 85.0,
+                  "tva": 5.5,
+                  "ht": 680.0,
+                  "ttc": 717.4
+                },
+                {
+                  "num": 8,
+                  "description": "Vérification des alignements, niveaux et aplombs",
+                  "qte": 8.0,
+                  "unit": "forfait",
+                  "pu": 85.0,
+                  "tva": 5.5,
+                  "ht": 680.0,
+                  "ttc": 717.4
+                },
+                {
+                  "num": 9,
+                  "description": "Protection ponctuelle des ouvrages adjacents",
+                  "qte": 8.0,
+                  "unit": "forfait",
+                  "pu": 85.0,
+                  "tva": 5.5,
+                  "ht": 680.0,
+                  "ttc": 717.4
+                },
+                {
+                  "num": 10,
+                  "description": "Contrôle technique des assemblages et raccordements",
+                  "qte": 8.0,
+                  "unit": "forfait",
+                  "pu": 85.0,
+                  "tva": 5.5,
+                  "ht": 680.0,
+                  "ttc": 717.4
+                },
+                {
+                  "num": 11,
+                  "description": "Tests de résistance et de bon fonctionnement",
+                  "qte": 8.0,
+                  "unit": "forfait",
+                  "pu": 85.0,
+                  "tva": 5.5,
+                  "ht": 680.0,
+                  "ttc": 717.4
+                },
+                {
+                  "num": 12,
+                  "description": "Acheminement et tri des déchets d'intervention",
+                  "qte": 8.0,
+                  "unit": "forfait",
+                  "pu": 85.0,
+                  "tva": 5.5,
+                  "ht": 680.0,
+                  "ttc": 717.4
+                },
+                {
+                  "num": 13,
+                  "description": "Vérification de la conformité aux DTU en vigueur",
+                  "qte": 8.0,
+                  "unit": "forfait",
+                  "pu": 85.0,
+                  "tva": 5.5,
+                  "ht": 680.0,
+                  "ttc": 717.4
+                },
+                {
+                  "num": 14,
+                  "description": "Réglages finaux et paramétrages techniques",
+                  "qte": 8.0,
+                  "unit": "forfait",
+                  "pu": 85.0,
+                  "tva": 5.5,
+                  "ht": 680.0,
+                  "ttc": 717.4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Finitions et nettoyage",
+          "lots": [
+            {
+              "title": "Nettoyage",
+              "ligne_ids": null,
+              "lignes": [
+                {
+                  "num": 1,
+                  "description": "Ponçage des bandes et enduits pour une surface lisse",
+                  "qte": 8.0,
+                  "unit": "m²",
+                  "pu": 2.0,
+                  "tva": 5.5,
+                  "ht": 16.0,
+                  "ttc": 16.88
+                },
+                {
+                  "num": 2,
+                  "description": "Remise en place des prises, interrupteurs et plinthes",
+                  "qte": 1.0,
+                  "unit": "u",
+                  "pu": 6.0,
+                  "tva": 5.5,
+                  "ht": 6.0,
+                  "ttc": 6.33
+                },
+                {
+                  "num": 3,
+                  "description": "Nettoyage complet de fin de chantier et évacuation des déchets",
+                  "qte": 8.0,
+                  "unit": "m²",
+                  "pu": 2.5,
+                  "tva": 5.5,
+                  "ht": 20.0,
+                  "ttc": 21.1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "lines": [
+      {
+        "engine": "V2",
+        "bloc": "Mise en place du chantier",
+        "lot": "Préparation",
+        "description": "Protection des zones de passage et mise en place des bâches de protection",
+        "qte": 8.0,
+        "unit": "m²",
+        "pu": 2.5,
+        "tva": 5.5,
+        "ht": 20.0,
+        "ttc": 21.1
+      },
+      {
+        "engine": "V2",
+        "bloc": "Mise en place du chantier",
+        "lot": "Préparation",
+        "description": "Installation de l’aire de stockage des matériaux et outillage",
+        "qte": 8.0,
+        "unit": "m²",
+        "pu": 1.8,
+        "tva": 5.5,
+        "ht": 14.4,
+        "ttc": 15.19
+      },
+      {
+        "engine": "V2",
+        "bloc": "Mise en place du chantier",
+        "lot": "Préparation",
+        "description": "Mise en place des dispositifs de sécurité et signalisation du chantier",
+        "qte": 8.0,
+        "unit": "m²",
+        "pu": 1.2,
+        "tva": 5.5,
+        "ht": 9.6,
+        "ttc": 10.13
+      },
+      {
+        "engine": "V2",
+        "bloc": "Isolation intérieure",
+        "lot": "Travaux principaux",
+        "description": "Dépose des revêtements muraux existants (papier peint, lambris, etc.)",
+        "qte": 8.0,
+        "unit": "m²",
+        "pu": 6.0,
+        "tva": 5.5,
+        "ht": 48.0,
+        "ttc": 50.64
+      },
+      {
+        "engine": "V2",
+        "bloc": "Isolation intérieure",
+        "lot": "Travaux principaux",
+        "description": "Dépose des plinthes et accessoires muraux",
+        "qte": 8.0,
+        "unit": "ml",
+        "pu": 3.5,
+        "tva": 5.5,
+        "ht": 28.0,
+        "ttc": 29.54
+      },
+      {
+        "engine": "V2",
+        "bloc": "Isolation intérieure",
+        "lot": "Travaux principaux",
+        "description": "Démontage des prises et interrupteurs muraux",
+        "qte": 1.0,
+        "unit": "u",
+        "pu": 4.0,
+        "tva": 5.5,
+        "ht": 4.0,
+        "ttc": 4.22
+      },
+      {
+        "engine": "V2",
+        "bloc": "Isolation intérieure",
+        "lot": "Travaux principaux",
+        "description": "Evacuation des gravats et déchets en décharge agréée",
+        "qte": 0.96,
+        "unit": "m³",
+        "pu": 45.0,
+        "tva": 5.5,
+        "ht": 43.2,
+        "ttc": 45.58
+      },
+      {
+        "engine": "V2",
+        "bloc": "Isolation intérieure",
+        "lot": "Travaux principaux",
+        "description": "Nettoyage et préparation des supports muraux",
+        "qte": 8.0,
+        "unit": "m²",
+        "pu": 2.0,
+        "tva": 5.5,
+        "ht": 16.0,
+        "ttc": 16.88
+      },
+      {
+        "engine": "V2",
+        "bloc": "Isolation intérieure",
+        "lot": "Travaux principaux",
+        "description": "Traitement ponctuel des murs contre l’humidité ou moisissures",
+        "qte": 8.0,
+        "unit": "m²",
+        "pu": 7.0,
+        "tva": 5.5,
+        "ht": 56.0,
+        "ttc": 59.08
+      },
+      {
+        "engine": "V2",
+        "bloc": "Isolation intérieure",
+        "lot": "Travaux principaux",
+        "description": "Dépose des anciennes ossatures métalliques si existantes",
+        "qte": 8.0,
+        "unit": "m²",
+        "pu": 5.0,
+        "tva": 5.5,
+        "ht": 40.0,
+        "ttc": 42.2
+      },
+      {
+        "engine": "V2",
+        "bloc": "Isolation intérieure",
+        "lot": "Travaux principaux",
+        "description": "Fourniture et pose de rails et montants métalliques pour ossature",
+        "qte": 8.0,
+        "unit": "m²",
+        "pu": 13.0,
+        "tva": 5.5,
+        "ht": 104.0,
+        "ttc": 109.72
+      },
+      {
+        "engine": "V2",
+        "bloc": "Isolation intérieure",
+        "lot": "Travaux principaux",
+        "description": "Fourniture et pose d’isolant laine minérale (épaisseur 100 mm, lambda 0,035)",
+        "qte": 8.0,
+        "unit": "m²",
+        "pu": 18.0,
+        "tva": 5.5,
+        "ht": 144.0,
+        "ttc": 151.92
+      },
+      {
+        "engine": "V2",
+        "bloc": "Isolation intérieure",
+        "lot": "Travaux principaux",
+        "description": "Fourniture et pose d’isolant laine de bois (épaisseur 100 mm, lambda 0,038)",
+        "qte": 8.0,
+        "unit": "m²",
+        "pu": 22.0,
+        "tva": 5.5,
+        "ht": 176.0,
+        "ttc": 185.68
+      },
+      {
+        "engine": "V2",
+        "bloc": "Isolation intérieure",
+        "lot": "Travaux principaux",
+        "description": "Fourniture et pose de pare-vapeur adapté à l’isolant",
+        "qte": 8.0,
+        "unit": "m²",
+        "pu": 4.5,
+        "tva": 5.5,
+        "ht": 36.0,
+        "ttc": 37.98
+      },
+      {
+        "engine": "V2",
+        "bloc": "Isolation intérieure",
+        "lot": "Travaux principaux",
+        "description": "Fourniture et pose de plaques de plâtre BA13 sur ossature",
+        "qte": 8.0,
+        "unit": "m²",
+        "pu": 12.0,
+        "tva": 5.5,
+        "ht": 96.0,
+        "ttc": 101.28
+      },
+      {
+        "engine": "V2",
+        "bloc": "Isolation intérieure",
+        "lot": "Travaux principaux",
+        "description": "Fourniture et pose de bandes à joints pour plaques de plâtre",
+        "qte": 8.0,
+        "unit": "ml",
+        "pu": 2.5,
+        "tva": 5.5,
+        "ht": 20.0,
+        "ttc": 21.1
+      },
+      {
+        "engine": "V2",
+        "bloc": "Isolation intérieure",
+        "lot": "Travaux principaux",
+        "description": "Fourniture et application d’enduit de finition sur joints et têtes de vis",
+        "qte": 8.0,
+        "unit": "m²",
+        "pu": 4.0,
+        "tva": 5.5,
+        "ht": 32.0,
+        "ttc": 33.76
+      },
+      {
+        "engine": "V2",
+        "bloc": "Couverture – Toiture – Zinguerie",
+        "lot": "Travaux principaux",
+        "description": "Fourniture et pose : Toiture renovation",
+        "qte": 8.0,
+        "unit": "u",
+        "pu": 1560.0,
+        "tva": 5.5,
+        "ht": 12480.0,
+        "ttc": 13166.4
+      },
+      {
+        "engine": "V2",
+        "bloc": "Couverture – Toiture – Zinguerie",
+        "lot": "Travaux principaux",
+        "description": "Mise en sécurité spécifique des éléments de l'ouvrage",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 85.0,
+        "tva": 5.5,
+        "ht": 680.0,
+        "ttc": 717.4
+      },
+      {
+        "engine": "V2",
+        "bloc": "Couverture – Toiture – Zinguerie",
+        "lot": "Travaux principaux",
+        "description": "Repérage, traçage et implantation des ouvrages",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 85.0,
+        "tva": 5.5,
+        "ht": 680.0,
+        "ttc": 717.4
+      },
+      {
+        "engine": "V2",
+        "bloc": "Couverture – Toiture – Zinguerie",
+        "lot": "Travaux principaux",
+        "description": "Préparation technique de la zone de travail",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 85.0,
+        "tva": 5.5,
+        "ht": 680.0,
+        "ttc": 717.4
+      },
+      {
+        "engine": "V2",
+        "bloc": "Couverture – Toiture – Zinguerie",
+        "lot": "Travaux principaux",
+        "description": "Manutention et répartition des matériaux à pied d'œuvre",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 85.0,
+        "tva": 5.5,
+        "ht": 680.0,
+        "ttc": 717.4
+      },
+      {
+        "engine": "V2",
+        "bloc": "Couverture – Toiture – Zinguerie",
+        "lot": "Travaux principaux",
+        "description": "Ajustement et calibrage des éléments d'assemblage",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 85.0,
+        "tva": 5.5,
+        "ht": 680.0,
+        "ttc": 717.4
+      },
+      {
+        "engine": "V2",
+        "bloc": "Couverture – Toiture – Zinguerie",
+        "lot": "Travaux principaux",
+        "description": "Fourniture et pose des petits consommables techniques",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 85.0,
+        "tva": 5.5,
+        "ht": 680.0,
+        "ttc": 717.4
+      },
+      {
+        "engine": "V2",
+        "bloc": "Couverture – Toiture – Zinguerie",
+        "lot": "Travaux principaux",
+        "description": "Vérification des alignements, niveaux et aplombs",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 85.0,
+        "tva": 5.5,
+        "ht": 680.0,
+        "ttc": 717.4
+      },
+      {
+        "engine": "V2",
+        "bloc": "Couverture – Toiture – Zinguerie",
+        "lot": "Travaux principaux",
+        "description": "Protection ponctuelle des ouvrages adjacents",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 85.0,
+        "tva": 5.5,
+        "ht": 680.0,
+        "ttc": 717.4
+      },
+      {
+        "engine": "V2",
+        "bloc": "Couverture – Toiture – Zinguerie",
+        "lot": "Travaux principaux",
+        "description": "Contrôle technique des assemblages et raccordements",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 85.0,
+        "tva": 5.5,
+        "ht": 680.0,
+        "ttc": 717.4
+      },
+      {
+        "engine": "V2",
+        "bloc": "Couverture – Toiture – Zinguerie",
+        "lot": "Travaux principaux",
+        "description": "Tests de résistance et de bon fonctionnement",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 85.0,
+        "tva": 5.5,
+        "ht": 680.0,
+        "ttc": 717.4
+      },
+      {
+        "engine": "V2",
+        "bloc": "Couverture – Toiture – Zinguerie",
+        "lot": "Travaux principaux",
+        "description": "Acheminement et tri des déchets d'intervention",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 85.0,
+        "tva": 5.5,
+        "ht": 680.0,
+        "ttc": 717.4
+      },
+      {
+        "engine": "V2",
+        "bloc": "Couverture – Toiture – Zinguerie",
+        "lot": "Travaux principaux",
+        "description": "Vérification de la conformité aux DTU en vigueur",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 85.0,
+        "tva": 5.5,
+        "ht": 680.0,
+        "ttc": 717.4
+      },
+      {
+        "engine": "V2",
+        "bloc": "Couverture – Toiture – Zinguerie",
+        "lot": "Travaux principaux",
+        "description": "Réglages finaux et paramétrages techniques",
+        "qte": 8.0,
+        "unit": "forfait",
+        "pu": 85.0,
+        "tva": 5.5,
+        "ht": 680.0,
+        "ttc": 717.4
+      },
+      {
+        "engine": "V2",
+        "bloc": "Finitions et nettoyage",
+        "lot": "Nettoyage",
+        "description": "Ponçage des bandes et enduits pour une surface lisse",
+        "qte": 8.0,
+        "unit": "m²",
+        "pu": 2.0,
+        "tva": 5.5,
+        "ht": 16.0,
+        "ttc": 16.88
+      },
+      {
+        "engine": "V2",
+        "bloc": "Finitions et nettoyage",
+        "lot": "Nettoyage",
+        "description": "Remise en place des prises, interrupteurs et plinthes",
+        "qte": 1.0,
+        "unit": "u",
+        "pu": 6.0,
+        "tva": 5.5,
+        "ht": 6.0,
+        "ttc": 6.33
+      },
+      {
+        "engine": "V2",
+        "bloc": "Finitions et nettoyage",
+        "lot": "Nettoyage",
+        "description": "Nettoyage complet de fin de chantier et évacuation des déchets",
+        "qte": 8.0,
+        "unit": "m²",
+        "pu": 2.5,
+        "tva": 5.5,
+        "ht": 20.0,
+        "ttc": 21.1
+      }
+    ]
+  },
+  "v3": {
+    "status_code": 503,
+    "duration_ms": 3912,
+    "montant_ttc": null,
+    "n_lines": 0,
+    "error": {
+      "detail": {
+        "message": "V3 display gate rejected the quote.",
+        "errors": [
+          "REQUIRED_ITEM_NOT_COVERED:ITEM-001",
+          "REQUIRED_ITEM_NOT_COVERED:ITEM-002"
+        ],
+        "allowed_repairs": [
+          "RESELECT_PACK"
+        ]
+      }
+    },
+    "response": null,
+    "lines": [],
+    "trade_blocks": null
+  }
+}

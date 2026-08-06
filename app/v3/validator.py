@@ -1,6 +1,8 @@
 """Independent V3.2 source-to-quote validator and repair instructions.
 
 V3.2 — shared-profile geometry, versioned price/VAT, stage 0B evidence.
+Correctifs ciblés à intégrer dans la V3.2 §8 — compare exacte snapshot source,
+actions RESELECT_COMPLETE_PACK / RECOMPUTE_BOUND_QUANTITY / RECOPY_SOURCE_SNAPSHOT.
 """
 
 from __future__ import annotations
@@ -279,19 +281,63 @@ def validate_source_to_quote(
                 issues,
                 seen_issues,
                 "LINE_ID_NOT_IN_LIBRARY",
-                RepairAction.REPLACE_OFFICIAL_LINE,
+                RepairAction.RECOPY_SOURCE_SNAPSHOT,
                 line_id=line_id,
             )
-        elif str(catalog_data.get("designation") or "") != str(
-            raw_line.get("designation") or ""
-        ):
-            _issue(
-                issues,
-                seen_issues,
-                "CATALOG_DESIGNATION_MODIFIED",
-                RepairAction.REPLACE_OFFICIAL_LINE,
-                line_id=line_id,
+        else:
+            # Correctifs ciblés à intégrer dans la V3.2 §8 — compare exacte source.
+            quote_hash = str(
+                raw_line.get("line_content_hash")
+                or raw_line.get("source_catalog_row_hash")
+                or ""
             )
+            catalog_hash = str(
+                catalog_data.get("content_hash")
+                or catalog_data.get("line_content_hash")
+                or ""
+            )
+            if quote_hash and catalog_hash and quote_hash != catalog_hash:
+                _issue(
+                    issues,
+                    seen_issues,
+                    "SOURCE_CATALOG_HASH_MISMATCH",
+                    RepairAction.RECOPY_SOURCE_SNAPSHOT,
+                    line_id=line_id,
+                )
+            if str(catalog_data.get("designation") or "") != str(
+                raw_line.get("designation") or ""
+            ):
+                _issue(
+                    issues,
+                    seen_issues,
+                    "CATALOG_DESIGNATION_MODIFIED",
+                    RepairAction.RECOPY_SOURCE_SNAPSHOT,
+                    line_id=line_id,
+                )
+            if int(catalog_data.get("unit_price_cents") or -1) >= 0 and int(
+                catalog_data.get("unit_price_cents") or -1
+            ) != int(raw_line.get("unit_price_cents") or -2):
+                _issue(
+                    issues,
+                    seen_issues,
+                    "SOURCE_PRICE_NOT_COPIED",
+                    RepairAction.RECOPY_SOURCE_SNAPSHOT,
+                    line_id=line_id,
+                )
+            if str(catalog_data.get("vat_rule_id") or "") and (
+                str(catalog_data.get("vat_rule_id")) != str(raw_line.get("vat_rule_id") or "")
+                or int(catalog_data.get("vat_rule_version") or 0)
+                != int(raw_line.get("vat_rule_version") or 0)
+                or float(catalog_data.get("vat_rate") or -1)
+                != float(raw_line.get("vat_rate") or -2)
+            ):
+                _issue(
+                    issues,
+                    seen_issues,
+                    "VAT_NOT_COPIED_FROM_PACK",
+                    RepairAction.RECOPY_SOURCE_SNAPSHOT,
+                    line_id=line_id,
+                )
         if _forbidden(str(raw_line.get("designation") or "")):
             _issue(
                 issues,

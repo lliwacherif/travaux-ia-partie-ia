@@ -1,0 +1,29 @@
+{
+  "prompt": "je dois réaliser 32 ml de tranchées entre la limite de propriété et le bâtiment pour l’eau, l’électricité et les télécommunications. Prévoir terrassement, lit de sable, fourreaux réglementaires, grillages avertisseurs, remblai compacté et deux regards.canalisation d’eaux usées PVC sur 18 ml",
+  "v2": {
+    "status": 200,
+    "ms": 1644,
+    "ttc": 7478.24,
+    "lines": 34,
+    "error": null
+  },
+  "v3": {
+    "status": 503,
+    "ms": 2695,
+    "ttc": null,
+    "generation_mode": null,
+    "trade": null,
+    "lines": 0,
+    "error": {
+      "detail": {
+        "message": "V3 display gate rejected the quote.",
+        "errors": [
+          "NO_PUBLISHED_V3_TRADE_CATALOG"
+        ],
+        "allowed_repairs": [
+          "IMPORT_AND_PUBLISH_OFFICIAL_LIBRARY"
+        ]
+      }
+    }
+  }
+}

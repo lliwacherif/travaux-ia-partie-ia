@@ -167,10 +167,93 @@ CUISINE_RENOVATION_DROITE = CuratedPackSpec(
 )
 
 
+# Official V2 TER-PACK-003 (20 lines) — tranchée technique + réseaux.
+TRANCHEE_TECHNIQUE_RESEAUX = CuratedPackSpec(
+    pack_code="V3-TER-TRANCHEE-RESEAUX",
+    title="Tranchée technique + pose réseaux (eau, électricité, télécom)",
+    trade_label="Terrassement – VRD – Assainissement",
+    setup=tuple(
+        pack_line("TER-PACK-003", code)
+        for code in ("TER-001", "TER-002", "TER-003")
+    ),
+    core=tuple(
+        pack_line("TER-PACK-003", f"TER-{number:03d}")
+        for number in range(4, 18)
+    ),
+    finish=tuple(
+        pack_line("TER-PACK-003", code)
+        for code in ("TER-018", "TER-019", "TER-020")
+    ),
+    exclusion_tags=("fondations", "dalle"),
+    required_coverage=(
+        "tranchée",
+        "terrassement",
+        "lit de sable",
+        "fourreaux",
+        "grillage avertisseur",
+        "remblai",
+        "réseaux",
+    ),
+)
+
+
+# Composed for prompts that need trench networks + EU PVC + regards.
+# Mix of official TER pack lines + BPU rows (same price library as bpu_items).
+TRANCHEE_RESEAUX_EU_REGARDS = CuratedPackSpec(
+    pack_code="V3-TER-TRANCHEE-EU-REGARDS",
+    title=(
+        "Tranchées multi-réseaux + canalisations EU PVC + regards"
+    ),
+    trade_label="Terrassement – VRD – Assainissement",
+    setup=(
+        pack_line("TER-PACK-003", "TER-001"),
+        pack_line("TER-PACK-003", "TER-002"),
+        pack_line("TER-PACK-003", "TER-003"),
+    ),
+    core=(
+        pack_line("TER-PACK-003", "TER-004"),
+        pack_line("TER-PACK-003", "TER-005"),
+        pack_line("TER-PACK-003", "TER-006"),
+        pack_line("TER-PACK-003", "TER-011"),
+        pack_line("TER-PACK-003", "TER-012"),
+        pack_line("TER-PACK-003", "TER-013"),
+        pack_line("TER-PACK-003", "TER-014"),
+        pack_line("TER-PACK-003", "TER-015"),
+        pack_line("TER-PACK-003", "TER-016"),
+        pack_line("TER-PACK-003", "TER-017"),
+        pack_line("TER-PACK-005", "TER-012"),  # PVC EU Ø125
+        pack_line("TER-PACK-005", "TER-015"),  # regard PVC
+        bpu("BIBLIO-02185"),  # regard béton 40x40
+        bpu("BIBLIO-02161"),  # canalisation PVC DN100
+    ),
+    finish=(
+        pack_line("TER-PACK-003", "TER-018"),
+        pack_line("TER-PACK-003", "TER-019"),
+        pack_line("TER-PACK-003", "TER-020"),
+    ),
+    exclusion_tags=("fondations", "dalle", "fosse_septique"),
+    required_coverage=(
+        "tranchée",
+        "terrassement",
+        "lit de sable",
+        "fourreaux",
+        "grillage avertisseur",
+        "remblai",
+        "regards",
+        "eaux usées",
+        "PVC",
+        "électricité",
+        "télécommunications",
+    ),
+)
+
+
 CURATED_PACKS = (
     METAL_STRUCTURE_COMPLETE,
     CHARPENTE_BOIS_EXTENSION,
     CUISINE_RENOVATION_DROITE,
+    TRANCHEE_TECHNIQUE_RESEAUX,
+    TRANCHEE_RESEAUX_EU_REGARDS,
 )
 
 # Captured from the 904-row V2 source catalog.  It is deliberately a compact
@@ -190,5 +273,7 @@ __all__ = [
     "CuratedPackSpec",
     "METAL_STRUCTURE_COMPLETE",
     "SourceLineRef",
+    "TRANCHEE_RESEAUX_EU_REGARDS",
+    "TRANCHEE_TECHNIQUE_RESEAUX",
     "V2_PACK_GEOMETRY_SUMMARY",
 ]

@@ -1,10 +1,10 @@
 """Single source of truth for the V3 quote engine.
 
 V3.2 — Consolidation corrective finale (2026-07-31.1).
-Mirrors TRAVAUX_IA_Specification_Generateur_Devis_IA_V3.2_FINALE_CORRIGEE:
-shared SETUP/FINISH profiles, library snapshots, territory scope, and
-immutable published versions. Runtime code, publication tooling, migrations,
-and tests must import these values instead of copying constants.
+Correctifs ciblés à intégrer dans la V3.2 — interventions, signatures pack,
+compatibilité bloquante, faits mesurés, packs immuables (pas d'hybride),
+TVA recopiée depuis le pack, validateur source exacte, entrée vocale.
+Ne remplace pas la V3.2 et n'ajoute aucune nouvelle couche IA.
 """
 
 from __future__ import annotations
@@ -14,8 +14,8 @@ from enum import StrEnum
 from types import MappingProxyType
 from typing import Final, Mapping
 
-# V3.2 — SSOT / pipeline identity (was 2026-07-30.3 / V3.1).
-SSOT_VERSION: Final = "2026-07-31.1"
+# V3.2 + Correctifs ciblés à intégrer dans la V3.2.
+SSOT_VERSION: Final = "2026-07-31.1-correctifs"
 PIPELINE_VERSION: Final = "V3.2"
 
 SEMANTIC_MODEL: Final = "gpt-4o-2024-11-20"
@@ -71,6 +71,7 @@ REMOVED_FLOWS: Final = ("INTERVENTION_1_5_1",)
 FORBIDDEN_GEOMETRIES: Final = ((1, 5, 1),)
 
 # V3.2 — explicit allowedUnits from SSOT (TONNE no longer authorized).
+# Correctifs ciblés à intégrer dans la V3.2 — aucune unité « mois ».
 AUTHORIZED_LIBRARY_UNITS: Final = (
     "M2",
     "ML",
@@ -81,10 +82,17 @@ AUTHORIZED_LIBRARY_UNITS: Final = (
     "FORFAIT",
 )
 ALLOWED_UNITS: Final = AUTHORIZED_LIBRARY_UNITS
+FORBIDDEN_UNITS: Final = ("MOIS", "MONTH", "MONTHS")
 
 
 @dataclass(frozen=True, slots=True)
 class SearchLimits:
+    """Correctifs ciblés à intégrer dans la V3.2 §3.
+
+    TopK values remain for scoring / batching evidence only.
+    They MUST NOT eliminate published packs of the locked trade.
+    """
+
     line_top_k_per_request_item: int = 20
     direct_pack_top_k: int = 40
     parent_pack_top_k: int = 20
@@ -92,6 +100,9 @@ class SearchLimits:
     coverage_top_k: int = 10
     rrf_k: int = 60
     one_vote_per_request_item_and_pack: bool = True
+    # Correctifs ciblés à intégrer dans la V3.2 — TopK non éliminatoire.
+    top_k_is_evidence_only: bool = True
+    compare_all_trade_packs: bool = True
 
 
 SEARCH: Final = SearchLimits()
@@ -160,6 +171,22 @@ IMMUTABLE_PUBLISHED_VERSIONS: Final = True
 AUTO_PUBLISH_OFFICIAL_LIBRARY: Final = False
 REQUIRE_HUMAN_APPROVAL: Final = True
 REQUIRE_FULL_REGRESSION: Final = True
+
+# Correctifs ciblés à intégrer dans la V3.2 — packs immuables, pas d'hybride.
+FORBID_HYBRID_PACK_REPAIR: Final = True
+# Correctifs ciblés à intégrer dans la V3.2 — TVA = copie exacte du pack.
+COPY_PACK_VAT_EXACTLY: Final = True
+FORBID_VAT_CONTEXT_SUBSTITUTION: Final = True
+# Correctifs ciblés à intégrer dans la V3.2 — signature obligatoire à la publication.
+REQUIRE_PACK_MATCH_SIGNATURE: Final = True
+
+
+class EligibilityStatus(StrEnum):
+    """Correctifs ciblés à intégrer dans la V3.2 §4 — contrôle à trois états."""
+
+    COMPATIBLE = "COMPATIBLE"
+    UNKNOWN = "UNKNOWN"
+    INCOMPATIBLE = "INCOMPATIBLE"
 
 
 class PipelineStage(StrEnum):

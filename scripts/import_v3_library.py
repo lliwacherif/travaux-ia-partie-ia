@@ -40,6 +40,7 @@ from app.v3.publication import (
     load_pack_snapshots,
     validate_publication,
 )
+from app.v3.signatures import compute_pack_match_signature
 from app.v3.ssot import EMBEDDING_MODEL, Flow
 from app.v3.trace import stable_hash
 
@@ -68,6 +69,8 @@ def _trade_code(label: str) -> str:
         "charpente bois ossature": "CHARPENTE_BOIS",
         "charpente bois": "CHARPENTE_BOIS",
         "cuisine": "CUISINE",
+        "terrassement vrd assainissement": "TERRASSEMENT_VRD",
+        "terrassement vrd": "TERRASSEMENT_VRD",
     }
     folded = _fold(label)
     if folded in explicit:
@@ -179,6 +182,13 @@ _CONCEPTS: tuple[tuple[tuple[str, ...], str, str], ...] = (
     (("silicone", "etancheite", "étanchéité"), "étanchéifier", "joints"),
     (("evier", "robinet", "robinetterie"), "fournir et poser", "sanitaires cuisine"),
     (("credence", "crédence"), "fournir et poser", "crédence"),
+    (("tranchee", "tranchée", "fouille"), "terrasser", "tranchée"),
+    (("fourreau",), "fournir et poser", "fourreaux"),
+    (("grillage avertisseur", "avertisseur"), "fournir et poser", "grillage avertisseur"),
+    (("lit de sable", "lit de pose"), "fournir et poser", "lit de sable"),
+    (("remblai", "remblay"), "remblayer", "remblai compacté"),
+    (("regard",), "fournir et poser", "regards"),
+    (("eaux usees", "assainissement", "eu "), "fournir et poser", "canalisation eaux usées"),
 )
 
 
@@ -207,6 +217,8 @@ def _semantic_metadata(
         material = "bois"
     elif trade_code == "CUISINE":
         material = "agencement"
+    elif trade_code == "TERRASSEMENT_VRD":
+        material = "vrd"
     else:
         material = "standard"
     capabilities = {
@@ -393,10 +405,17 @@ def _import_curated_pack(
     trade.published_at = now if publish else None
     session.flush()
 
-    pack = session.get(QuotePack, pack_id)
+    pack = session.execute(
+        select(QuotePack).where(
+            QuotePack.pack_code == spec.pack_code,
+            QuotePack.version == 1,
+        )
+    ).scalar_one_or_none()
     if pack is None:
         pack = QuotePack(pack_id=pack_id)
         session.add(pack)
+    else:
+        pack_id = pack.pack_id
     pack.pack_code = spec.pack_code
     pack.flow = Flow.TRAVAUX.value
     pack.trade_code = trade_code
@@ -543,6 +562,36 @@ def _import_curated_pack(
     trade.fallback_pack_id = pack_id
     # V3.2 — versioned fallback identity.
     trade.fallback_pack_version = 1
+    session.flush()
+
+    # Correctifs ciblés à intégrer dans la V3.2 §2 — signature before PUBLISHED.
+    line_rows = session.execute(
+        select(QuotePackLine).where(QuotePackLine.pack_id == pack_id)
+    ).scalars().all()
+    pack.pack_match_signature = compute_pack_match_signature(
+        {
+            "pack_code": pack.pack_code,
+            "version": pack.version,
+            "flow": pack.flow,
+            "trade_code": pack.trade_code,
+            "service_code": pack.service_code,
+            "required_coverage": pack.required_coverage or [],
+            "exclusion_tags": pack.exclusion_tags or [],
+            "lines": [
+                {
+                    "phase": row.phase,
+                    "slot_index": row.slot_index,
+                    "normalized_action": row.normalized_action,
+                    "object_family": row.object_family,
+                    "material_family": row.material_family,
+                    "unit": row.unit,
+                    "capability_tags": row.capability_tags or [],
+                    "exclusion_tags": row.exclusion_tags or [],
+                }
+                for row in line_rows
+            ],
+        }
+    )
     session.flush()
     return pack_id
 

@@ -1,0 +1,37 @@
+﻿python : Traceback (most recent call last):
+Au caractère C:\Users\ADMIN\AppData\Local\Temp\ps-script-6ed636b7-4649-4c9c-912c-ef3f92577c7c.ps1:142 : 52
++ ... ncoding utf8 _run_v3_engine.py; python _run_v3_engine.py 2>&1 | Out-F ...
++                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "C:\Users\ADMIN\Desktop\travaux-ia\_run_v3_engine.py", line 43, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "C:\Python314\Lib\asyncio\runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Python314\Lib\asyncio\runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Python314\Lib\asyncio\base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "C:\Users\ADMIN\Desktop\travaux-ia\_run_v3_engine.py", line 21, in main
+    project=ProjectContext(country="FR", territory_code="FR-MET"),
+            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\site-packages\pydantic\main.py", line 263, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 4 validation errors for ProjectContext
+customer_type
+  Field required [type=missing, input_value={'country': 'FR', 'territory_code': 'FR-MET'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+building_use
+  Field required [type=missing, input_value={'country': 'FR', 'territory_code': 'FR-MET'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+building_age_years
+  Field required [type=missing, input_value={'country': 'FR', 'territory_code': 'FR-MET'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+location
+  Field required [type=missing, input_value={'country': 'FR', 'territory_code': 'FR-MET'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing

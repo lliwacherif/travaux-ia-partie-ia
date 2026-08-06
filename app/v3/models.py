@@ -424,6 +424,10 @@ class QuotePack(Base):
     fallback_rank: Mapped[int | None] = mapped_column(Integer, nullable=True)
     content_hash: Mapped[str] = mapped_column(String(80), nullable=False)
     source_hash: Mapped[str] = mapped_column(String(80), nullable=False)
+    # Correctifs ciblés à intégrer dans la V3.2 §2 — signature obligatoire publication.
+    pack_match_signature: Mapped[str | None] = mapped_column(
+        String(200), nullable=True
+    )
     approved_by: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), nullable=True
     )
@@ -741,6 +745,12 @@ class QuotePackLine(Base):
     )
     unit: Mapped[str] = mapped_column(String(20), nullable=False)
     quantity_rule: Mapped[str] = mapped_column(String(150), nullable=False)
+    # Correctifs ciblés à intégrer dans la V3.2 §5 — binding quantité officielle.
+    quantity_rule_id: Mapped[str | None] = mapped_column(String(150), nullable=True)
+    quantity_binding_scope: Mapped[str | None] = mapped_column(
+        String(40), nullable=True
+    )
+    share_group_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
     linear_measurement_mode: Mapped[str | None] = mapped_column(
         String(40), nullable=True
     )
@@ -774,6 +784,10 @@ class QuotePackLine(Base):
         String(20), nullable=False, default="DRAFT"
     )
     content_hash: Mapped[str] = mapped_column(String(80), nullable=False)
+    # Correctifs ciblés à intégrer dans la V3.2 §8.
+    source_catalog_row_hash: Mapped[str | None] = mapped_column(
+        String(80), nullable=True
+    )
     published_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
@@ -848,7 +862,8 @@ class QuoteExecution(Base):
         ),
         CheckConstraint(
             "generation_mode IS NULL OR generation_mode IN "
-            "('EXACT_PACK', 'REPAIRED_PACK', 'OFFICIAL_FALLBACK')",
+            "('EXACT_PACK', 'RESELECTED_PUBLISHED_PACK', "
+            "'OFFICIAL_FALLBACK', 'REPAIRED_PACK')",
             name="quote_executions_generation_mode",
         ),
         CheckConstraint(

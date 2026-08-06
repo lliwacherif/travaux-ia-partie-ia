@@ -96,6 +96,12 @@ class CatalogPack:
     shared_profile_code: str | None
     shared_profile_version: int | None
     lines: tuple[CatalogLine, ...]
+    # Correctifs ciblés à intégrer dans la V3.2 §2.
+    pack_match_signature: str | None = None
+    exclusion_tags: tuple[str, ...] = ()
+    required_coverage: tuple[str, ...] = ()
+    active: bool = True
+    status: str = "PUBLISHED"
 
 
 def _item_query(item: DemandItem) -> str:
@@ -463,7 +469,7 @@ class CatalogRepository:
 
         setup = tuple(line for line in profile_lines if line.phase == "SETUP")
         finish = tuple(line for line in profile_lines if line.phase == "FINISH")
-        return CatalogPack(
+        catalog = CatalogPack(
             pack_id=str(pack.pack_id),
             pack_code=pack.pack_code,
             version=pack.version,
@@ -477,7 +483,43 @@ class CatalogRepository:
             shared_profile_code=shared_profile_code,
             shared_profile_version=shared_profile_version,
             lines=(*setup, *core_lines, *finish),
+            pack_match_signature=getattr(pack, "pack_match_signature", None),
+            exclusion_tags=tuple(getattr(pack, "exclusion_tags", None) or ()),
+            required_coverage=tuple(getattr(pack, "required_coverage", None) or ()),
+            active=True,
+            status=str(getattr(pack, "status", "PUBLISHED") or "PUBLISHED"),
         )
+        if not catalog.pack_match_signature:
+            from app.v3.signatures import compute_pack_match_signature
+
+            # Correctifs ciblés à intégrer dans la V3.2 — signature dérivée si absente.
+            catalog = CatalogPack(
+                **{
+                    **catalog.__dict__,
+                    "pack_match_signature": compute_pack_match_signature(catalog),
+                }
+            )
+        return catalog
+
+    async def load_all_trade_pack_ids(
+        self,
+        arbitration: TradeArbitration,
+    ) -> list[str]:
+        """Correctifs ciblés à intégrer dans la V3.2 §3 — tous les packs du métier."""
+
+        rows = (
+            await self.session.execute(
+                select(QuotePack.pack_id)
+                .where(
+                    QuotePack.status == "PUBLISHED",
+                    QuotePack.library_version == self.library_version,
+                    QuotePack.flow == arbitration.flow.value,
+                    QuotePack.trade_code == arbitration.primary_trade_code,
+                )
+                .order_by(QuotePack.pack_code.asc(), QuotePack.version.desc())
+            )
+        ).scalars().all()
+        return [str(pack_id) for pack_id in rows]
 
     async def load_fallback(self, arbitration: TradeArbitration) -> CatalogPack | None:
         trade = await self.session.get(TradeCatalog, arbitration.primary_trade_code)
@@ -990,10 +1032,15 @@ def union_candidates(
         merged[candidate.pack_id] = combined.model_copy(
             update={"final_score": compute_final_score(combined)}
         )
-    return sorted(
+    ranked = sorted(
         merged.values(),
         key=lambda candidate: (-candidate.final_score, candidate.pack_id),
-    )[: SEARCH.parent_pack_top_k]
+    )
+    # Correctifs ciblés à intégrer dans la V3.2 §3 —
+    # TopK is evidence/ranking only; do not eliminate trade packs here.
+    if SEARCH.compare_all_trade_packs or SEARCH.top_k_is_evidence_only:
+        return ranked
+    return ranked[: SEARCH.parent_pack_top_k]
 
 
 __all__ = [
