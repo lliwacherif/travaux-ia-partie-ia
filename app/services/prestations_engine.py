@@ -1284,6 +1284,51 @@ def process_ai_lots(
     if not lots:
         return []
 
+    # --- ARBITRAGE METIER (SUBSUMPTION) ---
+    SUBSUMPTION_RULES = {
+        "Chauffage ENR - PAC - Solaire thermique": ["Chauffage - Chaudières - Radiateurs - Réseaux"],
+        "Revêtements de sols": ["Démolition - Curage - Dépose"]
+    }
+    
+    present_metiers = {lot.get("metier", "") for lot in lots}
+    metiers_to_drop = set()
+    for dominant, subsumed_list in SUBSUMPTION_RULES.items():
+        if dominant in present_metiers:
+            for subsumed in subsumed_list:
+                if subsumed in present_metiers:
+                    metiers_to_drop.add(subsumed)
+                    
+    if metiers_to_drop:
+        lots = [lot for lot in lots if lot.get("metier", "") not in metiers_to_drop]
+        if not lots:
+            return []
+            
+    # --- PURE DEMOLITION OVERRIDE ---
+    import re
+    text_lower = user_text.lower()
+    
+    demo_pattern = r'\b(dépose|déposer|démolir|démolition|curage|évacuer|évacuation)\b'
+    pose_pattern = r'\b(pose|poser|installer|créer|monter|fournir|aménagement|aménager|peindre|refaire)\b'
+    
+    has_demo = bool(re.search(demo_pattern, text_lower))
+    has_pose = bool(re.search(pose_pattern, text_lower))
+    
+    if has_demo and not has_pose:
+        for lot in lots:
+            lot["metier"] = "Démolition - Curage - Dépose"
+        if len(lots) > 1:
+            merged_lot = lots[0]
+            for other_lot in lots[1:]:
+                merged_lot.setdefault("packs", []).extend(other_lot.get("packs", []))
+            lots = [merged_lot]
+            
+    # --- VITRERIE OVERRIDE ---
+    if "vitre" in text_lower or "vitrage" in text_lower or "bris de glace" in text_lower:
+        for lot in lots:
+            current_metier = lot.get("metier", "")
+            if "Couverture" in current_metier or "Vitrerie" in current_metier:
+                lot["metier"] = "Menuiserie extérieure"
+
     # Per-lot depannage detection. Intervention sizing is decided lot by lot
     # (a mixed DEPANNAGE + PRESTATION request no longer crushes prestation
     # lots down to 3 lines); the global prep/finish blocks use the compact

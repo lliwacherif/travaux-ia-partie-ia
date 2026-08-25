@@ -565,6 +565,18 @@ GUIDE DE RECOMMANDATION :
 - Pour plus de 3 utilisateurs, un volume sur mesure ou des besoins spécifiques : Entreprise.
 """
 
+SYSTEM_PROMPT_METIER_FALLBACK = """\
+Tu es un classificateur de secours pour le BTP.
+L'utilisateur a fait une demande qui semble abstraite ou non-BTP, mais qui pourrait être une intervention d'urgence ou un service spécifique.
+Ton rôle est de trouver si cette demande peut correspondre à l'un de ces métiers BTP.
+LISTE DES MÉTIERS AUTORISÉS :
+{metiers_list}
+RÉPONSE ATTENDUE :
+Retourne UNIQUEMENT un objet JSON avec la clé "metier".
+Si la demande correspond à un des métiers, retourne le nom exact du métier tel qu'il est écrit dans la liste.
+Sinon, retourne null.
+"""
+
 
 def build_chatbot_system_prompt(ux_modules: set[str] | None = None) -> str:
     """Assemble the chatbot system prompt, injecting only relevant UX context.

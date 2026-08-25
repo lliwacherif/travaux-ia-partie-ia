@@ -41,6 +41,7 @@ from app.core.prompts import (
     LANDING_CHATBOT_SYSTEM_PROMPT,
     MOBILE_CHATBOT_SYSTEM_PROMPT,
     SYSTEM_PROMPT_GENERATOR,
+    SYSTEM_PROMPT_METIER_FALLBACK,
     build_chatbot_system_prompt,
 )
 from app.core.chat_intent import classify_chat_intent
@@ -372,7 +373,10 @@ _RENOVATION_OVERRIDE_KEYWORDS: Final[tuple[str, ...]] = (
     "renovation", "renover", "renovation complete", "refection",
     "extension", "agrandissement", "surelevation", "construction",
     "construire", "creer", "creation", "amenagement", "amenager",
-    "installation complete", "isolation", "ravalement", "elevation",
+    "installation complete",
+    "remise en etat",
+    "remise en état",
+    "isolation", "ravalement", "elevation",
     "maconnerie", "charpente", "carrelage", "peinture des", "peindre",
     "cloison", "faux plafond", "terrassement", "chape", "dalle beton",
 )
@@ -515,10 +519,10 @@ _SEMANTIC_CACHE_MAX: Final[int] = 512
 _semantic_cache: "OrderedDict[str, dict[str, Any]]" = OrderedDict()
 
 
-def _semantic_cache_key(user_text: str) -> str:
+def _semantic_cache_key(user_text: str, flow_type: str = "travaux") -> str:
     """Case-, accent- and whitespace-insensitive identity of a request."""
     norm = _normalise_for_match(user_text)
-    return re.sub(r"\s+", " ", norm).strip()
+    return f"{flow_type}::" + re.sub(r"\s+", " ", norm).strip()
 
 
 def _semantic_cache_get(key: str) -> dict[str, Any] | None:
@@ -1526,8 +1530,11 @@ class AIService:
         # insensitive) reuses the cached semantic payload instead of
         # re-sampling the LLM, so the same prompt always yields the same
         # devis regardless of client, account or machine.
-        cache_key = _semantic_cache_key(user_text)
+        determined_flow = "depannage" if _is_depannage_request(user_text) else "travaux"
+        cache_key = _semantic_cache_key(user_text, flow_type=determined_flow)
         cached_payload = _semantic_cache_get(cache_key)
+        
+        fallback_used = False
         if cached_payload is not None:
             logger.info("Stage-2 semantic cache hit — deterministic replay.")
             parsed = cached_payload
@@ -1570,8 +1577,81 @@ class AIService:
                 continue
 
             if parsed.get("is_btp") is False:
+                if not fallback_used:
+                    fallback_used = True
+                    logger.info("is_btp is False, triggering metier fallback.")
+                    
+                    # Extract unique metiers to show to the LLM
+                    metiers_set = set()
+                    for p in pack_list:
+                        cm = p.get("corps_metier")
+                        if cm:
+                            metiers_set.add(cm)
+                        sm = p.get("sous_metier_depannage")
+                        if sm:
+                            metiers_set.add(f"{sm} (Dépannage)")
+                            
+                    metiers_list = "\n".join(f"- {m}" for m in sorted(metiers_set))
+                    fallback_prompt = SYSTEM_PROMPT_METIER_FALLBACK.replace("{metiers_list}", metiers_list)
+                    
+                    try:
+                        fallback_raw = await self._chat(
+                            fallback_prompt,
+                            user_text,
+                            response_format={
+                                "type": "json_schema",
+                                "json_schema": {
+                                    "name": "fallback_metier",
+                                    "strict": True,
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "metier": {
+                                                "type": ["string", "null"],
+                                                "description": "Le nom exact du métier s'il y a correspondance, sinon null."
+                                            }
+                                        },
+                                        "required": ["metier"],
+                                        "additionalProperties": False,
+                                    },
+                                },
+                            },
+                        )
+                        fallback_parsed = clean_and_parse_json(fallback_raw)
+                        found_metier = fallback_parsed.get("metier")
+                        
+                        if found_metier:
+                            logger.info("Fallback found metier: %s", found_metier)
+                            # Filter packs to only include this metier
+                            filtered_packs = []
+                            for p in pack_list:
+                                if p.get("corps_metier") == found_metier or f"{p.get('sous_metier_depannage')} (Dépannage)" == found_metier:
+                                    filtered_packs.append(p)
+                                    
+                            if filtered_packs:
+                                cat_lines = [f"CATALOGUE RESTREINT POUR LE METIER: {found_metier}"]
+                                for p in filtered_packs:
+                                    cat_lines.append(f"[{p['code_pack']}] {p['nom_pack']}")
+                                catalog_str = "\n".join(cat_lines)
+                                
+                                prompt = SYSTEM_PROMPT_GENERATOR.replace("{catalog}", catalog_str)
+                                user_message = (
+                                    f"{user_text}\n\n"
+                                    f"NOTE SYSTEME : Cette demande a été confirmée comme relevant du métier '{found_metier}'. "
+                                    "Tu dois considérer is_btp=true et utiliser le catalogue restreint ci-dessus pour générer le devis."
+                                )
+                                # Retry the main generator with this new constraint!
+                                continue
+                            else:
+                                logger.info("Fallback found metier %s but no packs matched.", found_metier)
+                        else:
+                            logger.info("Fallback did not find any matching metier.")
+                            
+                    except Exception as e:
+                        logger.warning("Fallback failed: %s", e)
+                        
                 raise InvalidBuildingRequestError(
-                    "La demande ne concerne pas des travaux de bâtiment."
+                    "La demande ne concerne pas des travaux de btiment."
                 )
 
             lots = _sanitize_ai_lots(parsed.get("lots", []))
@@ -1616,6 +1696,13 @@ class AIService:
         project_nature = parsed.get("project_nature", "renovation")
 
         surface_m2 = extract_surface_m2(user_text)
+        
+        # Force the correct pack types according to the deterministic flow.
+        # This overrides the AI's tendency to return "DEPANNAGE" even for Travaux.
+        if not _is_depannage_request(user_text):
+            for lot in lots:
+                for p in lot.get("packs", []):
+                    p["type"] = "PRESTATION"
 
         # Last-resort fallback: always emit a devis instead of returning empty.
         if not lots:
@@ -1632,6 +1719,9 @@ class AIService:
                     "source_qte": "fallback",
                 }],
             }]
+            
+        import sys, json
+        print(f"RAW AI PAYLOAD: {json.dumps(parsed, ensure_ascii=False)}", file=sys.stderr)
 
         four_blocks = process_ai_lots(
             lots, 
