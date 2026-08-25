@@ -1706,11 +1706,11 @@ class AIService:
         surface_m2 = extract_surface_m2(user_text)
         
         # Force the correct pack types according to the deterministic flow.
-        # This overrides the AI's tendency to return "DEPANNAGE" even for Travaux.
-        if not _is_depannage_request(user_text):
-            for lot in lots:
-                for p in lot.get("packs", []):
-                    p["type"] = "PRESTATION"
+        # This overrides the AI's tendency to mix PRESTATION and DEPANNAGE types.
+        is_dep_flow = _is_depannage_request(user_text)
+        for lot in lots:
+            for p in lot.get("packs", []):
+                p["type"] = "DEPANNAGE" if is_dep_flow else "PRESTATION"
 
         # Last-resort fallback: always emit a devis instead of returning empty.
         if not lots:
