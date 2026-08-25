@@ -310,9 +310,12 @@ _DEPANNAGE_METIER_LABEL: Final[str] = "Dépannage & Interventions rapides"
 # Keywords that flag the request as a quick repair / breakdown intervention.
 _DEPANNAGE_TRIGGER_KEYWORDS: Final[tuple[str, ...]] = (
     "depannage", "depanage", "urgence", "urgent", "panne", "en panne",
-    "fuite", "qui fuit", "debouchage", "bouche", "bouchee", "engorge",
+    "fuite", "qui fuit", "fuit", "debouchage", "bouche", "bouchee", "engorge",
     "reparer", "reparation", "casse", "cassee", "bloque", "bloquee",
     "ne fonctionne", "ne marche", "hs", "en rade", "coince", "coincee",
+    "saute", "defaut", "claquee", "defectueux", "defectueuse", 
+    "bruit inhabituel", "sav", "reserve", "reserves", "diagnostic",
+    "remplacement", "reprises",
 )
 
 # Maps the exact ``sous_metier_depannage`` DB values to trigger keywords.
@@ -391,6 +394,11 @@ def _is_depannage_request(user_text: str) -> bool:
     full catalog, where every DEP-* pack is still listed anyway.
     """
     norm = _normalise_for_match(user_text)
+
+    # BOUCLIER SAV ABSOLU : Si le mot SAV ou rserves est prononc, on force le 1-3-1
+    if "sav" in norm or "reserve" in norm or "reserves" in norm:
+        return True
+
     if not any(kw in norm for kw in _DEPANNAGE_TRIGGER_KEYWORDS):
         return False
     if any(kw in norm for kw in _RENOVATION_OVERRIDE_KEYWORDS):
