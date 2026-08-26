@@ -1308,7 +1308,7 @@ def process_ai_lots(
     text_lower = user_text.lower()
     
     demo_pattern = r'\b(dépose|déposer|démolir|démolition|curage|évacuer|évacuation)\b'
-    pose_pattern = r'\b(pose|poser|installer|créer|monter|fournir|aménagement|aménager|peindre|refaire)\b'
+    pose_pattern = r'\b(pose|poser|installer|créer|monter|fournir|aménagement|aménager|peindre|refaire|remplacer|remplacement|réparer|réparation|dépannage|dépanner|diagnostic|recharge|nettoyage)\b'
     
     has_demo = bool(re.search(demo_pattern, text_lower))
     has_pose = bool(re.search(pose_pattern, text_lower))
@@ -1558,9 +1558,31 @@ def process_ai_lots(
             metier,
             total_neutral=(len(lot_intervention_lines) == 1),
         )
-        
+        _DEPANNAGE_TITLE_MAP = {
+            "domotique": "Dépannage Domotique – Réseaux",
+            "climatisation": "Dépannage Climatisation – VMC",
+            "plomberie": "Dépannage Plomberie",
+            "électricité": "Dépannage Électricité",
+            "electricite": "Dépannage Électricité",
+            "chauffage": "Dépannage Chauffage / Chaudière / PAC",
+            "serrurerie": "Dépannage Serrurerie",
+            "vitrerie": "Dépannage Vitrerie",
+            "toiture": "Dépannage Toiture (urgence / bâchage)",
+            "couverture": "Dépannage Toiture (urgence / bâchage)",
+            "assainissement": "Dépannage Canalisation / Débouchage",
+            "canalisation": "Dépannage Canalisation / Débouchage"
+        }
+
+        block_title = _normalize_trade_title(metier)
+        if is_dep_lot:
+            metier_lower = metier.lower()
+            for key, val in _DEPANNAGE_TITLE_MAP.items():
+                if key in metier_lower:
+                    block_title = val
+                    break
+
         intervention_blocks.append({
-            "title": _normalize_trade_title(metier),
+            "title": block_title,
             "lines": lot_intervention_lines
         })
         
