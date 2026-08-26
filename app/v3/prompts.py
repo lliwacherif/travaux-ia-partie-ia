@@ -25,6 +25,7 @@ Règles :
 - Cite seulement des preuves présentes mot pour mot dans le descriptif.
 - Un métier ou service absent reste null.
 - Ne complète jamais une information manquante par expertise.
+- Une "fuite", un problème de "siphon" ou "d'eau" relève TOUJOURS de la plomberie (Dépannage Plomberie), jamais de la Démolition ou de l'agencement de cuisine.
 - Respecte strictement le schéma JSON fourni.
 """.strip()
 

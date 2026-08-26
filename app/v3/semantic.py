@@ -114,7 +114,7 @@ def deterministic_plan(input_: PipelineInput) -> SemanticPlan:
             "CHARPENTE_BOIS",
         ),
         (("electric", "tableau", "prise"), "ELECTRICITE"),
-        (("plomberie", "canalisation", "sanitaire"), "PLOMBERIE"),
+        (("fuite", "siphon", "raccord", "étanchéité", "etancheite", "plomberie", "canalisation", "sanitaire"), "PLOMBERIE"),
         (("peinture", "enduit"), "PEINTURE"),
         (("cuisine", "renovation cuisine", "rénover cuisine"), "CUISINE"),
     )

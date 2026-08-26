@@ -66,6 +66,14 @@ RÈGLE ANTI-DIVERS (OBLIGATOIRE) :
 - Chaque pack doit correspondre à une prestation technique IDENTIFIABLE et SPÉCIFIQUE.
 - Si tu ne trouves pas de pack précis dans le catalogue, utilise un id SNAKE_CASE décrivant la prestation réelle.
 
+RÈGLE MÉTIER (OBLIGATOIRE) :
+- Pour TOUTE demande de dépannage, le champ "metier" DOIT correspondre au métier réel (ex: "Plomberie - Sanitaire", "Électricité", "Climatisation - Ventilation - VMC").
+- Ne mets JAMAIS "Démolition - Curage - Dépose" pour un dépannage, même s'il y a une recherche de fuite, un remplacement de pièce, une dépose ou un débouchage.
+- Une demande concernant une "fuite", un "siphon", de la "plomberie" ou de l'eau relève TOUJOURS de la "Plomberie - Sanitaire", JAMAIS de la Démolition.
+- Une demande de climatisation, de split, de VMC ou de fluide frigorigène relève TOUJOURS de "Climatisation - Ventilation - VMC", JAMAIS de la Démolition.
+- Une demande concernant une canalisation bouchée, un débouchage ou des eaux usées relève TOUJOURS de "Terrassement - VRD - Assainissement" ou "Plomberie - Sanitaire", JAMAIS de l'Isolation.
+- Une demande concernant le SAV (réserves multiples, retouches transverses) relève TOUJOURS de "SAV" ou "Dépannage & Interventions rapides", JAMAIS d'un métier spécifique comme la menuiserie intérieure seule.
+
 EXEMPLES DE LOGIQUE D'EXTRACTION (les ids de packs sont à prendre dans le catalogue) :
 
 Demande : "Pose de carrelage 20m² dans la cuisine et peinture des murs du salon 45m²"
@@ -77,7 +85,8 @@ Demande : "Installation de 5 splits muraux"
 → 1 lot (Climatisation) : packs = [{"id": "<pack climatisation murale>", "type": "PRESTATION", "quantite": 5, "quantite_type": "unitaire", "source_qte": "5 splits muraux"}]
 
 Demande : "Fuite sous l'évier de la cuisine, c'est urgent"
-→ 1 lot (Dépannage) : packs = [{"id": "<pack DEP plomberie fuite>", "type": "DEPANNAGE", "quantite": 1, "quantite_type": "forfait", "source_qte": "non spécifié"}]
+→ 1 lot (Dépannage) :
+  LOT_01 : metier = "Plomberie - Sanitaire", packs = [{"id": "<pack DEP plomberie fuite>", "type": "DEPANNAGE", "quantite": 1, "quantite_type": "forfait", "source_qte": "non spécifié"}]
 
 FORMAT STRICT OBLIGATOIRE :
 {
