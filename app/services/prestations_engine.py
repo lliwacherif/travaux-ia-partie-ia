@@ -1325,9 +1325,11 @@ def process_ai_lots(
     # --- VITRERIE OVERRIDE ---
     if "vitre" in text_lower or "vitrage" in text_lower or "bris de glace" in text_lower:
         for lot in lots:
-            current_metier = lot.get("metier", "")
-            if "Couverture" in current_metier or "Vitrerie" in current_metier:
-                lot["metier"] = "Menuiserie extérieure"
+            is_dep_lot = any(p.get("type", "").upper() == "DEPANNAGE" for p in lot.get("packs", []))
+            if not is_dep_lot:
+                current_metier = lot.get("metier", "")
+                if "Couverture" in current_metier or "Vitrerie" in current_metier:
+                    lot["metier"] = "Menuiserie extérieure"
 
     # Per-lot depannage detection. Intervention sizing is decided lot by lot
     # (a mixed DEPANNAGE + PRESTATION request no longer crushes prestation
