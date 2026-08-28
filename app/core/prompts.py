@@ -73,6 +73,7 @@ RÈGLE MÉTIER (OBLIGATOIRE) :
 - Une demande de climatisation, de split, de VMC ou de fluide frigorigène relève TOUJOURS de "Climatisation - Ventilation - VMC", JAMAIS de la Démolition.
 - Une demande concernant une canalisation bouchée, un débouchage ou des eaux usées relève TOUJOURS de "Terrassement - VRD - Assainissement" ou "Plomberie - Sanitaire", JAMAIS de l'Isolation.
 - Une demande concernant le SAV (réserves multiples, retouches transverses) relève TOUJOURS de "SAV" ou "Dépannage & Interventions rapides", JAMAIS d'un métier spécifique comme la menuiserie intérieure seule.
+- Un réglage de porte ou un problème de frottement/paumelle en dépannage/SAV relève TOUJOURS du métier "Serrurerie" (Dépannage Serrurerie), JAMAIS de la "Menuiserie intérieure".
 
 EXEMPLES DE LOGIQUE D'EXTRACTION (les ids de packs sont à prendre dans le catalogue) :
 

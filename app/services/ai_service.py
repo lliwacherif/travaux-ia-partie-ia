@@ -337,7 +337,7 @@ _DEPANNAGE_SOUS_METIER_KEYWORDS: Final[dict[str, tuple[str, ...]]] = {
     ),
     "Serrurerie": (
         "serrure", "porte", "cle", "clef", "verrou", "cylindre", "ouverture",
-        "claquee", "gache", "barillet", "cadenas",
+        "claquee", "gache", "barillet", "cadenas", "frotte", "frottement", "paumelle", "reglage porte", "porte interieure",
     ),
     "Vitrerie": (
         "vitre", "carreau", "fenetre", "vitrage", "verre", "double vitrage",
